@@ -23,7 +23,7 @@
     "db:upgrade": "yarn typeorm migration:run",
     "db:downgrade": "yarn typeorm migration:revert",
     "db:drop": "npm run typeorm schema:drop",
-    "prepare": "husky install",
+    "prepare": "if [ \"$NODE_ENV\" != \"production\" ]; then husky install; fi",
     "deploy": "npm ci && npm run build && npm run start:prod"
   },
   "dependencies": {
