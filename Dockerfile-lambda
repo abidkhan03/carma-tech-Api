@@ -10,6 +10,6 @@ COPY . .
 RUN npm run build
 
 # Install zip and create a zip file of the dist directory
-RUN yum install -y zip && cd dist && zip ../dist.zip -r * .[^.]*
+# RUN yum install -y zip && cd dist && zip ../dist.zip -r * .[^.]*
 
 CMD ["dist/lambda.handler"]
