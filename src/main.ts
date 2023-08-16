@@ -15,7 +15,7 @@ import { TrimStringsPipe } from '@app/modules/common/transformer/trim-strings.pi
 
 declare const module: any;
 
-const APP_PORT = 3000;
+const APP_PORT = process.env.PORT || 3000;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
