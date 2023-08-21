@@ -1,5 +1,16 @@
-# FROM node:lts-alpine
-FROM 395929101814.dkr.ecr.us-east-2.amazonaws.com/nestjs-application:latest
+# FROM 395929101814.dkr.ecr.us-east-2.amazonaws.com/nestjs-application:latest
+
+# # Run app in container
+# EXPOSE 3000
+
+# COPY . .
+
+# # install node modules
+# RUN yarn && yarn build
+
+# CMD ["yarn", "start:prod"]
+
+FROM node:lts-alpine
 
 WORKDIR /app
 
