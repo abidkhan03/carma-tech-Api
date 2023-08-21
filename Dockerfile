@@ -1,5 +1,5 @@
-FROM node:lts-alpine
-# RUN npm install -g yarn
+# FROM node:lts-alpine
+FROM 395929101814.dkr.ecr.us-east-2.amazonaws.com/nestjs-application:latest
 
 WORKDIR /app
 
