@@ -38,6 +38,13 @@ export class User {
     length: 255,
     transformer: new PasswordTransformer(),
   })
+
+  @Column({ length: 16, nullable: true })
+  phone?: string;
+  
+  @Column({ length: 255, nullable: true })
+  external_identity_id?: string;
+  
   @Exclude()
   password: string;
 }
