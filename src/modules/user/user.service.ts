@@ -26,13 +26,47 @@ export class UsersService {
       .getOne();
   }
 
-  async create(signupDto: SignupDto) {
-    const user = await this.getByEmail(signupDto.email);
+  async getByPhone(phone: string) {
+    return await this.userRepository
+      .createQueryBuilder('users')
+      .where('users.phone = :phone')
+      .setParameter('phone', phone)
+      .getOne();
+}
 
-    if (user) {
+  async create(signupDto: SignupDto) {
+    const userByEmail = await this.getByEmail(signupDto.email);
+
+    if (userByEmail) {
       throw new NotAcceptableException(
         'User with provided email already exists.',
       );
+    }
+
+    // Check if phone number already exists
+    if (signupDto.phone) {
+      const userByPhone = await this.getByPhone(signupDto.phone);
+
+      if (userByPhone) {
+        throw new NotAcceptableException(
+          'User with provided phone number already exists.',
+        );
+      }
+    }
+
+    // Check if external identity id already exists
+    if (signupDto.external_identity_id) {
+      const userByExternalIdentityId = await this.userRepository
+        .createQueryBuilder('users')
+        .where('users.external_identity_id = :external_identity_id')
+        .setParameter('external_identity_id', signupDto.external_identity_id)
+        .getOne();
+
+      if (userByExternalIdentityId) {
+        throw new NotAcceptableException(
+          'User with provided external identity id already exists.',
+        );
+      }
     }
 
     return await this.userRepository.save(
