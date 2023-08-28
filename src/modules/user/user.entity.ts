@@ -40,4 +40,10 @@ export class User {
   })
   @Exclude()
   password: string;
+
+  @Column({ length: 255, nullable: true })
+  phone?: string;
+
+  @Column({ length: 255, nullable: true })
+  external_identity_id?: string;
 }
