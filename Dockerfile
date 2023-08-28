@@ -1,43 +1,16 @@
-# FROM 395929101814.dkr.ecr.us-east-2.amazonaws.com/nestjs-application:latest
+FROM node:lts-alpine
 
-# # Run app in container
-# EXPOSE 3000
+WORKDIR /app
 
-# COPY . .
+ENV NODE_ENV production
+COPY package.json yarn.lock ./
 
-# # install node modules
-# RUN yarn && yarn build
-
-# CMD ["yarn", "start:prod"]
-
-# FROM node:lts-alpine
-
-# WORKDIR /app
-
-# ENV NODE_ENV production
-# COPY package.json yarn.lock ./
-
-# # install dev dependencies too
-# RUN set -x && yarn install --prod=false --verbose
-
-# COPY . .
-# RUN set -x && yarn run prestart:prod
-
-# EXPOSE 3000
-
-# CMD [ "node", "-r", "./tsconfig-paths-bootstrap.js" ,"dist/main.js" ]
-
-FROM public.ecr.aws/lambda/nodejs:18
-
-COPY package*.json ./
-
-RUN npm install
+# install dev dependencies too
+RUN set -x && yarn --prod=false
 
 COPY . .
+RUN set -x && yarn run prestart:prod
 
-RUN npm run build
+EXPOSE 3000
 
-# Install zip and create a zip file of the dist directory
-# RUN yum install -y zip && cd dist && zip ../dist.zip -r * .[^.]*
-
-CMD ["dist/lambda.handler"]
+CMD [ "node", "-r", "./tsconfig-paths-bootstrap.js" ,"dist/main.js" ]
