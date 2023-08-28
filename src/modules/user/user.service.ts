@@ -10,12 +10,20 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async get(id: number) {
     return this.userRepository.findOne({
       where: { id },
     });
+  }
+
+  async getByPhone(phone: string) {
+    return await this.userRepository
+      .createQueryBuilder('users')
+      .where('users.phone = :phone')
+      .setParameter('phone', phone)
+      .getOne();
   }
 
   async getByEmail(email: string) {
@@ -26,12 +34,28 @@ export class UsersService {
       .getOne();
   }
 
-  async create(signupDto: SignupDto) {
-    const user = await this.getByEmail(signupDto.email);
+  // async getByExternalId(externalId: string) {
+  //   return await this.userRepository
+  //     .createQueryBuilder('users')
+  //     .where('users.external_identity_id = :externalId')
+  //     .setParameter('externalId', externalId)
+  //     .getOne();
+  // }
 
-    if (user) {
+  async create(signupDto: SignupDto) {
+    const userByEmail = await this.getByEmail(signupDto.email);
+
+    if (userByEmail) {
       throw new NotAcceptableException(
         'User with provided email already exists.',
+      );
+    }
+
+    // Check if phone number already exists
+    const userByPhone = await this.getByPhone(signupDto.phone);
+    if (userByPhone) {
+      throw new NotAcceptableException(
+        'User with provided phone number already exists.',
       );
     }
 

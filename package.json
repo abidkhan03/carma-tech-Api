@@ -23,13 +23,13 @@
     "db:upgrade": "yarn typeorm migration:run",
     "db:downgrade": "yarn typeorm migration:revert",
     "db:drop": "npm run typeorm schema:drop",
-    "prepare": "if [ \"$NODE_ENV\" != \"production\" ]; then husky install; fi",
-    "deploy": "npm ci && npm run build && npm run start:prod"
+    "prepare": "husky install",
+    "deploy": "npm install && npm run build && npm run start:dev",
+    "update-modules": "npm i -g npm-check-updates && ncu -u && npm i"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.321.1",
     "@aws-sdk/lib-dynamodb": "^3.321.1",
-    "@aws-sdk/smithy-client": "^3.374.0",
     "@nest-dynamodb/typedorm": "^1.0.1",
     "@nestjs/common": "^9.0.11",
     "@nestjs/config": "^2.2.0",
