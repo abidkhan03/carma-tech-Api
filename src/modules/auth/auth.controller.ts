@@ -37,18 +37,31 @@ export class AuthController {
     // const url = `https://0ycdi3goi5.execute-api.us-east-2.amazonaws.com/prod/createUser?email=${data.email}`;
     const url = `https://0ycdi3goi5.execute-api.us-east-2.amazonaws.com/prod/createUser`;
     this.logger.info(`Invoking URL: ${url}`);
-    
-    // Send the email as part of the body in a POST request
-    const urlResponse = await axios.post(url, { email: data.email });
-    
-    this.logger.info(`urlResponse: ${JSON.stringify(urlResponse)}`);
-    this.logger.info(`urlResponse.data: ${JSON.stringify(urlResponse.data)}`);
-    this.logger.info(`urlResponse.data.email: ${JSON.stringify(urlResponse.data.email)}`);
-    const responseLambda = urlResponse.data;
-    responseLambda.email = urlResponse.data.email;
-    this.logger.info(`responseLambda API: ${JSON.stringify(responseLambda)}`);
-    
-    return responseLambda;
+
+    try {
+      // Send the email as part of the body in a POST request
+      const urlResponse = await axios.post(url, { email: data.email }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      this.logger.info(`urlResponse: ${JSON.stringify(urlResponse)}`);
+      this.logger.info(`urlResponse.data: ${JSON.stringify(urlResponse.data)}`);
+      this.logger.info(`urlResponse.data.email: ${JSON.stringify(urlResponse.data.email)}`);
+
+      const responseLambda = urlResponse.data;
+      responseLambda.email = urlResponse.data.email;
+      this.logger.info(`responseLambda API: ${JSON.stringify(responseLambda)}`);
+
+      return responseLambda;
+    } catch (error) {
+      this.logger.error(`Error invoking CreateUserLambda via API Gateway: ${error.message}`);
+      if (error.response) {
+        this.logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
+      }
+      throw new Error('Failed to invoke CreateUserLambda');
+    }
     // } catch (error) {
     //   this.logger.error(`Error invoking CreateUserLambda via API Gateway: ${error.message}`);
     //   if (error.response) {
