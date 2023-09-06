@@ -26,6 +26,12 @@ export class UsersService {
       .getOne();
   }
 
+  async findByEmail(email) {
+    return await this.userRepository.findOne({
+      where: { email },
+    });
+  }
+
   async create(signupDto: SignupDto) {
     const user = await this.getByEmail(signupDto.email);
 
