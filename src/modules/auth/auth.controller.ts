@@ -35,10 +35,15 @@ export class AuthController {
 
   private async invokeCreateUserLambda(data: SignupDto): Promise<any> {
     // const url = `https://0ycdi3goi5.execute-api.us-east-2.amazonaws.com/prod/createUser?email=${data.email}`;
-    const url = `https://0ycdi3goi5.execute-api.us-east-2.amazonaws.com/prod/createUser`;
+    const url = `https://0ycdi3goi5.execute-api.us-east-2.amazonaws.com/prod/createUser?email=${encodeURIComponent(data.email)}`;;
     this.logger.info(`Invoking URL: ${url}`);
 
     try {
+      if (!data.email) {
+        this.logger.error("Email is not provided or is null");
+        throw new Error('Email is required');
+      }
+
       // Send the email as part of the body in a POST request
       const urlResponse = await axios.post(url, { email: data.email }, {
         headers: {
