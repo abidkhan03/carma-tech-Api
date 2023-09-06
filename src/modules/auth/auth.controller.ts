@@ -34,17 +34,17 @@ export class AuthController {
   }
 
   private async invokeCreateUserLambda(data: SignupDto): Promise<any> {
-    const url = `https://0ycdi3goi5.execute-api.us-east-2.amazonaws.com/prod/createUser?email=${data.email}`;
-    this.logger.info(`Constructed url: ${url}`);
-    // try {
-    const urlResponse = await axios.get(url);
-    this.logger.info(`urlResponse: ${JSON.stringify(urlResponse)}`);
-    this.logger.info(`urlResponse.data: ${JSON.stringify(urlResponse.data)}`);
-    this.logger.info(`urlResponse.data.email: ${JSON.stringify(urlResponse.data.email)}`);
-    const responseLambda = urlResponse.data;
-    responseLambda.email = urlResponse.data.email;
-    this.logger.info(`responseLambda API: ${JSON.stringify(responseLambda)}`);
-    return responseLambda;
+    // const url = `https://0ycdi3goi5.execute-api.us-east-2.amazonaws.com/prod/createUser?email=${data.email}`;
+    // this.logger.info(`Constructed url: ${url}`);
+    // // try {
+    // const urlResponse = await axios.get(url);
+    // this.logger.info(`urlResponse: ${JSON.stringify(urlResponse)}`);
+    // this.logger.info(`urlResponse.data: ${JSON.stringify(urlResponse.data)}`);
+    // this.logger.info(`urlResponse.data.email: ${JSON.stringify(urlResponse.data.email)}`);
+    // const responseLambda = urlResponse.data;
+    // responseLambda.email = urlResponse.data.email;
+    // this.logger.info(`responseLambda API: ${JSON.stringify(responseLambda)}`);
+    // return responseLambda;
     // return responseLambda;
     // } catch (error) {
     //   this.logger.error(`Error invoking CreateUserLambda via API Gateway: ${error.message}`);
@@ -67,7 +67,7 @@ export class AuthController {
     const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
     this.logger.info(`Lambda response string: ${lambdaResponseString}`);
     const lambdaResponse = JSON.parse(lambdaResponseString);
-    lambdaResponse.email = urlResponse.data.email;
+    // lambdaResponse.email = urlResponse.data.email;
     this.logger.info(`Lambda response: ${JSON.stringify(lambdaResponse)}`);
     return lambdaResponse;
   }
