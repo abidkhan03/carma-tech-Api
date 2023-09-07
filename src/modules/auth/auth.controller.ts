@@ -6,6 +6,9 @@ import {
   Get,
   Request,
   BadRequestException,
+  NotAcceptableException,
+  BadGatewayException,
+  ConflictException,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
@@ -59,7 +62,8 @@ export class AuthController {
       this.logger.info(`responseLambda.email API: ${JSON.stringify(responseLambda.user)}`);
       if (!responseLambda.user) {
         this.logger.error(`Email is not provided or is null: ${JSON.stringify(responseLambda.user)}`);
-        return new Error(`Email not returned from Lambda or is undefined: ${JSON.stringify(responseLambda.user)}`);
+        throw new BadRequestException(
+          `Email not returned from Lambda or is undefined: ${JSON.stringify(responseLambda.user)}`);
       }
 
       return responseLambda;
@@ -69,7 +73,7 @@ export class AuthController {
       if (error.response) {
         this.logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
       }
-      throw new Error('Failed to invoke CreateUserLambda');
+      throw new BadGatewayException('Failed to invoke CreateUserLambda');
     }
 
     // const payload = new TextEncoder().encode(JSON.stringify(data));
@@ -106,7 +110,9 @@ export class AuthController {
   async signup(@Body() signupDto: SignupDto): Promise<any> {
     const user = await this.userService.getByEmail(signupDto.email);
     if (user) {
-      throw new Error('User already exists');
+      throw new NotAcceptableException(
+        'User with provided email already exists.',
+      );
     }
     try {
       const lambdaResponse = await this.invokeCreateUserLambda(signupDto);
@@ -117,7 +123,7 @@ export class AuthController {
         throw new Error(`Email not returned from Lambda or is undefined: ${JSON.stringify(emailToCheck)}`);
       }
       if (lambdaResponse.error) {
-        throw new Error(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
+        throw new ConflictException(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
       }
       // Now, save this new user data in your own database
       const newUser = await this.userService.create({
@@ -128,7 +134,7 @@ export class AuthController {
       return await this.authService.createToken(newUser);
     } catch (error) {
       this.logger.error(`Error invoking CreateUserLambda: ${error.message}`);
-      throw new Error('Failed to invoke CreateUserLambda');
+      throw new BadGatewayException('Failed to invoke CreateUserLambda');
     }
   }
 
