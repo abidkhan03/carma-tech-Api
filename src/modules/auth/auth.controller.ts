@@ -57,8 +57,9 @@ export class AuthController {
       const responseLambda = urlResponse.data;
       responseLambda.email = urlResponse.data.email;
       this.logger.info(`responseLambda API: ${JSON.stringify(responseLambda)}`);
+      this.logger.info(`responseLambda.email API: ${JSON.stringify(responseLambda.email)}`);
 
-      return responseLambda;
+      return responseLambda.email;
     } catch (error) {
       this.logger.error(`Error invoking CreateUserLambda via API Gateway: ${error.message}`);
       // this.logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
@@ -153,7 +154,8 @@ export class AuthController {
       this.logger.info(`Lambda response: ${JSON.stringify(lambdaResponse)}`);
       const emailToCheck = lambdaResponse.email;
       if (!emailToCheck) {
-        throw new Error('Email not returned from Lambda or is undefined.');
+        this.logger.error(`Email is not provided or is null: ${JSON.stringify(emailToCheck)}`);
+        throw new Error(`Email not returned from Lambda or is undefined: ${JSON.stringify(emailToCheck)}`);
       }
       if (lambdaResponse.error) {
         throw new Error(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
