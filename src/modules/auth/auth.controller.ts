@@ -70,12 +70,8 @@ export class AuthController {
     } catch (error) {
       this.logger.error(`Error invoking CreateUserLambda via API Gateway: ${error.message}`);
       // If the error is an instance of `ConflictException`, rethrow it
-      if (error instanceof ConflictException) {
-        throw error;
-    }
-      // this.logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
-      if (error.response) {
-        this.logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
+      if (error.response && error.response.data && error.response.data.error) {
+        throw new BadRequestException(error.response.data.error);
       }
       throw new BadGatewayException('Failed to invoke CreateUserLambda');
     }
@@ -138,9 +134,12 @@ export class AuthController {
       return await this.authService.createToken(newUser);
     } catch (error) {
       this.logger.error(`Error invoking CreateUserLambda: ${error.message}`);
+      if (error instanceof BadRequestException) {
+        throw new BadRequestException(error.message);
+      }
       if (error instanceof ConflictException) {
         throw error;
-    }
+      }
       throw new BadGatewayException('Failed to invoke CreateUserLambda');
     }
   }
