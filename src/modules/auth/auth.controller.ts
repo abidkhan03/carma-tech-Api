@@ -56,7 +56,7 @@ export class AuthController {
 
       const responseLambda = urlResponse.data;
       if (responseLambda.error) {
-        if (responseLambda.error == "User with email or phone number already exists") {
+        if (responseLambda.error == "User with email or phone number already exists" || "User already exists") {
           throw new BadRequestException(responseLambda.error);
         }
         throw new Error(responseLambda.errorMessage || 'Error creating user in Cognito.');
