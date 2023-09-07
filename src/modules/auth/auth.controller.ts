@@ -37,15 +37,17 @@ export class AuthController {
       region: 'us-east-2',
     });
   }
-
+  
   private async invokeLambda(lambdaFunctionName: string, data: any): Promise<any> {
     this.logger.info(`Invoking lambda: ${lambdaFunctionName}`);
+    this.logger.info(`Payload to Lambda: ${JSON.stringify(data)}`);
 
     const payload = new TextEncoder().encode(JSON.stringify(data));
     const command = new InvokeCommand({
       FunctionName: lambdaFunctionName,
       Payload: payload,
     });
+
 
     const response = await this.lambdaClient.send(command);
 
@@ -118,13 +120,15 @@ export class AuthController {
     try {
       const lambdaResponse = await this.invokeLambda(lambdaFunctionName,signupDto);
       this.logger.info(`Lambda response signup: ${JSON.stringify(lambdaResponse)}`);
+      const lambdaResponseBody = JSON.parse(lambdaResponse.body);
+      this.logger.info(`Lambda response body: ${JSON.stringify(lambdaResponseBody)}`);
       const emailToCheck = lambdaResponse.user;
       this.logger.info(`Email to check: ${JSON.stringify(emailToCheck)}`);
       if (!emailToCheck) {
         this.logger.error(`Email is not provided or is null: ${JSON.stringify(emailToCheck)}`);
         throw new Error(`Email not returned from Lambda or is undefined: ${JSON.stringify(emailToCheck)}`);
       }
-      if (lambdaResponse.error) {
+      if (lambdaResponse.statusCode === 400 && lambdaResponseBody.error) {
         throw new ConflictException(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
       }
       // Now, save this new user data in your own database
