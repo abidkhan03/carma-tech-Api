@@ -37,61 +37,69 @@ export class AuthController {
   }
 
   private async invokeCreateUserLambda(data: SignupDto): Promise<any> {
-    // const url = `https://0ycdi3goi5.execute-api.us-east-2.amazonaws.com/prod/createUser?email=${data.email}`;
-    const url = `https://0ycdi3goi5.execute-api.us-east-2.amazonaws.com/prod/createUser?email=${encodeURIComponent(data.email)}`;;
-    this.logger.info(`Invoking URL: ${url}`);
+    // const url = `https://0ycdi3goi5.execute-api.us-east-2.amazonaws.com/prod/createUser?email=${encodeURIComponent(data.email)}`;
+    // this.logger.info(`Invoking URL: ${url}`);
 
     if (!data.email) {
       this.logger.error("Email is not provided or is null");
       throw new Error('Email is required');
     }
+    // try {
+
+    //   // Send the email as part of the body in a POST request
+    //   const urlResponse = await axios.post(url, {
+    //     email: data.email
+    //   },
+    //     {
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //     });
+
+    //   const responseLambda = urlResponse.data;
+    //   this.logger.info(`responseLambda API: ${JSON.stringify(responseLambda)}`);
+    //   this.logger.info(`responseLambda.email API: ${JSON.stringify(responseLambda.user)}`);
+    //   if (!responseLambda.user) {
+    //     this.logger.error(`Email is not provided or is null: ${JSON.stringify(responseLambda.user)}`);
+    //     throw new BadRequestException(
+    //       `Email not returned from Lambda or is undefined: ${JSON.stringify(responseLambda.user)}`);
+    //   }
+
+    //   return responseLambda;
+    // } catch (error) {
+    //   this.logger.error(`Error invoking CreateUserLambda via API Gateway: ${error.message}`);
+    //   // If the error is an instance of `ConflictException`, rethrow it
+    //   if (error.response && error.response.data && error.response.data.error) {
+    //     throw new BadRequestException(error.response.data.error);
+    //   }
+    //   throw new BadGatewayException('Failed to invoke CreateUserLambda');
+    // }
+
+    const payload = new TextEncoder().encode(JSON.stringify(data));
+    const command = new InvokeCommand({
+      FunctionName: 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw',
+      Payload: payload,
+    });
+    this.logger.info(`command for lambda client: ${JSON.stringify(command)}`);
     try {
+      const response = await this.lambdaClient.send(command);
+      this.logger.info(`response for lambda client: ${JSON.stringify(response)}`);
+      this.logger.info(`Raw Lambda response payload: ${response.Payload}`);
 
-      // Send the email as part of the body in a POST request
-      const urlResponse = await axios.post(url, {
-        email: data.email
-      },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-      const responseLambda = urlResponse.data;
-      this.logger.info(`responseLambda API: ${JSON.stringify(responseLambda)}`);
-      this.logger.info(`responseLambda.email API: ${JSON.stringify(responseLambda.user)}`);
-      if (!responseLambda.user) {
-        this.logger.error(`Email is not provided or is null: ${JSON.stringify(responseLambda.user)}`);
-        throw new BadRequestException(
-          `Email not returned from Lambda or is undefined: ${JSON.stringify(responseLambda.user)}`);
+      const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
+      const lambdaResponse = JSON.parse(lambdaResponseString);
+      this.logger.info(`Lambda response: ${JSON.stringify(lambdaResponse)}`);
+      if (!lambdaResponse.user) {
+        throw new BadRequestException('User email not returned from Lambda or is undefined.');
       }
-
-      return responseLambda;
+      if (lambdaResponse.error) {
+        throw new ConflictException(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
+      }
+      return lambdaResponse;
     } catch (error) {
-      this.logger.error(`Error invoking CreateUserLambda via API Gateway: ${error.message}`);
-      // If the error is an instance of `ConflictException`, rethrow it
-      if (error.response && error.response.data && error.response.data.error) {
-        throw new BadRequestException(error.response.data.error);
-      }
+      this.logger.error(`Error invoking CreateUserLambda via lambdaClient: ${error.message}`);
       throw new BadGatewayException('Failed to invoke CreateUserLambda');
     }
-
-    // const payload = new TextEncoder().encode(JSON.stringify(data));
-    // const command = new InvokeCommand({
-    //   FunctionName: 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw',
-    //   Payload: payload,
-    // });
-    // const response = await this.lambdaClient.send(command);
-    // console.log('response', response);
-    // this.logger.info(`response for lambda client: ${JSON.stringify(response)}`);
-    // this.logger.info(`Raw Lambda response payload: ${response.Payload}`);
-    // // Decode the Uint8Array payload response from Lambda back to string
-    // const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
-    // this.logger.info(`Lambda response string: ${lambdaResponseString}`);
-    // const lambdaResponse = JSON.parse(lambdaResponseString);
-    // // lambdaResponse.email = urlResponse.data.email;
-    // this.logger.info(`Lambda response: ${JSON.stringify(lambdaResponse)}`);
-    // return lambdaResponse;
   }
 
   @Post('signin')
@@ -110,14 +118,15 @@ export class AuthController {
   async signup(@Body() signupDto: SignupDto): Promise<any> {
     const user = await this.userService.getByEmail(signupDto.email);
     if (user) {
-      throw new NotAcceptableException(
+      throw new ConflictException(
         'User with provided email already exists.',
       );
     }
     try {
       const lambdaResponse = await this.invokeCreateUserLambda(signupDto);
-      this.logger.info(`Lambda response: ${JSON.stringify(lambdaResponse)}`);
+      this.logger.info(`Lambda response signup: ${JSON.stringify(lambdaResponse)}`);
       const emailToCheck = lambdaResponse.user;
+      this.logger.info(`Email to check: ${JSON.stringify(emailToCheck)}`);
       if (!emailToCheck) {
         this.logger.error(`Email is not provided or is null: ${JSON.stringify(emailToCheck)}`);
         throw new Error(`Email not returned from Lambda or is undefined: ${JSON.stringify(emailToCheck)}`);
