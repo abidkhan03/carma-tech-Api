@@ -45,24 +45,30 @@ export class AuthController {
     try {
 
       // Send the email as part of the body in a POST request
-      const urlResponse = await axios.post(url, { email: data.email }, {
+      const urlResponse = await axios.post(url, { 
+        email: data.email 
+      }, 
+      {
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
-      // this.logger.info(`urlResponse: ${JSON.stringify(urlResponse)}`);
-      // this.logger.info(`urlResponse.data: ${JSON.stringify(urlResponse.data)}`);
-      // this.logger.info(`urlResponse.data.email: ${JSON.stringify(urlResponse.data.email)}`);
-
       const responseLambda = urlResponse.data;
+      if (responseLambda.error) {
+        if (responseLambda.errorMessage) {
+          throw new Error(responseLambda.errorMessage);
+        } else {
+          throw new Error('Error creating user in Cognito.');
+        }
+      }
       responseLambda.email = urlResponse.data.email;
       this.logger.info(`responseLambda API: ${JSON.stringify(responseLambda)}`);
 
       return responseLambda;
     } catch (error) {
       this.logger.error(`Error invoking CreateUserLambda via API Gateway: ${error.message}`);
-      this.logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
+      // this.logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
       if (error.response) {
         this.logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
       }
