@@ -101,10 +101,10 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async signup(@Body() signupDto: SignupDto): Promise<any> {
-    const user = await this.userService.getByEmail(signupDto.email);
-    if (user) {
-      throw new BadRequestException('User already exists');
-    }
+    // const user = await this.userService.getByEmail(signupDto.email);
+    // if (user) {
+    //   throw new Error('User already exists');
+    // }
     try {
       const lambdaResponse = await this.invokeCreateUserLambda(signupDto);
       this.logger.info(`Lambda response: ${JSON.stringify(lambdaResponse)}`);
@@ -115,6 +115,10 @@ export class AuthController {
       }
       if (lambdaResponse.error) {
         throw new Error(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
+      }
+      const user = await this.userService.getByEmail(emailToCheck);
+      if (user) {
+        throw new Error('User already exists');
       }
       // Now, save this new user data in your own database
       const newUser = await this.userService.create({
