@@ -17,4 +17,16 @@ export class UsersController {
       throw new InternalServerErrorException('Error getting user count');
     }
   }
+
+   // get all users data
+   @Get('all')
+   async getAllUsers(): Promise<any> {
+     try {
+       const users = await this.usersService.getAllUsers();
+       return users;
+     } catch (error) {
+       console.error(error);
+       throw new InternalServerErrorException('Error getting all users');
+     }
+   }
 }

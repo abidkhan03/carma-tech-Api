@@ -49,4 +49,8 @@ export class UsersService {
   async getUsersCount(): Promise<number> {
     return await this.userRepository.count();
   }
+
+  async getAllUsers(): Promise<User[]> {
+    return await this.userRepository.find();
+  }
 }
