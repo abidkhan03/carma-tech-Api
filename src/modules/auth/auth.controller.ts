@@ -56,11 +56,10 @@ export class AuthController {
 
       const responseLambda = urlResponse.data;
       if (responseLambda.error) {
-        if (responseLambda.errorMessage) {
-          throw new Error(responseLambda.errorMessage);
-        } else {
-          throw new Error('Error creating user in Cognito.');
+        if (responseLambda.error == "User with email or phone number already exists") {
+          throw new BadRequestException(responseLambda.error);
         }
+        throw new Error(responseLambda.errorMessage || 'Error creating user in Cognito.');
       }
       responseLambda.email = urlResponse.data.email;
       this.logger.info(`responseLambda API: ${JSON.stringify(responseLambda)}`);
