@@ -38,11 +38,11 @@ export class AuthController {
     const url = `https://0ycdi3goi5.execute-api.us-east-2.amazonaws.com/prod/createUser?email=${encodeURIComponent(data.email)}`;;
     this.logger.info(`Invoking URL: ${url}`);
 
+    if (!data.email) {
+      this.logger.error("Email is not provided or is null");
+      throw new Error('Email is required');
+    }
     try {
-      if (!data.email) {
-        this.logger.error("Email is not provided or is null");
-        throw new Error('Email is required');
-      }
 
       // Send the email as part of the body in a POST request
       const urlResponse = await axios.post(url, { email: data.email }, {
@@ -107,60 +107,59 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async signup(@Body() signupDto: SignupDto): Promise<any> {
-    const user = await this.userService.getByEmail(signupDto.email);
-    this.logger.info(`User email: ${JSON.stringify(user)}`);
-    if (user) {
-      throw new BadRequestException('User already exists');
-    }
-    const lambdaResponse = await this.invokeCreateUserLambda(signupDto);
-    const parsedBody = typeof lambdaResponse.body === 'string' ? JSON.parse(lambdaResponse.body) : lambdaResponse.body;
-    this.logger.info(`Parsed body: ${JSON.stringify(parsedBody)}`);
-    const emailToCheck = parsedBody.email;
-
-    // const emailToCheck = lambdaResponse.email;
-    if (!emailToCheck) {
-      throw new Error('Email not returned from Lambda or is undefined.');
-    }
-    this.logger.info(`Email to check: ${emailToCheck}`);
-
-    console.log('lambdaResponse', lambdaResponse);
-    this.logger.info(`Lambda response: ${JSON.stringify(lambdaResponse)}`);
-    if (lambdaResponse.error) {
-      throw new Error(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
-    }
-    const existingUser = await this.userService.findByEmail(emailToCheck);
-    this.logger.info(`Existing user: ${JSON.stringify(existingUser)}`);
-    if (existingUser) {
-      throw new Error(`${lambdaResponse.email} Email already exists in the system.`);
-    } else {
-      const newUser = await this.userService.create({
-        ...signupDto,
-        email: lambdaResponse.email
-      });
-      this.logger.info(`New user created: ${JSON.stringify(newUser)}`);
-      return await this.authService.createToken(newUser);
-    }
-
-    // const existingUser = await this.userService.getByEmail(signupDto.email);
-    // // If user's email exists in the database, throw an error
-    // if (existingUser) {
-    //   throw new Error(`${signupDto.email} Email already exists in the system.`);
+    // const user = await this.userService.getByEmail(signupDto.email);
+    // this.logger.info(`User email: ${JSON.stringify(user)}`);
+    // if (user) {
+    //   throw new BadRequestException('User already exists');
     // }
-    // // If the email does not exist, proceed with invoking the Lambda function
-    // // Assuming lambdaResponse.email holds the newly created email from Cognito.
     // const lambdaResponse = await this.invokeCreateUserLambda(signupDto);
+    // const parsedBody = typeof lambdaResponse.body === 'string' ? JSON.parse(lambdaResponse.body) : lambdaResponse.body;
+    // this.logger.info(`Parsed body: ${JSON.stringify(parsedBody)}`);
+    // const emailToCheck = parsedBody.email;
+
+    // // const emailToCheck = lambdaResponse.email;
+    // if (!emailToCheck) {
+    //   throw new Error('Email not returned from Lambda or is undefined.');
+    // }
+    // this.logger.info(`Email to check: ${emailToCheck}`);
+
     // console.log('lambdaResponse', lambdaResponse);
     // this.logger.info(`Lambda response: ${JSON.stringify(lambdaResponse)}`);
     // if (lambdaResponse.error) {
     //   throw new Error(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
     // }
-    // // Now, save this new user data in your own database
-    // const newUser = await this.userService.create({
-    //   ...signupDto,
-    //   email: lambdaResponse.email // Override with the email received from Lambda, if necessary
-    // });
-    // this.logger.info(`New user created: ${JSON.stringify(newUser)}`);
-    // return await this.authService.createToken(newUser);
+    // const existingUser = await this.userService.findByEmail(emailToCheck);
+    // this.logger.info(`Existing user: ${JSON.stringify(existingUser)}`);
+    // if (existingUser) {
+    //   throw new Error(`${lambdaResponse.email} Email already exists in the system.`);
+    // } else {
+    //   const newUser = await this.userService.create({
+    //     ...signupDto,
+    //     email: lambdaResponse.email
+    //   });
+    //   this.logger.info(`New user created: ${JSON.stringify(newUser)}`);
+    //   return await this.authService.createToken(newUser);
+    // }
+
+    const existingUser = await this.userService.getByEmail(signupDto.email);
+    // If user's email exists in the database, throw an error
+    if (existingUser) {
+      throw new Error(`${signupDto.email} Email already exists in the system.`);
+    }
+    // If the email does not exist, proceed with invoking the Lambda function
+    // Assuming lambdaResponse.email holds the newly created email from Cognito.
+    const lambdaResponse = await this.invokeCreateUserLambda(signupDto);
+    this.logger.info(`Lambda response: ${JSON.stringify(lambdaResponse)}`);
+    if (lambdaResponse.error) {
+      throw new Error(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
+    }
+    // Now, save this new user data in your own database
+    const newUser = await this.userService.create({
+      ...signupDto,
+      email: lambdaResponse.email // Override with the email received from Lambda, if necessary
+    });
+    this.logger.info(`New user created: ${JSON.stringify(newUser)}`);
+    return await this.authService.createToken(newUser);
   }
 
   @ApiBearerAuth()
