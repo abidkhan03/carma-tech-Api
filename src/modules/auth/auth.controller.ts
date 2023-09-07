@@ -57,7 +57,7 @@ export class AuthController {
       const responseLambda = urlResponse.data;
       // Check the status code of the axios response
       if (urlResponse.status !== 200) {
-        if (urlResponse.status === 400 && responseLambda.error === "User with email or phone number already exists") {
+        if (urlResponse.status === 400 || responseLambda.error === "User with email or phone number already exists") {
           this.logger.error(`user email already exists please: ${responseLambda.error}`);
           throw new BadRequestException(responseLambda.error);
         } else {
