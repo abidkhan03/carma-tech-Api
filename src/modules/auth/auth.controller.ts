@@ -51,9 +51,9 @@ export class AuthController {
         },
       });
 
-      this.logger.info(`urlResponse: ${JSON.stringify(urlResponse)}`);
-      this.logger.info(`urlResponse.data: ${JSON.stringify(urlResponse.data)}`);
-      this.logger.info(`urlResponse.data.email: ${JSON.stringify(urlResponse.data.email)}`);
+      // this.logger.info(`urlResponse: ${JSON.stringify(urlResponse)}`);
+      // this.logger.info(`urlResponse.data: ${JSON.stringify(urlResponse.data)}`);
+      // this.logger.info(`urlResponse.data.email: ${JSON.stringify(urlResponse.data.email)}`);
 
       const responseLambda = urlResponse.data;
       responseLambda.email = urlResponse.data.email;
@@ -62,6 +62,7 @@ export class AuthController {
       return responseLambda;
     } catch (error) {
       this.logger.error(`Error invoking CreateUserLambda via API Gateway: ${error.message}`);
+      this.logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
       if (error.response) {
         this.logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
       }
@@ -141,11 +142,11 @@ export class AuthController {
     //   return await this.authService.createToken(newUser);
     // }
 
-    const existingUser = await this.userService.getByEmail(signupDto.email);
-    // If user's email exists in the database, throw an error
-    if (existingUser) {
-      throw new Error(`${signupDto.email} Email already exists in the system.`);
-    }
+    // const existingUser = await this.userService.getByEmail(signupDto.email);
+    // // If user's email exists in the database, throw an error
+    // if (existingUser) {
+    //   throw new Error(`${signupDto.email} Email already exists in the system.`);
+    // }
     // If the email does not exist, proceed with invoking the Lambda function
     // Assuming lambdaResponse.email holds the newly created email from Cognito.
     const lambdaResponse = await this.invokeCreateUserLambda(signupDto);
