@@ -19,6 +19,8 @@ import { UsersService } from '@modules/user/user.service';
 import { IRequest } from '@modules/user/user.interface';
 import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 import { Logger } from '@aws-lambda-powertools/logger';
+import { TextEncoder, TextDecoder } from 'util';
+import * as AWS from 'aws-sdk';
 import axios from 'axios';
 
 @Controller('api/auth')
@@ -36,71 +38,61 @@ export class AuthController {
     });
   }
 
-  private async invokeCreateUserLambda(data: SignupDto): Promise<any> {
-    // const url = `https://0ycdi3goi5.execute-api.us-east-2.amazonaws.com/prod/createUser?email=${encodeURIComponent(data.email)}`;
-    // this.logger.info(`Invoking URL: ${url}`);
-
-    if (!data.email) {
-      this.logger.error("Email is not provided or is null");
-      throw new Error('Email is required');
-    }
-    // try {
-
-    //   // Send the email as part of the body in a POST request
-    //   const urlResponse = await axios.post(url, {
-    //     email: data.email
-    //   },
-    //     {
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //       },
-    //     });
-
-    //   const responseLambda = urlResponse.data;
-    //   this.logger.info(`responseLambda API: ${JSON.stringify(responseLambda)}`);
-    //   this.logger.info(`responseLambda.email API: ${JSON.stringify(responseLambda.user)}`);
-    //   if (!responseLambda.user) {
-    //     this.logger.error(`Email is not provided or is null: ${JSON.stringify(responseLambda.user)}`);
-    //     throw new BadRequestException(
-    //       `Email not returned from Lambda or is undefined: ${JSON.stringify(responseLambda.user)}`);
-    //   }
-
-    //   return responseLambda;
-    // } catch (error) {
-    //   this.logger.error(`Error invoking CreateUserLambda via API Gateway: ${error.message}`);
-    //   // If the error is an instance of `ConflictException`, rethrow it
-    //   if (error.response && error.response.data && error.response.data.error) {
-    //     throw new BadRequestException(error.response.data.error);
-    //   }
-    //   throw new BadGatewayException('Failed to invoke CreateUserLambda');
-    // }
+  private async invokeLambda(lambdaFunctionName: string, data: any): Promise<any> {
+    this.logger.info(`Invoking lambda: ${lambdaFunctionName}`);
 
     const payload = new TextEncoder().encode(JSON.stringify(data));
     const command = new InvokeCommand({
-      FunctionName: 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw',
+      FunctionName: lambdaFunctionName,
       Payload: payload,
     });
-    this.logger.info(`command for lambda client: ${JSON.stringify(command)}`);
-    try {
-      const response = await this.lambdaClient.send(command);
-      this.logger.info(`response for lambda client: ${JSON.stringify(response)}`);
-      this.logger.info(`Raw Lambda response payload: ${response.Payload}`);
 
-      const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
-      const lambdaResponse = JSON.parse(lambdaResponseString);
-      this.logger.info(`Lambda response: ${JSON.stringify(lambdaResponse)}`);
-      if (!lambdaResponse.user) {
-        throw new BadRequestException('User email not returned from Lambda or is undefined.');
-      }
-      if (lambdaResponse.error) {
-        throw new ConflictException(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
-      }
-      return lambdaResponse;
-    } catch (error) {
-      this.logger.error(`Error invoking CreateUserLambda via lambdaClient: ${error.message}`);
-      throw new BadGatewayException('Failed to invoke CreateUserLambda');
+    const response = await this.lambdaClient.send(command);
+
+    if (!response.Payload) {
+      throw new Error(`Lambda ${lambdaFunctionName} did not return a valid response.`);
     }
+
+    const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
+    const lambdaResponse = JSON.parse(lambdaResponseString);
+
+    this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
+    return lambdaResponse;
   }
+  
+  // private async invokeCreateUserLambda(data: SignupDto): Promise<any> {
+
+  //   if (!data.email) {
+  //     this.logger.error("Email is not provided or is null");
+  //     throw new Error('Email is required');
+  //   }
+
+  //   const payload = new TextEncoder().encode(JSON.stringify(data));
+  //   const command = new InvokeCommand({
+  //     FunctionName: 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw',
+  //     Payload: payload,
+  //   });
+  //   this.logger.info(`command for lambda client: ${JSON.stringify(command)}`);
+  //   try {
+  //     const response = await this.lambdaClient.send(command);
+  //     this.logger.info(`response for lambda client: ${JSON.stringify(response)}`);
+  //     this.logger.info(`Raw Lambda response payload: ${response.Payload}`);
+
+  //     const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
+  //     const lambdaResponse = JSON.parse(lambdaResponseString);
+  //     this.logger.info(`Lambda response: ${JSON.stringify(lambdaResponse)}`);
+  //     if (!lambdaResponse.user) {
+  //       throw new BadRequestException('User email not returned from Lambda or is undefined.');
+  //     }
+  //     if (lambdaResponse.error) {
+  //       throw new ConflictException(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
+  //     }
+  //     return lambdaResponse;
+  //   } catch (error) {
+  //     this.logger.error(`Error invoking CreateUserLambda via lambdaClient: ${error.message}`);
+  //     throw new BadGatewayException('Failed to invoke CreateUserLambda');
+  //   }
+  // }
 
   @Post('signin')
   @ApiResponse({ status: 201, description: 'Successful Login' })
@@ -122,8 +114,9 @@ export class AuthController {
         'User with provided email already exists.',
       );
     }
+    const lambdaFunctionName = 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw';
     try {
-      const lambdaResponse = await this.invokeCreateUserLambda(signupDto);
+      const lambdaResponse = await this.invokeLambda(lambdaFunctionName,signupDto);
       this.logger.info(`Lambda response signup: ${JSON.stringify(lambdaResponse)}`);
       const emailToCheck = lambdaResponse.user;
       this.logger.info(`Email to check: ${JSON.stringify(emailToCheck)}`);
@@ -143,12 +136,12 @@ export class AuthController {
       return await this.authService.createToken(newUser);
     } catch (error) {
       this.logger.error(`Error invoking CreateUserLambda: ${error.message}`);
-      if (error instanceof BadRequestException) {
-        throw new BadRequestException(error.message);
-      }
-      if (error instanceof ConflictException) {
-        throw error;
-      }
+      // if (error instanceof BadRequestException) {
+      //   throw new BadRequestException(error.message);
+      // }
+      // if (error instanceof ConflictException) {
+      //   throw error;
+      // }
       throw new BadGatewayException('Failed to invoke CreateUserLambda');
     }
   }
@@ -162,57 +155,3 @@ export class AuthController {
     return request.user;
   }
 }
-
-
-
-// import {
-//   Controller,
-//   Body,
-//   Post,
-//   UseGuards,
-//   Get,
-//   Request,
-// } from '@nestjs/common';
-// import { ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-// import { AuthGuard } from '@nestjs/passport';
-// import { AuthService } from '@modules/auth/auth.service';
-// import { SigninDto } from '@modules/auth/dto/signin.dto';
-// import { SignupDto } from '@modules/auth/dto/signup.dto';
-// import { UsersService } from '@modules/user/user.service';
-// import { IRequest } from '@modules/user/user.interface';
-
-// @Controller('api/auth')
-// @ApiTags('authentication')
-// export class AuthController {
-//   constructor(
-//     private readonly authService: AuthService,
-//     private readonly userService: UsersService,
-//   ) {}
-
-//   @Post('signin')
-//   @ApiResponse({ status: 201, description: 'Successful Login' })
-//   @ApiResponse({ status: 400, description: 'Bad Request' })
-//   @ApiResponse({ status: 401, description: 'Unauthorized' })
-//   async signin(@Body() signinDto: SigninDto): Promise<any> {
-//     const user = await this.authService.validateUser(signinDto);
-//     return await this.authService.createToken(user);
-//   }
-
-//   @Post('signup')
-//   @ApiResponse({ status: 201, description: 'Successful Registration' })
-//   @ApiResponse({ status: 400, description: 'Bad Request' })
-//   @ApiResponse({ status: 401, description: 'Unauthorized' })
-//   async signup(@Body() signupDto: SignupDto): Promise<any> {
-//     const user = await this.userService.create(signupDto);
-//     return await this.authService.createToken(user);
-//   }
-
-//   @ApiBearerAuth()
-//   @UseGuards(AuthGuard())
-//   @Get('me')
-//   @ApiResponse({ status: 200, description: 'Successful Response' })
-//   @ApiResponse({ status: 401, description: 'Unauthorized' })
-//   async getLoggedInUser(@Request() request: IRequest): Promise<any> {
-//     return request.user;
-//   }
-// }
