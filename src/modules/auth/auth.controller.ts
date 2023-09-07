@@ -21,16 +21,16 @@ import axios from 'axios';
 @Controller('api/auth')
 @ApiTags('authentication')
 export class AuthController {
-  // private readonly lambdaClient: LambdaClient;
+  private readonly lambdaClient: LambdaClient;
   private readonly logger = new Logger();
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UsersService,
 
   ) {
-    // this.lambdaClient = new LambdaClient({
-    //   region: 'us-east-2',
-    // });
+    this.lambdaClient = new LambdaClient({
+      region: 'us-east-2',
+    });
   }
 
   private async invokeCreateUserLambda(data: SignupDto): Promise<any> {
@@ -116,6 +116,7 @@ export class AuthController {
       if (lambdaResponse.error) {
         throw new Error(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
       }
+      const user = await this.userService.getByEmail(emailToCheck);
       // Now, save this new user data in your own database
       const newUser = await this.userService.create({
         ...signupDto,
