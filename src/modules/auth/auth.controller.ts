@@ -45,21 +45,24 @@ export class AuthController {
     try {
 
       // Send the email as part of the body in a POST request
-      const urlResponse = await axios.post(url, { 
-        email: data.email 
-      }, 
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const urlResponse = await axios.post(url, {
+        email: data.email
+      },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
       const responseLambda = urlResponse.data;
-      if (responseLambda.error) {
-        if (responseLambda.error == "User with email or phone number already exists" || "User already exists") {
+      // Check the status code of the axios response
+      if (urlResponse.status !== 200) {
+        if (urlResponse.status === 400 && responseLambda.error === "User with email or phone number already exists") {
+          this.logger.error(`user email already exists please: ${responseLambda.error}`);
           throw new BadRequestException(responseLambda.error);
+        } else {
+          throw new Error(responseLambda.error || "Unknown error from Lambda function");
         }
-        throw new Error(responseLambda.errorMessage || 'Error creating user in Cognito.');
       }
       responseLambda.email = urlResponse.data.email;
       this.logger.info(`responseLambda API: ${JSON.stringify(responseLambda)}`);
