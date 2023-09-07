@@ -57,6 +57,10 @@ export class AuthController {
       const responseLambda = urlResponse.data;
       this.logger.info(`responseLambda API: ${JSON.stringify(responseLambda)}`);
       this.logger.info(`responseLambda.email API: ${JSON.stringify(responseLambda.user)}`);
+      if (!responseLambda.user) {
+        this.logger.error(`Email is not provided or is null: ${JSON.stringify(responseLambda.user)}`);
+        return new Error(`Email not returned from Lambda or is undefined: ${JSON.stringify(responseLambda.user)}`);
+      }
 
       return responseLambda;
     } catch (error) {
@@ -115,7 +119,6 @@ export class AuthController {
       if (lambdaResponse.error) {
         throw new Error(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
       }
-      const user = await this.userService.getByEmail(emailToCheck);
       // Now, save this new user data in your own database
       const newUser = await this.userService.create({
         ...signupDto,
