@@ -149,25 +149,26 @@ export class AuthController {
     // If the email does not exist, proceed with invoking the Lambda function
     // Assuming lambdaResponse.email holds the newly created email from Cognito.
     try {
-    const lambdaResponse = await this.invokeCreateUserLambda(signupDto);
-    this.logger.info(`Lambda response: ${JSON.stringify(lambdaResponse)}`);
-    const emailToCheck = lambdaResponse.email;
-    if (!emailToCheck) {
-      throw new Error('Email not returned from Lambda or is undefined.');
+      const lambdaResponse = await this.invokeCreateUserLambda(signupDto);
+      this.logger.info(`Lambda response: ${JSON.stringify(lambdaResponse)}`);
+      const emailToCheck = lambdaResponse.email;
+      if (!emailToCheck) {
+        throw new Error('Email not returned from Lambda or is undefined.');
+      }
+      if (lambdaResponse.error) {
+        throw new Error(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
+      }
+      // Now, save this new user data in your own database
+      const newUser = await this.userService.create({
+        ...signupDto,
+        email: lambdaResponse.email // Override with the email received from Lambda, if necessary
+      });
+      this.logger.info(`New user created: ${JSON.stringify(newUser)}`);
+      return await this.authService.createToken(newUser);
+    } catch (error) {
+      this.logger.error(`Error invoking CreateUserLambda: ${error.message}`);
+      throw new Error('Failed to invoke CreateUserLambda');
     }
-    if (lambdaResponse.error) {
-      throw new Error(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
-    }
-    // Now, save this new user data in your own database
-    const newUser = await this.userService.create({
-      ...signupDto,
-      email: lambdaResponse.email // Override with the email received from Lambda, if necessary
-    });
-    this.logger.info(`New user created: ${JSON.stringify(newUser)}`);
-    return await this.authService.createToken(newUser);
-  } catch (error) {
-    this.logger.error(`Error invoking CreateUserLambda: ${error.message}`);
-    throw new Error('Failed to invoke CreateUserLambda');
   }
 
   @ApiBearerAuth()
