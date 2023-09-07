@@ -59,7 +59,7 @@ export class AuthController {
       this.logger.info(`responseLambda API: ${JSON.stringify(responseLambda)}`);
       this.logger.info(`responseLambda.email API: ${JSON.stringify(responseLambda.email)}`);
 
-      return responseLambda.email;
+      return responseLambda;
     } catch (error) {
       this.logger.error(`Error invoking CreateUserLambda via API Gateway: ${error.message}`);
       // this.logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
@@ -152,7 +152,7 @@ export class AuthController {
     try {
       const lambdaResponse = await this.invokeCreateUserLambda(signupDto);
       this.logger.info(`Lambda response: ${JSON.stringify(lambdaResponse)}`);
-      const emailToCheck = lambdaResponse.email;
+      const emailToCheck = lambdaResponse.user;
       if (!emailToCheck) {
         this.logger.error(`Email is not provided or is null: ${JSON.stringify(emailToCheck)}`);
         throw new Error(`Email not returned from Lambda or is undefined: ${JSON.stringify(emailToCheck)}`);
@@ -163,7 +163,7 @@ export class AuthController {
       // Now, save this new user data in your own database
       const newUser = await this.userService.create({
         ...signupDto,
-        email: lambdaResponse.email // Override with the email received from Lambda, if necessary
+        email: emailToCheck // Override with the email received from Lambda, if necessary
       });
       this.logger.info(`New user created: ${JSON.stringify(newUser)}`);
       return await this.authService.createToken(newUser);
