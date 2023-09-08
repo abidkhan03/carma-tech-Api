@@ -60,9 +60,9 @@ export class AuthController {
 
     this.logger.info("Invoke command values: " + JSON.stringify(command.input.Payload.toString()));
     const {Payload, LogResult} = await this.lambdaClient.send(command);
-    const result = Buffer.from(Payload).toString();
+    // const result = Buffer.from(Payload).toString();
     const logResult = Buffer.from(LogResult, "base64").toString();
-    // const result = Buffer.from(response.Payload as Uint8Array).toString();
+    const result = Buffer.from(Payload as Uint8Array).toString();
     this.logger.info(`buffer lambda command: ${JSON.stringify(result)}`);
     this.logger.info(`buffer lambda log result: ${JSON.stringify(logResult)}`);
     const response = JSON.parse(result);
@@ -102,7 +102,7 @@ export class AuthController {
     const lambdaFunctionName = 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw';
     try {
       const lambdaResponse = await this.invokeLambda(lambdaFunctionName, signupDto);
-      const responseBody = JSON.parse(JSON.parse(lambdaResponse.body));
+      const responseBody = JSON.parse(lambdaResponse.body);
       this.logger.info(`Response body: ${JSON.stringify(responseBody)}`);
       if (responseBody.error) {
         this.logger.error(`Error invoking CreateUserLambda response body: ${responseBody.error}`);
