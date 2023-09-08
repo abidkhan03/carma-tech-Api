@@ -43,7 +43,7 @@ export class AuthController {
     this.logger.info(`Payload to Lambda email: ${JSON.stringify(data.email)}`);
     this.logger.info(`Buffer payload lambda email: ${Buffer.from(JSON.stringify(data.email), 'utf8')}`);
 
-    const payload = new TextEncoder().encode(JSON.stringify(data.email));
+    const payload = new TextEncoder().encode(JSON.stringify(data));
     const command = new InvokeCommand({
       FunctionName: lambdaFunctionName,
       Payload: payload,
