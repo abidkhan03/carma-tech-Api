@@ -102,11 +102,11 @@ export class AuthController {
     const lambdaFunctionName = 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw';
     try {
       const lambdaResponse = await this.invokeLambda(lambdaFunctionName, signupDto);
-      const responseBody = JSON.parse(lambdaResponse.body);
+      const responseBody = JSON.parse(JSON.parse(lambdaResponse.body));
       this.logger.info(`Response body: ${JSON.stringify(responseBody)}`);
       if (responseBody.error) {
-        this.logger.error(`Error invoking CreateUserLambda: ${responseBody.error}`);
-        throw new BadRequestException(`Error invoking CreateUserLambda: ${responseBody.error}`);
+        this.logger.error(`Error invoking CreateUserLambda response body: ${responseBody.error}`);
+        throw new BadRequestException(`Error invoking CreateUserLambda response body: ${responseBody.error}`);
       }
       // decode the response
       this.logger.info(`Raw Lambda response payload: ${lambdaResponse.Payload.toString()}`);
