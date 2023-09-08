@@ -49,37 +49,49 @@ export class AuthController {
         email: data.email
       }
     };
-    const payload = new TextEncoder().encode(JSON.stringify(payloadData));
-    const command = new InvokeCommand({
-      FunctionName: lambdaFunctionName,
-      InvocationType: 'RequestResponse' || 'Event' || 'DryRun',
-      LogType: 'Tail',
-      Payload: Buffer.from(JSON.stringify(payloadData), "utf8"),
+    try {
+      const payload = new TextEncoder().encode(JSON.stringify(payloadData));
+      const command = new InvokeCommand({
+        FunctionName: lambdaFunctionName,
+        InvocationType: 'RequestResponse' || 'Event' || 'DryRun',
+        LogType: 'Tail',
+        Payload: JSON.stringify(payloadData),
 
-    });
+      });
 
-    this.logger.info("Invoke command values: " + JSON.stringify(command.input.Payload ? command.input.Payload.toString() : 'undefined'));
+      this.logger.info("Invoke command values: " + JSON.stringify(command.input.Payload ? command.input.Payload.toString() : 'undefined'));
 
-    const { Payload, LogResult } = await this.lambdaClient.send(command);
-
-    // const result = Buffer.from(Payload).toString();
-    const logResult = Buffer.from(LogResult, "base64").toString();
-    const result = Payload;
-    if (!result) {
-      throw new Error("No payload received from lambda");
+      const { Payload, LogResult } = await this.lambdaClient.send(command);
+      this.logger.info(`Payload from lambda: ${JSON.stringify(Payload)}`);
+      const responseBody = JSON.parse(Payload.toString());
+      const logResult = Buffer.from(LogResult, "base64").toString();
+      this.logger.info(`Response body: ${JSON.stringify(responseBody)}`);
+      this.logger.info(`Log result: ${JSON.stringify(logResult)}`);
+      return responseBody;
+    } catch (error) {
+      this.logger.error(`Error invoking CreateUserLambda directly: ${error.message}`);
+      throw new BadGatewayException('Failed to directly invoke CreateUserLambda');
     }
 
-    this.logger.info(`buffer lambda command: ${JSON.stringify(result)}`);
-    this.logger.info(`buffer lambda log result: ${JSON.stringify(logResult)}`);
-    const response = JSON.parse(result.toString());
-    this.logger.info(`Response from lambda in invoke: ${JSON.stringify(response)}`);
 
-    const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
-    this.logger.info(`Lambda response string before calling: ${JSON.stringify(lambdaResponseString)}`);
-    const lambdaResponse = JSON.parse(lambdaResponseString);
+    // const result = Buffer.from(Payload).toString();
+    // const logResult = Buffer.from(LogResult, "base64").toString();
+    // const result = Payload;
+    // if (!result) {
+    //   throw new Error("No payload received from lambda");
+    // }
 
-    this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
-    return result;
+    // this.logger.info(`buffer lambda command: ${JSON.stringify(result)}`);
+    // this.logger.info(`buffer lambda log result: ${JSON.stringify(logResult)}`);
+    // const response = JSON.parse(result.toString());
+    // this.logger.info(`Response from lambda in invoke: ${JSON.stringify(response)}`);
+
+    // const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
+    // this.logger.info(`Lambda response string before calling: ${JSON.stringify(lambdaResponseString)}`);
+    // const lambdaResponse = JSON.parse(lambdaResponseString);
+
+    // this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
+    // return result;
   }
 
   @Post('signin')
@@ -108,7 +120,10 @@ export class AuthController {
     const lambdaFunctionName = 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw';
     try {
       const lambdaResponse = await this.invokeLambda(lambdaFunctionName, signupDto);
-      const responseBody = JSON.parse(JSON.parse(lambdaResponse.body));
+      const parsedBody = JSON.parse(lambdaResponse.body);
+
+      // If necessary, parse the internal payload (only if it's a stringified JSON)
+      const responseBody = typeof parsedBody === 'string' ? JSON.parse(parsedBody) : parsedBody;
 
       this.logger.info(`Response body: ${JSON.stringify(responseBody)}`);
       if (responseBody.error) {
