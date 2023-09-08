@@ -39,33 +39,33 @@ export class AuthController {
   }
   
   private async invokeLambda(lambdaFunctionName: string, data: any): Promise<any> {
-    this.logger.info(`Invoking lambda: ${lambdaFunctionName}`);
+    // this.logger.info(`Invoking lambda: ${lambdaFunctionName}`);
     this.logger.info(`Payload to Lambda email: ${JSON.stringify(data.email)}`);
-    this.logger.info(`Buffer payload lambda email: ${Buffer.from(JSON.stringify(data.email), 'utf8')}`);
+    // this.logger.info(`Buffer payload lambda email: ${Buffer.from(JSON.stringify(data.email), 'utf8')}`);
 
     const payload = new TextEncoder().encode(JSON.stringify(data));
-    this.logger.info(`Payload data: ${JSON.stringify(payload)}`);
     const command = new InvokeCommand({
       FunctionName: lambdaFunctionName,
-      Payload: payload,
+      Payload: JSON.stringify(data),
       
     });
 
     this.logger.info("Invoke command values: " + JSON.stringify(command));
     const response = await this.lambdaClient.send(command);
-    this.logger.info("response data after command: " + JSON.stringify(response));
+    const result = Buffer.from(response.Payload as Uint8Array).toString();
+    this.logger.info(`buffer lambda command: ${JSON.stringify(result)}`);
 
     if (!response.Payload) {
       this.logger.error(`payload lambda  ${lambdaFunctionName} did not return a valid response.`);
       throw new Error(`Lambda ${lambdaFunctionName} did not return a valid response.`);
     }
 
-    const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
-    this.logger.info(`Lambda response string before calling: ${JSON.stringify(lambdaResponseString)}`);
-    const lambdaResponse = JSON.parse(lambdaResponseString);
+    // const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
+    // this.logger.info(`Lambda response string before calling: ${JSON.stringify(lambdaResponseString)}`);
+    // const lambdaResponse = JSON.parse(lambdaResponseString);
 
-    this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
-    return lambdaResponseString;
+    // this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
+    return result;
   }
   
   // private async invokeCreateUserLambda(data: SignupDto): Promise<any> {
