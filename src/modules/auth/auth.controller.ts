@@ -43,10 +43,9 @@ export class AuthController {
 
     if (!data.email) {
       this.logger.error("Email is not provided or is null");
-      throw new Error('Email is required');
+      throw new BadRequestException('Email is required');
     }
     try {
-
       // Send the email as part of the body in a POST request
       const urlResponse = await axios.post(url, {
         email: data.email
@@ -125,7 +124,7 @@ export class AuthController {
       if (lambdaResponse.error) {
         throw new ConflictException(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
       }
-      // Now, save this new user data in your own database
+      
       const newUser = await this.userService.create({
         ...signupDto,
         email: emailToCheck // Override with the email received from Lambda, if necessary

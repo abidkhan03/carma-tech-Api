@@ -1,0 +1,314 @@
+{
+	"info": {
+		"_postman_id": "aba5915a-6123-45d6-b27c-6ce7d2934abd",
+		"name": "carma-tech",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29010469"
+	},
+	"item": [
+		{
+			"name": "Beanstalk",
+			"item": [
+				{
+					"name": "UsersCount",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://nest-application-env.eba-mnhrpmnd.us-east-2.elasticbeanstalk.com/api/users/count",
+							"protocol": "http",
+							"host": [
+								"nest-application-env",
+								"eba-mnhrpmnd",
+								"us-east-2",
+								"elasticbeanstalk",
+								"com"
+							],
+							"path": [
+								"api",
+								"users",
+								"count"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SignIn",
+					"request": {
+						"method": "POST",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "SignUp",
+					"request": {
+						"method": "POST",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cognito-UserPool",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test112233@gmail.com\"\n}"
+						},
+						"url": {
+							"raw": "https://0ycdi3goi5.execute-api.us-east-2.amazonaws.com/prod/createUser?phone=00974558877654",
+							"protocol": "https",
+							"host": [
+								"0ycdi3goi5",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"createUser"
+							],
+							"query": [
+								{
+									"key": "phone",
+									"value": "00974558877654"
+								},
+								{
+									"key": "email",
+									"value": "testuser223fg3@gmail.com",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign Up",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://0ycdi3goi5.execute-api.us-east-2.amazonaws.com/prod/signup?name=khalid&username=khalidkhan&email=abdullah.40903@gmail.com&password=Passwd@22",
+							"protocol": "https",
+							"host": [
+								"0ycdi3goi5",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"signup"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "khalid"
+								},
+								{
+									"key": "username",
+									"value": "khalidkhan"
+								},
+								{
+									"key": "email",
+									"value": "abdullah.40903@gmail.com"
+								},
+								{
+									"key": "password",
+									"value": "Passwd@22"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Signup",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://0ycdi3goi5.execute-api.us-east-2.amazonaws.com/prod/signupConfirm?username=khalidkhan&password=Passwd@22&code=341040",
+							"protocol": "https",
+							"host": [
+								"0ycdi3goi5",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"signupConfirm"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "khalidkhan"
+								},
+								{
+									"key": "password",
+									"value": "Passwd@22"
+								},
+								{
+									"key": "code",
+									"value": "341040"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Internal",
+			"item": [
+				{
+					"name": "Daily school food",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://j3t0vhnd5c.execute-api.us-east-2.amazonaws.com/prod/?school_slug=early-childhood-education&menu_type=breakfast&date=2023/07/11",
+							"protocol": "https",
+							"host": [
+								"j3t0vhnd5c",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								""
+							],
+							"query": [
+								{
+									"key": "school_slug",
+									"value": "early-childhood-education"
+								},
+								{
+									"key": "menu_type",
+									"value": "breakfast"
+								},
+								{
+									"key": "date",
+									"value": "2023/07/11"
+								},
+								{
+									"key": "format",
+									"value": "smsd",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SignIn",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "SingUp",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstName\": \"james\",\n    \"lastName\": \"jonathan\",\n    \"email\": \"jonathan@gmail.com\",\n    \"password\": \"joshn1122\",\n    \"passwordConfirmation\": \"joshn1122\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://1tpqrp28k0.execute-api.us-east-2.amazonaws.com/prod/api/auth/signup",
+					"protocol": "https",
+					"host": [
+						"1tpqrp28k0",
+						"execute-api",
+						"us-east-2",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"prod",
+						"api",
+						"auth",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CountUsers",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://g9p61ohwq9.execute-api.us-east-2.amazonaws.com/prod/api/users/count",
+					"protocol": "https",
+					"host": [
+						"g9p61ohwq9",
+						"execute-api",
+						"us-east-2",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"prod",
+						"api",
+						"users",
+						"count"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
