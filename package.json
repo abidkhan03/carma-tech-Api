@@ -11,7 +11,7 @@
     "start": "nest build --webpack --webpackPath webpack-hmr.config.js --watch",
     "start:dev": "nodemon",
     "start:debug": "nodemon --config nodemon-debug.json",
-    "prestart:prod": "rimraf dist && tsc",
+    "prestart:prod": "rimraf dist && node --max-old-space-size=4096 node_modules/typescript/bin/tsc",
     "start:prod": "node -r ./tsconfig-paths-bootstrap.js dist/main.js",
     "start:hmr": "node dist/server",
     "test": "jest",

@@ -62,10 +62,10 @@ export class AuthController {
     const {Payload, LogResult} = await this.lambdaClient.send(command);
     // const result = Buffer.from(Payload).toString();
     const logResult = Buffer.from(LogResult, "base64").toString();
-    const result = Buffer.from(Payload as Uint8Array).toString();
+    const result = Buffer.from(Payload as Uint8Array);
     this.logger.info(`buffer lambda command: ${JSON.stringify(result)}`);
     this.logger.info(`buffer lambda log result: ${JSON.stringify(logResult)}`);
-    const response = JSON.parse(result);
+    const response = JSON.parse(result.toString());
     this.logger.info(`Response from lambda in invoke: ${JSON.stringify(response)}`);
 
     // const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
