@@ -44,17 +44,17 @@ export class AuthController {
     this.logger.info(`Payload to Lambda email: ${JSON.stringify(data.email)}`);
     // this.logger.info(`Buffer payload lambda email: ${Buffer.from(JSON.stringify(data.email), 'utf8')}`);
 
-    // const payload = new TextEncoder().encode(JSON.stringify(data));
     const payloadData = {
       queryStringParameters: {
         email: data.email
       }
     };
+    const payload = new TextEncoder().encode(JSON.stringify(payloadData));
     const command = new InvokeCommand({
       FunctionName: lambdaFunctionName,
       InvocationType: 'RequestResponse' || 'Event' || 'DryRun',
       LogType: 'Tail',
-      Payload: Buffer.from(JSON.stringify(payloadData)),
+      Payload: payload,
 
     });
 
@@ -78,7 +78,7 @@ export class AuthController {
     const lambdaResponse = JSON.parse(lambdaResponseString);
 
     this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
-    return response;
+    return lambdaResponse;
   }
 
   @Post('signin')
@@ -107,7 +107,8 @@ export class AuthController {
     const lambdaFunctionName = 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw';
     try {
       const lambdaResponse = await this.invokeLambda(lambdaFunctionName, signupDto);
-      const responseBody = JSON.parse(lambdaResponse.body);
+      const responseBody = JSON.parse(JSON.parse(lambdaResponse.body));
+
       this.logger.info(`Response body: ${JSON.stringify(responseBody)}`);
       if (responseBody.error) {
         this.logger.error(`Error invoking CreateUserLambda response body: ${responseBody.error}`);
