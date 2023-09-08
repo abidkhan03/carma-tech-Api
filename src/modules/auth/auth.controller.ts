@@ -53,8 +53,10 @@ export class AuthController {
 
 
     const response = await this.lambdaClient.send(command);
+    this.logger.info("response data after command: " + JSON.stringify(response));
 
     if (!response.Payload) {
+      this.logger.error(`payload lambda  ${lambdaFunctionName} did not return a valid response.`);
       throw new Error(`Lambda ${lambdaFunctionName} did not return a valid response.`);
     }
 
