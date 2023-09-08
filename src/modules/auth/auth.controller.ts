@@ -40,12 +40,12 @@ export class AuthController {
   
   private async invokeLambda(lambdaFunctionName: string, data: any): Promise<any> {
     this.logger.info(`Invoking lambda: ${lambdaFunctionName}`);
-    this.logger.info(`Payload to Lambda: ${JSON.stringify(data)}`);
+    this.logger.info(`Payload to Lambda email: ${JSON.stringify(data.email)}`);
 
     const payload = new TextEncoder().encode(JSON.stringify(data));
     const command = new InvokeCommand({
       FunctionName: lambdaFunctionName,
-      Payload: payload,
+      Payload: JSON.stringify(data.email),
     });
 
 
@@ -122,7 +122,7 @@ export class AuthController {
       this.logger.info(`Lambda response signup: ${JSON.stringify(lambdaResponse)}`);
       const lambdaResponseBody = JSON.parse(lambdaResponse.body);
       this.logger.info(`Lambda response body: ${JSON.stringify(lambdaResponseBody)}`);
-      const emailToCheck = lambdaResponse.user;
+      const emailToCheck = lambdaResponse.email;
       this.logger.info(`Email to check: ${JSON.stringify(emailToCheck)}`);
       if (!emailToCheck) {
         this.logger.error(`Email is not provided or is null: ${JSON.stringify(emailToCheck)}`);
