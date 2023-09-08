@@ -47,32 +47,37 @@ export class AuthController {
     // const payload = new TextEncoder().encode(JSON.stringify(data));
     const payloadData = {
       queryStringParameters: {
-          email: data.email
+        email: data.email
       }
-  };
+    };
     const command = new InvokeCommand({
       FunctionName: lambdaFunctionName,
       InvocationType: 'RequestResponse' || 'Event' || 'DryRun',
       LogType: 'Tail',
-      Payload: JSON.stringify(payloadData),
+      Payload: Buffer.from(JSON.stringify(payloadData)),
 
     });
 
-    this.logger.info("Invoke command values: " + JSON.stringify(command.input.Payload.toString()));
-    const {Payload, LogResult} = await this.lambdaClient.send(command);
+    this.logger.info("Invoke command values: " + JSON.stringify(command.input.Payload ? command.input.Payload.toString() : 'undefined'));
+    const { Payload, LogResult } = await this.lambdaClient.send(command);
+
     // const result = Buffer.from(Payload).toString();
     const logResult = Buffer.from(LogResult, "base64").toString();
-    const result = Buffer.from(Payload as Uint8Array);
+    const result = Payload ? Buffer.from(Payload as Uint8Array).toString() : null;
+    if (!result) {
+      throw new Error("No payload received from lambda");
+    }
+
     this.logger.info(`buffer lambda command: ${JSON.stringify(result)}`);
     this.logger.info(`buffer lambda log result: ${JSON.stringify(logResult)}`);
     const response = JSON.parse(result.toString());
     this.logger.info(`Response from lambda in invoke: ${JSON.stringify(response)}`);
 
-    // const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
-    // this.logger.info(`Lambda response string before calling: ${JSON.stringify(lambdaResponseString)}`);
-    // const lambdaResponse = JSON.parse(lambdaResponseString);
+    const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
+    this.logger.info(`Lambda response string before calling: ${JSON.stringify(lambdaResponseString)}`);
+    const lambdaResponse = JSON.parse(lambdaResponseString);
 
-    // this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
+    this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
     return response;
   }
 
