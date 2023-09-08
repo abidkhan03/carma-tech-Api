@@ -54,16 +54,17 @@ export class AuthController {
       FunctionName: lambdaFunctionName,
       InvocationType: 'RequestResponse' || 'Event' || 'DryRun',
       LogType: 'Tail',
-      Payload: payload,
+      Payload: Buffer.from(JSON.stringify(payloadData), "utf8"),
 
     });
 
     this.logger.info("Invoke command values: " + JSON.stringify(command.input.Payload ? command.input.Payload.toString() : 'undefined'));
+
     const { Payload, LogResult } = await this.lambdaClient.send(command);
 
     // const result = Buffer.from(Payload).toString();
     const logResult = Buffer.from(LogResult, "base64").toString();
-    const result = Payload ? Buffer.from(Payload as Uint8Array).toString() : null;
+    const result = Payload;
     if (!result) {
       throw new Error("No payload received from lambda");
     }
@@ -78,7 +79,7 @@ export class AuthController {
     const lambdaResponse = JSON.parse(lambdaResponseString);
 
     this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
-    return lambdaResponse;
+    return result;
   }
 
   @Post('signin')
