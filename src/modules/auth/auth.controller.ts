@@ -46,7 +46,7 @@ export class AuthController {
     const payload = new TextEncoder().encode(JSON.stringify(data.email));
     const command = new InvokeCommand({
       FunctionName: lambdaFunctionName,
-      Payload: Buffer.from(JSON.stringify(data.email), 'utf8'),
+      Payload: payload,
       
     });
 
@@ -58,6 +58,7 @@ export class AuthController {
     }
 
     const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
+    this.logger.info(`Lambda response string before calling: ${JSON.stringify(lambdaResponseString)}`);
     const lambdaResponse = JSON.parse(lambdaResponseString);
 
     this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
@@ -120,7 +121,11 @@ export class AuthController {
     }
     const lambdaFunctionName = 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw';
     try {
-      const lambdaResponse = await this.invokeLambda(lambdaFunctionName, signupDto.email);
+      const lambdaResponse = await this.invokeLambda(lambdaFunctionName, signupDto);
+      // decode the response
+      this.logger.info(`Raw Lambda response payload: ${lambdaResponse.Payload}`);
+      const lambdaResponseString = new TextDecoder().decode(lambdaResponse.Payload as Uint8Array);
+      this.logger.info(`Lambda response string: ${JSON.stringify(lambdaResponseString)}`);
       this.logger.info(`Lambda response signup: ${JSON.stringify(lambdaResponse)}`);
       const lambdaResponseBody = JSON.parse(lambdaResponse.body);
       this.logger.info(`Lambda response body: ${JSON.stringify(lambdaResponseBody)}`);
