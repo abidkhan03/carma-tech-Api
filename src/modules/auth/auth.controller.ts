@@ -46,26 +46,28 @@ export class AuthController {
     // const payload = new TextEncoder().encode(JSON.stringify(data));
     const command = new InvokeCommand({
       FunctionName: lambdaFunctionName,
+      InvocationType: 'RequestResponse',
+      LogType: 'Tail',
       Payload: JSON.stringify(data),
 
     });
 
     this.logger.info("Invoke command values: " + JSON.stringify(command.input.Payload.toString()));
-    const response = await this.lambdaClient.send(command);
-    const result = Buffer.from(response.Payload as Uint8Array).toString();
+    const {Payload, LogResult} = await this.lambdaClient.send(command);
+    const result = Buffer.from(Payload).toString();
+    const logResult = Buffer.from(LogResult, "base64").toString();
+    // const result = Buffer.from(response.Payload as Uint8Array).toString();
     this.logger.info(`buffer lambda command: ${JSON.stringify(result)}`);
-
-    if (!response.Payload) {
-      this.logger.error(`payload lambda  ${lambdaFunctionName} did not return a valid response.`);
-      throw new Error(`Lambda ${lambdaFunctionName} did not return a valid response.`);
-    }
+    this.logger.info(`buffer lambda log result: ${JSON.stringify(logResult)}`);
+    const response = JSON.parse(result);
+    this.logger.info(`Response from lambda in invoke: ${JSON.stringify(response)}`);
 
     // const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
     // this.logger.info(`Lambda response string before calling: ${JSON.stringify(lambdaResponseString)}`);
     // const lambdaResponse = JSON.parse(lambdaResponseString);
 
     // this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
-    return response;
+    return result;
   }
 
   @Post('signin')
@@ -96,18 +98,13 @@ export class AuthController {
       const lambdaResponse = await this.invokeLambda(lambdaFunctionName, signupDto);
       // decode the response
       this.logger.info(`Raw Lambda response payload: ${lambdaResponse.Payload.toString()}`);
-      const lambdaResponseString = new TextDecoder().decode(lambdaResponse.Payload as Uint8Array);
-      this.logger.info(`Lambda response string: ${JSON.stringify(lambdaResponseString)}`);
       this.logger.info(`Lambda response signup: ${JSON.stringify(lambdaResponse)}`);
-      const lambdaResponseBody = JSON.parse(lambdaResponse.body);
       const emailToCheck = lambdaResponse.email;
+      this.logger.info(`test test test ${JSON.stringify(lambdaResponse.email.toString())}`)
       this.logger.info(`Email to check: ${JSON.stringify(emailToCheck)}`);
       if (!emailToCheck) {
         this.logger.error(`Email is not provided or is null: ${JSON.stringify(emailToCheck)}`);
         throw new Error(`Email not returned from Lambda or is undefined: ${JSON.stringify(emailToCheck)}`);
-      }
-      if (lambdaResponse.statusCode === 400 && lambdaResponseBody.error) {
-        throw new ConflictException(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
       }
 
       const newUser = await this.userService.create({
