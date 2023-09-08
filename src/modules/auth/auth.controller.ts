@@ -57,8 +57,8 @@ export class AuthController {
       throw new Error(`Lambda ${lambdaFunctionName} did not return a valid response.`);
     }
 
-    // const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
-    const lambdaResponse = JSON.parse(response.Payload.toString());
+    const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
+    const lambdaResponse = JSON.parse(lambdaResponseString);
 
     this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
     return lambdaResponse;
@@ -120,7 +120,7 @@ export class AuthController {
     }
     const lambdaFunctionName = 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw';
     try {
-      const lambdaResponse = await this.invokeLambda(lambdaFunctionName,signupDto);
+      const lambdaResponse = await this.invokeLambda(lambdaFunctionName, signupDto.email);
       this.logger.info(`Lambda response signup: ${JSON.stringify(lambdaResponse)}`);
       const lambdaResponseBody = JSON.parse(lambdaResponse.body);
       this.logger.info(`Lambda response body: ${JSON.stringify(lambdaResponseBody)}`);
