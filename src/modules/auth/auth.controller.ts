@@ -22,6 +22,7 @@ import { Logger } from '@aws-lambda-powertools/logger';
 import { TextEncoder, TextDecoder } from 'util';
 import * as AWS from 'aws-sdk';
 import axios from 'axios';
+import { error } from 'console';
 
 @Controller('api/auth')
 @ApiTags('authentication')
@@ -44,11 +45,16 @@ export class AuthController {
     // this.logger.info(`Buffer payload lambda email: ${Buffer.from(JSON.stringify(data.email), 'utf8')}`);
 
     // const payload = new TextEncoder().encode(JSON.stringify(data));
+    const payloadData = {
+      queryStringParameters: {
+          email: data.email
+      }
+  };
     const command = new InvokeCommand({
       FunctionName: lambdaFunctionName,
       InvocationType: 'RequestResponse',
       LogType: 'Tail',
-      Payload: JSON.stringify(data),
+      Payload: JSON.stringify(payloadData),
 
     });
 
@@ -96,10 +102,16 @@ export class AuthController {
     const lambdaFunctionName = 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw';
     try {
       const lambdaResponse = await this.invokeLambda(lambdaFunctionName, signupDto);
+      const responseBody = JSON.parse(lambdaResponse.body);
+      this.logger.info(`Response body: ${JSON.stringify(responseBody)}`);
+      if (responseBody.error) {
+        this.logger.error(`Error invoking CreateUserLambda: ${responseBody.error}`);
+        throw new BadRequestException(`Error invoking CreateUserLambda: ${responseBody.error}`);
+      }
       // decode the response
       this.logger.info(`Raw Lambda response payload: ${lambdaResponse.Payload.toString()}`);
       this.logger.info(`Lambda response signup: ${JSON.stringify(lambdaResponse)}`);
-      const emailToCheck = lambdaResponse.email;
+      const emailToCheck = responseBody.email;
       this.logger.info(`test test test ${JSON.stringify(lambdaResponse.email.toString())}`)
       this.logger.info(`Email to check: ${JSON.stringify(emailToCheck)}`);
       if (!emailToCheck) {
