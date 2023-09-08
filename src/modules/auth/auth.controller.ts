@@ -82,6 +82,9 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async signup(@Body() signupDto: SignupDto): Promise<any> {
+    if (!signupDto.email) {
+      throw new BadRequestException('Email is required');
+    }
     const user = await this.userService.getByEmail(signupDto.email);
     if (user) {
       throw new ConflictException(
@@ -90,11 +93,7 @@ export class AuthController {
     }
     const lambdaFunctionName = 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw';
     try {
-      const lambdaResponse = await this.invokeLambda(lambdaFunctionName, {
-        queryStringParameters: {
-          email: signupDto.email,
-        },
-      });
+      const lambdaResponse = await this.invokeLambda(lambdaFunctionName, signupDto);
       // decode the response
       this.logger.info(`Raw Lambda response payload: ${lambdaResponse.Payload.toString()}`);
       const lambdaResponseString = new TextDecoder().decode(lambdaResponse.Payload as Uint8Array);
