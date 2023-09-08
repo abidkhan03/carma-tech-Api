@@ -37,17 +37,17 @@ export class AuthController {
       region: 'us-east-2',
     });
   }
-  
+
   private async invokeLambda(lambdaFunctionName: string, data: any): Promise<any> {
     // this.logger.info(`Invoking lambda: ${lambdaFunctionName}`);
     this.logger.info(`Payload to Lambda email: ${JSON.stringify(data.email)}`);
     // this.logger.info(`Buffer payload lambda email: ${Buffer.from(JSON.stringify(data.email), 'utf8')}`);
 
-    const payload = new TextEncoder().encode(JSON.stringify(data));
+    // const payload = new TextEncoder().encode(JSON.stringify(data));
     const command = new InvokeCommand({
       FunctionName: lambdaFunctionName,
-      Payload: data,
-      
+      Payload: JSON.stringify(data),
+
     });
 
     this.logger.info("Invoke command values: " + JSON.stringify(command.input.Payload.toString()));
@@ -67,40 +67,6 @@ export class AuthController {
     // this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
     return response;
   }
-  
-  // private async invokeCreateUserLambda(data: SignupDto): Promise<any> {
-
-  //   if (!data.email) {
-  //     this.logger.error("Email is not provided or is null");
-  //     throw new Error('Email is required');
-  //   }
-
-  //   const payload = new TextEncoder().encode(JSON.stringify(data));
-  //   const command = new InvokeCommand({
-  //     FunctionName: 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw',
-  //     Payload: payload,
-  //   });
-  //   this.logger.info(`command for lambda client: ${JSON.stringify(command)}`);
-  //   try {
-  //     const response = await this.lambdaClient.send(command);
-  //     this.logger.info(`response for lambda client: ${JSON.stringify(response)}`);
-  //     this.logger.info(`Raw Lambda response payload: ${response.Payload}`);
-
-  //     const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
-  //     const lambdaResponse = JSON.parse(lambdaResponseString);
-  //     this.logger.info(`Lambda response: ${JSON.stringify(lambdaResponse)}`);
-  //     if (!lambdaResponse.user) {
-  //       throw new BadRequestException('User email not returned from Lambda or is undefined.');
-  //     }
-  //     if (lambdaResponse.error) {
-  //       throw new ConflictException(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
-  //     }
-  //     return lambdaResponse;
-  //   } catch (error) {
-  //     this.logger.error(`Error invoking CreateUserLambda via lambdaClient: ${error.message}`);
-  //     throw new BadGatewayException('Failed to invoke CreateUserLambda');
-  //   }
-  // }
 
   @Post('signin')
   @ApiResponse({ status: 201, description: 'Successful Login' })
@@ -125,7 +91,9 @@ export class AuthController {
     const lambdaFunctionName = 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw';
     try {
       const lambdaResponse = await this.invokeLambda(lambdaFunctionName, {
-        email: signupDto.email,
+        queryStringParameters: {
+          email: signupDto.email,
+        },
       });
       // decode the response
       this.logger.info(`Raw Lambda response payload: ${lambdaResponse.Payload.toString()}`);
@@ -142,7 +110,7 @@ export class AuthController {
       if (lambdaResponse.statusCode === 400 && lambdaResponseBody.error) {
         throw new ConflictException(lambdaResponse.errorMessage || 'Error creating user in Cognito.');
       }
-      
+
       const newUser = await this.userService.create({
         ...signupDto,
         email: emailToCheck // Override with the email received from Lambda, if necessary
