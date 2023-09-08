@@ -41,11 +41,13 @@ export class AuthController {
   private async invokeLambda(lambdaFunctionName: string, data: any): Promise<any> {
     this.logger.info(`Invoking lambda: ${lambdaFunctionName}`);
     this.logger.info(`Payload to Lambda email: ${JSON.stringify(data.email)}`);
+    this.logger.info(`Buffer payload lambda email: ${Buffer.from(JSON.stringify(data.email), 'utf8')}`);
 
-    const payload = new TextEncoder().encode(JSON.stringify(data));
+    const payload = new TextEncoder().encode(JSON.stringify(data.email));
     const command = new InvokeCommand({
       FunctionName: lambdaFunctionName,
-      Payload: JSON.stringify(data.email),
+      Payload: Buffer.from(JSON.stringify(data.email), 'utf8'),
+      
     });
 
 
@@ -55,8 +57,8 @@ export class AuthController {
       throw new Error(`Lambda ${lambdaFunctionName} did not return a valid response.`);
     }
 
-    const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
-    const lambdaResponse = JSON.parse(lambdaResponseString);
+    // const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
+    const lambdaResponse = JSON.parse(response.Payload.toString());
 
     this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
     return lambdaResponse;
