@@ -52,7 +52,7 @@ export class AuthController {
   };
     const command = new InvokeCommand({
       FunctionName: lambdaFunctionName,
-      InvocationType: 'RequestResponse',
+      InvocationType: 'RequestResponse' || 'Event' || 'DryRun',
       LogType: 'Tail',
       Payload: JSON.stringify(payloadData),
 
@@ -109,9 +109,9 @@ export class AuthController {
         throw new BadRequestException(`Error invoking CreateUserLambda response body: ${responseBody.error}`);
       }
       // decode the response
-      this.logger.info(`Raw Lambda response payload: ${lambdaResponse.Payload.toString()}`);
+      // this.logger.info(`Raw Lambda response payload: ${lambdaResponse.Payload.toString()}`);
       this.logger.info(`Lambda response signup: ${JSON.stringify(lambdaResponse)}`);
-      const emailToCheck = responseBody.email;
+      const emailToCheck = responseBody.user;
       this.logger.info(`test test test ${JSON.stringify(lambdaResponse.email.toString())}`)
       this.logger.info(`Email to check: ${JSON.stringify(emailToCheck)}`);
       if (!emailToCheck) {
