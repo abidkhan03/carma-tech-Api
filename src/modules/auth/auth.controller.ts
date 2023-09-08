@@ -51,7 +51,7 @@ export class AuthController {
       
     });
 
-
+    this.logger.info("Invoke command values: " + JSON.stringify(command));
     const response = await this.lambdaClient.send(command);
     this.logger.info("response data after command: " + JSON.stringify(response));
 
@@ -65,7 +65,7 @@ export class AuthController {
     const lambdaResponse = JSON.parse(lambdaResponseString);
 
     this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
-    return lambdaResponse;
+    return lambdaResponseString;
   }
   
   // private async invokeCreateUserLambda(data: SignupDto): Promise<any> {
