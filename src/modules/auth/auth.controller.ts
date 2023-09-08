@@ -50,7 +50,7 @@ export class AuthController {
       
     });
 
-    this.logger.info("Invoke command values: " + JSON.stringify(command));
+    this.logger.info("Invoke command values: " + JSON.stringify(command.input.Payload.toString()));
     const response = await this.lambdaClient.send(command);
     const result = Buffer.from(response.Payload as Uint8Array).toString();
     this.logger.info(`buffer lambda command: ${JSON.stringify(result)}`);
@@ -124,7 +124,9 @@ export class AuthController {
     }
     const lambdaFunctionName = 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw';
     try {
-      const lambdaResponse = await this.invokeLambda(lambdaFunctionName, signupDto);
+      const lambdaResponse = await this.invokeLambda(lambdaFunctionName, {
+        email: signupDto.email,
+      });
       // decode the response
       this.logger.info(`Raw Lambda response payload: ${lambdaResponse.Payload}`);
       const lambdaResponseString = new TextDecoder().decode(lambdaResponse.Payload as Uint8Array);
