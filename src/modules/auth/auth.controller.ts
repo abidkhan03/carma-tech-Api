@@ -73,7 +73,7 @@ export class AuthController {
     // const lambdaResponse = JSON.parse(lambdaResponseString);
 
     // this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
-    return result;
+    return response;
   }
 
   @Post('signin')
@@ -127,12 +127,12 @@ export class AuthController {
       return await this.authService.createToken(newUser);
     } catch (error) {
       this.logger.error(`Error invoking CreateUserLambda: ${error.message}`);
-      // if (error instanceof BadRequestException) {
-      //   throw new BadRequestException(error.message);
-      // }
-      // if (error instanceof ConflictException) {
-      //   throw error;
-      // }
+      if (error instanceof BadRequestException) {
+        throw new BadRequestException(error.message);
+      }
+      if (error instanceof ConflictException) {
+        throw error;
+      }
       throw new BadGatewayException('Failed to invoke CreateUserLambda');
     }
   }
