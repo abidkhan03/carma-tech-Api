@@ -46,7 +46,7 @@ export class AuthController {
     const payload = new TextEncoder().encode(JSON.stringify(data));
     const command = new InvokeCommand({
       FunctionName: lambdaFunctionName,
-      Payload: JSON.stringify(data),
+      Payload: data,
       
     });
 
@@ -65,7 +65,7 @@ export class AuthController {
     // const lambdaResponse = JSON.parse(lambdaResponseString);
 
     // this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
-    return result;
+    return response;
   }
   
   // private async invokeCreateUserLambda(data: SignupDto): Promise<any> {
@@ -128,12 +128,11 @@ export class AuthController {
         email: signupDto.email,
       });
       // decode the response
-      this.logger.info(`Raw Lambda response payload: ${lambdaResponse.Payload}`);
+      this.logger.info(`Raw Lambda response payload: ${lambdaResponse.Payload.toString()}`);
       const lambdaResponseString = new TextDecoder().decode(lambdaResponse.Payload as Uint8Array);
       this.logger.info(`Lambda response string: ${JSON.stringify(lambdaResponseString)}`);
       this.logger.info(`Lambda response signup: ${JSON.stringify(lambdaResponse)}`);
       const lambdaResponseBody = JSON.parse(lambdaResponse.body);
-      this.logger.info(`Lambda response body: ${JSON.stringify(lambdaResponseBody)}`);
       const emailToCheck = lambdaResponse.email;
       this.logger.info(`Email to check: ${JSON.stringify(emailToCheck)}`);
       if (!emailToCheck) {
