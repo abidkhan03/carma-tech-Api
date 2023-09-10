@@ -183,6 +183,7 @@ import {
   Get,
   Request,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
@@ -193,6 +194,7 @@ import { UsersService } from '@modules/user/user.service';
 import { IRequest } from '@modules/user/user.interface';
 import { Lambda } from 'aws-sdk';
 import { Logger } from '@aws-lambda-powertools/logger';
+import { sign } from 'crypto';
 
 @Controller('api/auth')
 @ApiTags('authentication')
@@ -222,17 +224,21 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async signup(@Body() signupDto: SignupDto): Promise<any> {
-    const existingUser = await this.userService.getByEmail(signupDto.email);
+    const existingUser = await this.userService.getByEmailOrPhone(signupDto.email, signupDto.phone);
     if (existingUser) {
       this.logger.error(`User with provided email already exists: ${JSON.stringify(existingUser)}`);
-      throw new ConflictException('User with provided email already exists.');
+      throw new ConflictException('User with provided email or phone number already exist');
     }
     try {
 
       const lambdaPayload = {
-        queryStringParameters: {
-          email: signupDto.email
-        }
+        queryStringParameters: {}
+      };
+
+      if (signupDto.email) {
+        lambdaPayload.queryStringParameters['email'] = signupDto.email;
+      } else if (signupDto.phone) {
+        lambdaPayload.queryStringParameters['phone'] = signupDto.phone;
       };
       const lambdaParams = {
         FunctionName: 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw',
@@ -252,7 +258,7 @@ export class AuthController {
       // Handle any errors from the lambda function
       if (lambdaResponse.FunctionError) {
         this.logger.error(`Error creating cognito: ${lambdaResponse.Payload as string}`)
-        throw new ConflictException(lambdaResponse.Payload as string || 'Error creating user in cognito');
+        throw new BadRequestException(lambdaResponse.Payload as string || 'Error creating user in cognito');
       }
       const user = await this.userService.create(signupDto);
       return await this.authService.createToken(user);
