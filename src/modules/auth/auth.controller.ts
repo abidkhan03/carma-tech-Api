@@ -241,7 +241,7 @@ export class AuthController {
         lambdaPayload.queryStringParameters['phone'] = signupDto.phone;
       };
       const lambdaParams = {
-        FunctionName: 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw',
+        FunctionName: 'CarmaTechAPIStack-CarmaTechInfraLambda9B8388EE-qMN8BBLzslEm',
         Payload: JSON.stringify(lambdaPayload),
       };
       this.logger.info(`lambda function params: ${JSON.stringify(lambdaParams)}`)
