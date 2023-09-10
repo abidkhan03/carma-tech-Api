@@ -62,7 +62,8 @@ export class AuthController {
       this.logger.info("Invoke command values: " + JSON.stringify(command.input.Payload ? command.input.Payload.toString() : 'undefined'));
 
       const { Payload, LogResult } = await this.lambdaClient.send(command);
-      this.logger.info(`Payload from lambda: ${JSON.stringify(Payload)}`);
+      this.logger.info(`Raw Payload from lambda: ${Payload ? Payload.toString() : "Payload is empty or undefined"}`);
+
       // const responseBody = JSON.parse(Payload.toString());
       // const logResult = Buffer.from(LogResult, "base64").toString();
       // this.logger.info(`Response body: ${JSON.stringify(responseBody)}`);
@@ -78,8 +79,13 @@ export class AuthController {
 
       this.logger.info(`buffer lambda command: ${JSON.stringify(result)}`);
       this.logger.info(`buffer lambda log result: ${JSON.stringify(logResult)}`);
-      const response = JSON.parse(result.toString());
+      const response = JSON.parse(result);
       this.logger.info(`Response from lambda in invoke: ${JSON.stringify(response)}`);
+      if (!response || !response.Payload) {
+        this.logger.error(`Invalid response format received from Lambda: ${JSON.stringify(response)}`);
+        throw new Error("Invalid response format received from Lambda");
+      }this.logger.info(`Payload from lambda: ${JSON.stringify(Payload)}`);
+      
 
       const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
       this.logger.info(`Lambda response string before calling: ${JSON.stringify(lambdaResponseString)}`);
