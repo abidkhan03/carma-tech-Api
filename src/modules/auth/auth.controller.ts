@@ -142,8 +142,9 @@ export class AuthController {
 
       const newUser = await this.userService.create({
         ...signupDto,
-        email: emailToCheck // Override with the email received from Lambda, if necessary
+        // email: emailToCheck // Override with the email received from Lambda, if necessary
       });
+
       this.logger.info(`New user created: ${JSON.stringify(newUser)}`);
       return await this.authService.createToken(newUser);
     } catch (error) {
