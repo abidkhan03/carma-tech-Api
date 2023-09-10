@@ -55,7 +55,7 @@ export class AuthController {
         FunctionName: lambdaFunctionName,
         InvocationType: 'RequestResponse' || 'Event' || 'DryRun',
         LogType: 'Tail',
-        Payload: JSON.stringify(payloadData),
+        Payload: payload,
 
       });
 
@@ -63,35 +63,34 @@ export class AuthController {
 
       const { Payload, LogResult } = await this.lambdaClient.send(command);
       this.logger.info(`Payload from lambda: ${JSON.stringify(Payload)}`);
-      const responseBody = JSON.parse(Payload.toString());
+      // const responseBody = JSON.parse(Payload.toString());
+      // const logResult = Buffer.from(LogResult, "base64").toString();
+      // this.logger.info(`Response body: ${JSON.stringify(responseBody)}`);
+      // this.logger.info(`Log result: ${JSON.stringify(logResult)}`);
+      // return responseBody;
+
+      const result = Buffer.from(Payload).toString();
       const logResult = Buffer.from(LogResult, "base64").toString();
-      this.logger.info(`Response body: ${JSON.stringify(responseBody)}`);
-      this.logger.info(`Log result: ${JSON.stringify(logResult)}`);
-      return responseBody;
+      // const result = Payload;
+      if (!result) {
+        throw new Error("No payload received from lambda");
+      }
+
+      this.logger.info(`buffer lambda command: ${JSON.stringify(result)}`);
+      this.logger.info(`buffer lambda log result: ${JSON.stringify(logResult)}`);
+      const response = JSON.parse(result.toString());
+      this.logger.info(`Response from lambda in invoke: ${JSON.stringify(response)}`);
+
+      const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
+      this.logger.info(`Lambda response string before calling: ${JSON.stringify(lambdaResponseString)}`);
+      const lambdaResponse = JSON.parse(lambdaResponseString);
+
+      this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
+      return lambdaResponse;
     } catch (error) {
       this.logger.error(`Error invoking CreateUserLambda directly: ${error.message}`);
       throw new BadGatewayException('Failed to directly invoke CreateUserLambda');
     }
-
-
-    // const result = Buffer.from(Payload).toString();
-    // const logResult = Buffer.from(LogResult, "base64").toString();
-    // const result = Payload;
-    // if (!result) {
-    //   throw new Error("No payload received from lambda");
-    // }
-
-    // this.logger.info(`buffer lambda command: ${JSON.stringify(result)}`);
-    // this.logger.info(`buffer lambda log result: ${JSON.stringify(logResult)}`);
-    // const response = JSON.parse(result.toString());
-    // this.logger.info(`Response from lambda in invoke: ${JSON.stringify(response)}`);
-
-    // const lambdaResponseString = new TextDecoder().decode(response.Payload as Uint8Array);
-    // this.logger.info(`Lambda response string before calling: ${JSON.stringify(lambdaResponseString)}`);
-    // const lambdaResponse = JSON.parse(lambdaResponseString);
-
-    // this.logger.info(`Received response from lambda ${lambdaFunctionName}: ${JSON.stringify(lambdaResponse)}`);
-    // return result;
   }
 
   @Post('signin')
@@ -134,7 +133,7 @@ export class AuthController {
       // this.logger.info(`Raw Lambda response payload: ${lambdaResponse.Payload.toString()}`);
       this.logger.info(`Lambda response signup: ${JSON.stringify(lambdaResponse)}`);
       const emailToCheck = responseBody.user;
-      this.logger.info(`test test test ${JSON.stringify(lambdaResponse.email.toString())}`)
+      this.logger.info(`test test test ${JSON.stringify(lambdaResponse.email)}`)
       this.logger.info(`Email to check: ${JSON.stringify(emailToCheck)}`);
       if (!emailToCheck) {
         this.logger.error(`Email is not provided or is null: ${JSON.stringify(emailToCheck)}`);
