@@ -242,12 +242,17 @@ export class AuthController {
 
       const lambdaResponse = await this.lambda.invoke(lambdaParams).promise();
       this.logger.info(`lambda response payload: ${JSON.stringify(lambdaResponse)}`);
-      this.logger.info(`lambda logs result: ${lambdaResponse.LogResult}`)
-      this.logger.info(`status code lambda response: ${lambdaResponse.StatusCode}`)
+      this.logger.info(`lambda logs result: ${lambdaResponse.LogResult}`);
+      const parsedPayload = JSON.parse(lambdaResponse.Payload as string);
+      this.logger.info(`parsed payload: ${JSON.stringify(parsedPayload)}`);
+
+      if (parsedPayload.statusCode === 400 && parsedPayload.body.includes('User with email or phone number already exists')) {
+        throw new ConflictException('User with provided email or phone number already exists in Cognito.');
+      }
       // Handle any errors from the lambda function
       if (lambdaResponse.FunctionError) {
         this.logger.error(`Error creating cognito: ${lambdaResponse.Payload as string}`)
-        throw new Error(lambdaResponse.Payload as string || 'Error creating user in cognito');
+        throw new ConflictException(lambdaResponse.Payload as string || 'Error creating user in cognito');
       }
       const user = await this.userService.create(signupDto);
       return await this.authService.createToken(user);
