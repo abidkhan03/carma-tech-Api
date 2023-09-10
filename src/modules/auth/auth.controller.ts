@@ -224,7 +224,7 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async signup(@Body() signupDto: SignupDto): Promise<any> {
-    const existingUser = await this.userService.getByEmailOrPhone(signupDto.email, signupDto.phone);
+    const existingUser = await this.userService.getByEmail(signupDto.email);
     if (existingUser) {
       this.logger.error(`User with provided email already exists: ${JSON.stringify(existingUser)}`);
       throw new ConflictException('User with provided email or phone number already exist');
@@ -232,14 +232,16 @@ export class AuthController {
     try {
 
       const lambdaPayload = {
-        queryStringParameters: {}
+        queryStringParameters: {
+          email: signupDto.email,
+        }
       };
 
-      if (signupDto.email) {
-        lambdaPayload.queryStringParameters['email'] = signupDto.email;
-      } else if (signupDto.phone) {
-        lambdaPayload.queryStringParameters['phone'] = signupDto.phone;
-      };
+      // if (signupDto.email) {
+      //   lambdaPayload.queryStringParameters['email'] = signupDto.email;
+      // } else if (signupDto.phone) {
+      //   lambdaPayload.queryStringParameters['phone'] = signupDto.phone;
+      // };
       const lambdaParams = {
         FunctionName: 'CarmaTechAPIStack-CarmaTechInfraLambda9B8388EE-qMN8BBLzslEm',
         Payload: JSON.stringify(lambdaPayload),
