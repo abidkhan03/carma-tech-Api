@@ -26,30 +26,30 @@ export class UsersService {
       .getOne();
   }
 
-  // async getByEmailOrPhone(email?: string, phone?: string) {
-  //   const queryBuilder = this.userRepository.createQueryBuilder('users');
+  async getByEmailOrPhone(email?: string, phone?: string) {
+    const queryBuilder = this.userRepository.createQueryBuilder('users');
 
-  //   if (email && phone) {
-  //     queryBuilder
-  //       .where('users.email = :email OR users.phone = :phone')
-  //       .setParameters({ email, phone });
-  //   } else if (email) {
-  //     queryBuilder
-  //       .where('users.email = :email')
-  //       .setParameter('email', email);
-  //   } else if (phone) {
-  //     queryBuilder
-  //       .where('users.phone = :phone')
-  //       .setParameter('phone', phone);
-  //   } else {
-  //     throw new Error('Either email or phone must be provided');
-  //   }
+    if (email && phone) {
+      queryBuilder
+        .where('users.email = :email OR users.phone = :phone')
+        .setParameters({ email, phone });
+    } else if (email) {
+      queryBuilder
+        .where('users.email = :email')
+        .setParameter('email', email);
+    } else if (phone) {
+      queryBuilder
+        .where('users.phone = :phone')
+        .setParameter('phone', phone);
+    } else {
+      throw new Error('Either email or phone must be provided');
+    }
 
-  //   return await queryBuilder.getOne();
-  // }
+    return await queryBuilder.getOne();
+  }
 
   async create(signupDto: SignupDto) {
-    const user = await this.getByEmail(signupDto.email);
+    const user = await this.getByEmailOrPhone(signupDto.email, signupDto.phone);
 
     if (user) {
       throw new NotAcceptableException(

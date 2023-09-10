@@ -34,10 +34,10 @@ export class User {
   email: string;
 
   @Column({ length: 50, nullable: true })
-  phone?: string;
+  phone: string;
 
   @Column({ length: 255, nullable: true })
-  external_identity_id?: string;
+  external_identity_id: string;
 
   @Column({
     name: 'password',
