@@ -18,13 +18,13 @@ export class UsersService {
     });
   }
 
-  // async getByEmail(email: string) {
-  //   return await this.userRepository
-  //     .createQueryBuilder('users')
-  //     .where('users.email = :email')
-  //     .setParameter('email', email)
-  //     .getOne();
-  // }
+  async getByEmail(email: string) {
+    return await this.userRepository
+      .createQueryBuilder('users')
+      .where('users.email = :email')
+      .setParameter('email', email)
+      .getOne();
+  }
 
   async getByEmailOrPhone(email?: string, phone?: string) {
     const queryBuilder = this.userRepository.createQueryBuilder('users');
