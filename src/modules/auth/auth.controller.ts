@@ -182,6 +182,7 @@ import {
   UseGuards,
   Get,
   Request,
+  ConflictException,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
@@ -224,29 +225,36 @@ export class AuthController {
     const existingUser = await this.userService.getByEmail(signupDto.email);
     if (existingUser) {
       this.logger.error(`User with provided email already exists: ${JSON.stringify(existingUser)}`);
-      throw new Error('User with provided email already exists.');
+      throw new ConflictException('User with provided email already exists.');
     }
+    try {
 
-    const lambdaPayload = {
-      queryStringParameters: {
-        email: signupDto.email
+      const lambdaPayload = {
+        queryStringParameters: {
+          email: signupDto.email
+        }
+      };
+      const lambdaParams = {
+        FunctionName: 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw',
+        Payload: JSON.stringify(lambdaPayload),
+      };
+      this.logger.info(`lambda function params: ${JSON.stringify(lambdaParams)}`)
+
+      const lambdaResponse = await this.lambda.invoke(lambdaParams).promise();
+      this.logger.info(`lambda response payload: ${JSON.stringify(lambdaResponse)}`);
+      this.logger.info(`lambda logs result: ${lambdaResponse.LogResult}`)
+      this.logger.info(`status code lambda response: ${lambdaResponse.StatusCode}`)
+      // Handle any errors from the lambda function
+      if (lambdaResponse.FunctionError) {
+        this.logger.error(`Error creating cognito: ${lambdaResponse.Payload as string}`)
+        throw new Error(lambdaResponse.Payload as string || 'Error creating user in cognito');
       }
-    };
-    const lambdaParams = {
-      FunctionName: 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw',
-      Payload: JSON.stringify(lambdaPayload),
-    };
-    this.logger.info(`lambda function params: ${JSON.stringify(lambdaParams)}`)
-
-    const lambdaResponse = await this.lambda.invoke(lambdaParams).promise();
-    this.logger.info(`lambda response command: ${JSON.stringify(lambdaResponse)}`)
-    // Handle any errors from the lambda function
-    if (lambdaResponse.FunctionError){
-      this.logger.error(`Error creating cognito: ${lambdaResponse.Payload as string}`)
-      throw new Error(lambdaResponse.Payload as string || 'Error creating user in cognito');
+      const user = await this.userService.create(signupDto);
+      return await this.authService.createToken(user);
+    } catch (error) {
+      this.logger.error(`Error invoking CreateUserLambda: ${error.message}`);
+      throw new ConflictException(`Failed to invoke CreateUserLambda: ${error.message}`);
     }
-    const user = await this.userService.create(signupDto);
-    return await this.authService.createToken(user);
   }
 
   @ApiBearerAuth()
