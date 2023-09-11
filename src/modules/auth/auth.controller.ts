@@ -279,6 +279,7 @@
 //     return request.user;
 //   }
 // }
+
 import {
   Controller,
   Body,
@@ -340,7 +341,7 @@ export class AuthController {
         }
       };
       const lambdaParams = {
-        FunctionName: 'CarmaTechAPIStack-CarmaTechInfraLambda9B8388EE-qMN8BBLzslEm',
+        FunctionName: 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw',
         Payload: JSON.stringify(lambdaPayload),
       };
       this.logger.info(`lambda function params: ${JSON.stringify(lambdaParams)}`)
