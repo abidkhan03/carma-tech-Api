@@ -328,17 +328,20 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async signup(@Body() signupDto: SignupDto): Promise<any> {
-    const existingUser = await this.userService.getByEmail(signupDto.email);
+    const existingUser = await this.userService.getByEmailOrPhone(signupDto.email, signupDto.phone);
     if (existingUser) {
       this.logger.error(`User with provided email already exists: ${JSON.stringify(existingUser)}`);
-      throw new ConflictException('User with provided email already exists.');
+      throw new ConflictException('User with provided email or phone number already exists.');
     }
     try {
 
       const lambdaPayload = {
-        queryStringParameters: {
-          email: signupDto.email
-        }
+        queryStringParameters: {}
+      };
+      if (signupDto.email) {
+        lambdaPayload.queryStringParameters['email'] = signupDto.email;
+      } else if (signupDto.phone) {
+        lambdaPayload.queryStringParameters['phone'] = signupDto.phone;
       };
       const lambdaParams = {
         FunctionName: 'UserManagementStack-CreateUserLambda0154A2EB-5ufMqT4E5ntw',

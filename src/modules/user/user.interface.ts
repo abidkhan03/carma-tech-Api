@@ -5,6 +5,7 @@ export interface IUser {
   firstName?: string;
   lastName?: string;
   password?: string;
+  external_identity_id?: string;
 }
 
 export interface IRequest extends Request {
