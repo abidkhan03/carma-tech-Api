@@ -102,10 +102,13 @@ export class AuthController {
     if (existingUser) {
       if (existingUser.email === signupDto.email) {
         this.logger.error(`User with provided email already exists: ${JSON.stringify(existingUser)}`);
-        throw new ConflictException('User with provided email already exists');
+        throw new ConflictException('User with provided email already exist');
       } else if (existingUser.phone === signupDto.phone) {
-        this.logger.error(`User with provided phone number already exists: ${JSON.stringify(existingUser)}`);
-        throw new ConflictException('User with provided phone number already exists');
+        this.logger.error(`User with provided phone number already exist: ${JSON.stringify(existingUser)}`);
+        throw new ConflictException('User with provided phone number already exist');
+      } else {
+        this.logger.error(`User with provided email and phone number already exist: ${JSON.stringify(existingUser)}`);
+        throw new ConflictException('User with provided email and phone number already exist');
       }
     }
     try {
@@ -129,7 +132,7 @@ export class AuthController {
       this.logger.info(`lambda logs result: ${lambdaResponse.LogResult}`);
       const parsedPayload = JSON.parse(lambdaResponse.Payload as string);
       this.logger.info(`parsed payload: ${JSON.stringify(parsedPayload)}`);
-      const cognitoUser = parsedPayload.body.user;
+      const cognitoUser = parsedPayload.body;
       this.logger.info(`cognito user: ${JSON.stringify(cognitoUser)}`);
 
       if (parsedPayload.statusCode === 400
