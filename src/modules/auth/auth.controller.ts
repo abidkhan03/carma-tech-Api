@@ -102,7 +102,7 @@ export class AuthController {
     if (existingUser) {
       if (existingUser.email === signupDto.email && existingUser.phone === signupDto.phone) {
         this.logger.error(`User with provided email and phone number already exists: ${JSON.stringify(existingUser)}`);
-        throw new ConflictException('User with provided email already exist');
+        throw new ConflictException('User with provided email and phone number already exist');
       } else if (existingUser.email === signupDto.email) {
         this.logger.error(`User with provided email and phone number already exist: ${JSON.stringify(existingUser)}`);
         throw new ConflictException('User with provided email already exist');
