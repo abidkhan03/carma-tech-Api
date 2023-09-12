@@ -1,4 +1,4 @@
-import { Controller, Get, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, InternalServerErrorException, Delete } from '@nestjs/common';
 import { UsersService } from './user.service';
 
 @Controller('api/users')
@@ -29,4 +29,17 @@ export class UsersController {
        throw new InternalServerErrorException('Error getting all users');
      }
    }
+
+   @Delete('delete')
+  async deleteAllUsers(): Promise<{ message: string }> {
+    try {
+      await this.usersService.deleteAllUsers();
+      return {
+        message: 'All users deleted successfully',
+      };
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException('Error deleting all users');
+    }
+  }
 }
