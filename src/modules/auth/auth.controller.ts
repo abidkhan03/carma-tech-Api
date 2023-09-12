@@ -100,15 +100,15 @@ export class AuthController {
   async signup(@Body() signupDto: SignupDto): Promise<any> {
     const existingUser = await this.userService.getByEmailOrPhone(signupDto.email, signupDto.phone);
     if (existingUser) {
-      if (existingUser.email === signupDto.email) {
-        this.logger.error(`User with provided email already exists: ${JSON.stringify(existingUser)}`);
+      if (existingUser.email === signupDto.email && existingUser.phone === signupDto.phone) {
+        this.logger.error(`User with provided email and phone number already exists: ${JSON.stringify(existingUser)}`);
         throw new ConflictException('User with provided email already exist');
-      } else if (existingUser.phone === signupDto.phone) {
+      } else if (existingUser.email === signupDto.email) {
+        this.logger.error(`User with provided email and phone number already exist: ${JSON.stringify(existingUser)}`);
+        throw new ConflictException('User with provided email already exist');
+      } else {
         this.logger.error(`User with provided phone number already exist: ${JSON.stringify(existingUser)}`);
         throw new ConflictException('User with provided phone number already exist');
-      } else {
-        this.logger.error(`User with provided email and phone number already exist: ${JSON.stringify(existingUser)}`);
-        throw new ConflictException('User with provided email and phone number already exist');
       }
     }
     try {
