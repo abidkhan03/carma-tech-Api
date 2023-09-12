@@ -10,7 +10,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async get(id: number) {
     return this.userRepository.findOne({
@@ -28,6 +28,9 @@ export class UsersService {
 
   async getByEmailOrPhone(email?: string, phone?: string) {
     const queryBuilder = this.userRepository.createQueryBuilder('users');
+    const sql = queryBuilder.getSql();
+    console.log('sql builder: ', sql)
+    console.log(`Email: ${email}, Phone: ${phone}`)
 
     if (email && phone) {
       queryBuilder
@@ -51,14 +54,17 @@ export class UsersService {
   async create(signupDto: SignupDto) {
     const user = await this.getByEmailOrPhone(signupDto.email, signupDto.phone);
 
-    if (user.email === signupDto.email) {
-      throw new NotAcceptableException(
-        'User with provided email already exists.',
-      );
-    } else if (user.phone === signupDto.phone) {
-      throw new NotAcceptableException(
-        'User with provided phone number already exists.',
-      );
+    if (user) {
+      console.log('User: ', user);
+      if (user.email === signupDto.email) {
+        throw new NotAcceptableException(
+          'User with provided email already exists.',
+        );
+      } else if (user.phone === signupDto.phone) {
+        throw new NotAcceptableException(
+          'User with provided phone already exists.',
+        );
+      }
     }
 
     return await this.userRepository.save(

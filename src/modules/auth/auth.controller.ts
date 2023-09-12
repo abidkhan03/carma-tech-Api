@@ -99,12 +99,14 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async signup(@Body() signupDto: SignupDto): Promise<any> {
     const existingUser = await this.userService.getByEmailOrPhone(signupDto.email, signupDto.phone);
-    if (existingUser.email === signupDto.email) {
-      this.logger.error(`User with provided email already exists: ${JSON.stringify(existingUser)}`);
-      throw new ConflictException('User with provided email already exists');
-    } else if (existingUser.phone === signupDto.phone) {
-      this.logger.error(`User with provided phone number already exists: ${JSON.stringify(existingUser)}`);
-      throw new ConflictException('User with provided phone number already exists');
+    if (existingUser) {
+      if (existingUser.email === signupDto.email) {
+        this.logger.error(`User with provided email already exists: ${JSON.stringify(existingUser)}`);
+        throw new ConflictException('User with provided email already exists');
+      } else if (existingUser.phone === signupDto.phone) {
+        this.logger.error(`User with provided phone number already exists: ${JSON.stringify(existingUser)}`);
+        throw new ConflictException('User with provided phone number already exists');
+      }
     }
     try {
 
