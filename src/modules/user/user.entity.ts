@@ -41,7 +41,7 @@ export class User {
   @Exclude()
   password: string;
 
-  @Column({ length: 16, nullable: true })
+  @Column({ length: 20, nullable: true })
   phone: string;
 
   @Column({ length: 255, nullable: true })

@@ -51,9 +51,13 @@ export class UsersService {
   async create(signupDto: SignupDto) {
     const user = await this.getByEmailOrPhone(signupDto.email, signupDto.phone);
 
-    if (user) {
+    if (user.email === signupDto.email) {
       throw new NotAcceptableException(
-        'User with provided email or phone number already exists.',
+        'User with provided email already exists.',
+      );
+    } else if (user.phone === signupDto.phone) {
+      throw new NotAcceptableException(
+        'User with provided phone number already exists.',
       );
     }
 
