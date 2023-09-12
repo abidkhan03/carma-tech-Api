@@ -34,9 +34,9 @@ export class SignupDto {
 
   @ApiProperty()
   @IsOptional()
-  phone?: string;
+  phone?: string = "";
 
   @ApiProperty()
   @IsOptional()
-  external_identity_id?: string;
+  external_identity_id?: string = "";
 }

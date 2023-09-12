@@ -99,9 +99,12 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async signup(@Body() signupDto: SignupDto): Promise<any> {
     const existingUser = await this.userService.getByEmailOrPhone(signupDto.email, signupDto.phone);
-    if (existingUser) {
+    if (existingUser.email === signupDto.email) {
       this.logger.error(`User with provided email already exists: ${JSON.stringify(existingUser)}`);
-      throw new ConflictException('User with provided email or phone number already exists.');
+      throw new ConflictException('User with provided email already exists');
+    } else if (existingUser.phone === signupDto.phone) {
+      this.logger.error(`User with provided phone number already exists: ${JSON.stringify(existingUser)}`);
+      throw new ConflictException('User with provided phone number already exists');
     }
     try {
 
@@ -124,9 +127,17 @@ export class AuthController {
       this.logger.info(`lambda logs result: ${lambdaResponse.LogResult}`);
       const parsedPayload = JSON.parse(lambdaResponse.Payload as string);
       this.logger.info(`parsed payload: ${JSON.stringify(parsedPayload)}`);
+      const cognitoUser = parsedPayload.body.user;
+      this.logger.info(`cognito user: ${JSON.stringify(cognitoUser)}`);
 
-      if (parsedPayload.statusCode === 400 && parsedPayload.body.includes('User with email or phone number already exists')) {
-        throw new ConflictException('User with provided email or phone number already exists in Cognito.');
+      if (parsedPayload.statusCode === 400
+        && parsedPayload.body.includes(
+          'User with email already exists')) {
+        throw new ConflictException('User with provided email already exists in Cognito.');
+      } else if (parsedPayload.statusCode === 400
+        && parsedPayload.body.includes(
+          'User with phone number already exists')) {
+        throw new ConflictException('User with provided phone number already exists in Cognito.');
       }
       // Handle any errors from the lambda function
       if (lambdaResponse.FunctionError) {
