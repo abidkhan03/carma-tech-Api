@@ -12,13 +12,20 @@ import { useContainer } from 'class-validator';
 import { AppModule } from '@app/modules/main/app.module';
 import { setupSwagger } from '@app/swagger';
 import { TrimStringsPipe } from '@app/modules/common/transformer/trim-strings.pipe';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 declare const module: any;
 
 const APP_PORT = 3000;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  // app.useStaticAssets(join(__dirname, '..', 'public'));
+  app.useStaticAssets(join(__dirname, '..', 'english-chinese-translator'), {
+    prefix: '/eng-chinese-translator/', // This ensures it's only available at this specific route
+  });
+  // app.setViewEngine('html');
   setupSwagger(app);
   app.enableCors();
   app.useGlobalPipes(
