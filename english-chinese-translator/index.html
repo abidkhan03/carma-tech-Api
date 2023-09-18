@@ -122,20 +122,19 @@
         <!-- User Input Form -->
         <div class="form-section">
             <div class="input-field">
-                <label>User Input</label>
+                <label id="userInputLabel">User Input</label>
                 <input type="text" class="user-input" id="userInput">
             </div>
             <div class="button-group">
                 <button class="clear-btn" onclick="clearInput()">Clear</button>
-                <button class="submit-btn"
-                    onclick="callLambdaFunction(document.getElementById('userInput').value)">Submit</button>
+                <button class="submit-btn" id="submitBtn">Submit</button>
             </div>
         </div>
 
         <!-- Response Form -->
         <div class="form-section">
             <div class="input-field">
-                <label>Response</label>
+                <label id="responseLabel">Response</label>
                 <input type="text" class="response-input" id="response" readonly>
             </div>
             <button class="flag-btn">Flag</button>
