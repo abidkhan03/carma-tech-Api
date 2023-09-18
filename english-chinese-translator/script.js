@@ -115,6 +115,7 @@ function detectLanguage(inputText) {
 
 function clearInput() {
     document.getElementById('userInput').value = '';
+    document.getElementById('response').value = '';
     document.getElementById("userInputLabel").textContent = 'User Input';
     document.getElementById("responseLabel").textContent = 'Response';
 }
