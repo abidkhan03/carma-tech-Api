@@ -22,10 +22,8 @@ const APP_PORT = 3000;
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   // app.useStaticAssets(join(__dirname, '..', 'public'));
-  app.useStaticAssets(join(__dirname, '..', 'english-chinese-translator'), {
-    prefix: '/eng-chinese-translator/', // This ensures it's only available at this specific route
-  });
-  // app.setViewEngine('html');
+  app.setViewEngine('ejs');
+  app.setBaseViewsDir(join(__dirname, '..', 'views'));
   setupSwagger(app);
   app.enableCors();
   app.useGlobalPipes(

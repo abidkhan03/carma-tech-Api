@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/aws-sdk/2.1456.0/aws-sdk.min.js"></script> -->
+    <script></script>
+
+    <title>ChatGPT Translator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #0b0f1a;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 10px;
+            padding: 20px;
+            color: #ffffff;
+        }
+
+        .form-container {
+            width: 80%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin: 25px;
+            gap: 20px;
+        }
+
+        .form-section {
+            flex: 1;
+            background-color: #101928;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .form-section label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-section input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #374251;
+            border-radius: 10px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            background-color: #1e2838;
+            color: white;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .button-group button,
+        .flag-btn {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #374251;
+            border-radius: 10px;
+            box-sizing: border-box;
+            color: white;
+            font-weight: bold;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            background-color: #ef600f;
+        }
+
+        .clear-btn {
+            background-color: #404a5a;
+        }
+
+        .flag-btn {
+            background-color: #404a5a;
+        }
+
+        .clear-btn:hover,
+        .flag-btn:hover {
+            background-color: #374251;
+        }
+
+        .submit-btn:hover {
+            background-color: #c44a03;
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                flex-direction: column;
+            }
+
+            .button-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>ChatGPT Translator</h1>
+    <!-- <p style="color: red; margin-left: 150px;">
+        When user clicks submit, us js technique to change it to the corresponding language. e.g: if input is English,
+        disply English in the "User Input label, and output will be Chinese, so display "Chinese in the Response label.
+    </p> -->
+    <div class="form-container">
+        <!-- User Input Form -->
+        <div class="form-section">
+            <div class="input-field">
+                <label id="userInputLabel">User Input</label>
+                <input type="text" class="user-input" id="userInput">
+            </div>
+            <div class="button-group">
+                <button class="clear-btn" onclick="clearInput()">Clear</button>
+                <button class="submit-btn" id="submitBtn">Submit</button>
+            </div>
+        </div>
+
+        <!-- Response Form -->
+        <div class="form-section">
+            <div class="input-field">
+                <label id="responseLabel">Response</label>
+                <input type="text" class="response-input" id="response" readonly>
+            </div>
+            <button class="flag-btn">Flag</button>
+        </div>
+    </div>
+
+    <script>
+        const translatorLambdaName = "<%= translatorLambdaName %>";
+        const translatorIdentityPoolId = "<%= translatorIdentityPoolId %>";
+        console.log('lambdaFunctionName: ', translatorLambdaName);
+        console.log('identityPoolId: ', translatorIdentityPoolId);
+
+        // const config = {
+        //     lambdaFunctionName: "<%= translatorLambdaName %>",
+        //     identityPoolId: "<%= translatorIdentityPoolId %>",
+        //     region: "<%= ap-south-1 %>",
+        // };
+
+        function callLambdaFunction(inputText) {
+            // AWS Configuration
+            AWS.config.region = 'ap-south-1';
+            AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+                IdentityPoolId: translatorIdentityPoolId,
+            });
+                region: config.region,
+
+            AWS.config.credentials.get(function (err) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+
+                console.log('Successfully retrieved AWS credentials');
+
+                // Invoke Lambda
+                var lambda = new AWS.Lambda();
+                var params = {
+                    FunctionName: translatorLambdaName,
+                    Payload: JSON.stringify({ text: inputText })
+                };
+
+                lambda.invoke(params, function (error, data) {
+                    if (error) {
+                        console.error(JSON.stringify(error));
+                        return;
+                    }
+                    if (data.Payload) {
+                        var response = JSON.parse(data.Payload);
+                        if (response.statusCode === 200) {
+                            var translationData = response.body;
+                            if (detectLanguage(translationData.output) === 'English') {
+                                document.getElementById("responseLabel").textContent = 'English';
+                            } else {
+                                document.getElementById("responseLabel").textContent = 'Chinese';
+                            }
+
+                            document.getElementById("response").value = translationData.output;
+                        } else {
+                            console.log("Lambda error: ", response.body);
+                        }
+                    }
+                });
+            });
+        }
+
+        document.getElementById('submitBtn').addEventListener('click', function () {
+            const inputText = document.getElementById('userInput').value;
+            const detectedLanguage = detectLanguage(inputText);
+
+            document.getElementById("userInputLabel").textContent = detectedLanguage;
+            document.getElementById("responseLabel").textContent = detectedLanguage === 'English' ? 'Chinese' : 'English';
+
+            callLambdaFunction(inputText);
+        });
+
+        // function callLambdaFunction(inputText, config) {
+        //     console.log('config lambda name: ', config.lambdaFunctionName)
+        //     var lambda = new AWS.Lambda();
+        //     var params = {
+        //         FunctionName: config.lambdaFunctionName,
+        //         Payload: JSON.stringify({ text: inputText })
+        //     };
+
+        //     lambda.invoke(params, function (error, data) {
+        //         if (error) {
+        //             console.error(JSON.stringify(error));
+        //             return;
+        //         }
+        //         if (data.Payload) {
+        //             var response = JSON.parse(data.Payload);
+        //             if (response.statusCode === 200) {
+        //                 var translationData = response.body;
+        //                 if (detectLanguage(translationData.output) === 'English') {
+        //                     document.getElementById("responseLabel").textContent = 'English';
+        //                 } else {
+        //                     document.getElementById("responseLabel").textContent = 'Chinese';
+        //                 }
+
+        //                 document.getElementById("response").value = translationData.output;
+        //             } else {
+        //                 console.log("lambda error: ", response.body)
+        //             }
+        //         }
+        //     });
+        // }
+
+        // fetch('/app-config')
+        //     .then(response => response.json())
+        //     .then(config => {
+        //         // config = fetchedConfig;
+        //         AWS.config.region = 'us-east-2';
+        //         AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+        //             IdentityPoolId: config.identityPoolId,
+        //         });
+
+        //         AWS.config.credentials.get(function (err) {
+        //             if (err) console.log(err);
+        //             else console.log('Successfully retrieved AWS credentials');
+        //         });
+
+        //         document.getElementById('submitBtn').addEventListener('click', function () {
+        //             const inputText = document.getElementById('userInput').value;
+        //             const detectedLanguage = detectLanguage(inputText);
+
+        //             document.getElementById("userInputLabel").textContent = detectedLanguage;
+        //             document.getElementById("responseLabel").textContent = detectedLanguage === 'English' ? 'Chinese' : 'English';
+
+        //             if (config) {
+        //                 // var inputText = document.getElementById('userInput').value;
+        //                 callLambdaFunction(inputText, config);
+        //             } else {
+        //                 console.error('Config has not been initialized yet.');
+        //             }
+        //         }
+        //         );
+
+        //     })
+        //     .catch(error => {
+        //         console.error('Error fetching app config: ', error);
+        //     });
+
+
+        function detectLanguage(inputText) {
+            const chinesePattern = /[\u4e00-\u9fa5]/;
+            return chinesePattern.test(inputText) ? 'Chinese' : 'English';
+        }
+
+        function clearInput() {
+            document.getElementById('userInput').value = '';
+            document.getElementById('response').value = '';
+            document.getElementById("userInputLabel").textContent = 'User Input';
+            document.getElementById("responseLabel").textContent = 'Response';
+        }
+    </script>
+</body>
+
+</html>
