@@ -24,11 +24,6 @@ export class AppController {
     return HttpStatus.OK;
   }
 
-  // @Get('eng-chinese-translator')
-  // serveTranslatorUI(@Res() res: Response) {
-  //   res.sendFile(join(process.cwd(), 'public/index.html'));
-  // }
-
   @Get('config')
   @Render('config') // this is the config.ejs template. Omit .ejs when rendering
   getConfig() {
@@ -49,13 +44,5 @@ export class AppController {
       identityPoolId: this.configService.get('IDENTITY_POOL_ID')
     };
   }
-
-  // @Get('app-config')
-  // getAppConfig() {
-  //   return {
-  //     identityPoolId: this.configService.get('TRANSLATOR_LAMBDA_NAME'),
-  //     lambdaFunctionName: this.configService.get('IDENTITY_POOL_ID')
-  //   }
-  // }
 
 }

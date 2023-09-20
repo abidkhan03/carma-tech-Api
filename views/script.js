@@ -40,6 +40,12 @@
 //     document.getElementById('userInput').value = '';
 // }
 
+/* 
+Let's provide you a new question related to html file, in the below html file modify/add the code:
+If user enters text in english to input field then the 'User Input' label should automatically change to 'English' and after clicking on submit button then 'Response' should change to 'Chinese', or if user enters text in chinese language then 'User Input' label should change to 'Chinese' and after submitting the 'Response' label should change to 'English'.  
+After user input and submitted (the submit button), and the response is back, the label should change. if user clicked clear button the label should be reset to "User Input" and "Response" accordingly.
+*/
+
 
 
 function callLambdaFunction(inputText, config) {
