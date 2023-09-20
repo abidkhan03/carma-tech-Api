@@ -7,13 +7,15 @@ import { ReplaySubject, firstValueFrom } from 'rxjs';
 import { TrimStringsPipe } from '@app/modules/common/transformer/trim-strings.pipe';
 import { setupSwagger } from '@app/swagger';
 import { AppModule } from '@app/modules/main/app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 
 //Declare a ReplaySubject to store the serverlessExpress instance.
 const serverSubject = new ReplaySubject<Handler>()
 
 async function bootstrap(): Promise<Handler> {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   setupSwagger(app);
   app.enableCors();
   app.useGlobalPipes(
@@ -22,6 +24,9 @@ async function bootstrap(): Promise<Handler> {
   );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
+   // Set view engine
+   app.setViewEngine('ejs');
+   app.setBaseViewsDir(join(__dirname, '..', 'views'));
 
   await app.init();
   const expressApp = app.getHttpAdapter().getInstance();
