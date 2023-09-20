@@ -124,7 +124,8 @@
             <div class="button-group">
                 <button class="clear-btn" onclick="clearInput()">Clear</button>
                 <button class="submit-btn" id="submitBtn"
-                    onclick="callLambdaFunction(document.getElementById('userInput').value)">Submit</button>
+                    onclick="callLambdaFunction(document.getElementById('userInput').value)"
+                    oninput="updateInputLabel()">Submit</button>
             </div>
         </div>
 
@@ -154,6 +155,11 @@
             else console.log('Successfully retreived AWS credentials');
         });
 
+        function updateInputLabel() {
+            let inputText = document.getElementById('userInput').value;
+            document.getElementById("userInputLabel").textContent = detectLanguage(inputText);
+        }
+
         function callLambdaFunction(inputText) {
             var lambda = new AWS.Lambda();
             var params = {
@@ -176,6 +182,7 @@
                     if (response.statusCode === 200) {
                         var translationData = response.body;
                         document.getElementById("response").value = translationData.output;
+                        updateResponseLabel(inputText);
                     } else {
                         console.log("lambda error: ", response.body)
                     }
@@ -187,6 +194,14 @@
         function detectLanguage(inputText) {
             const chinesePattern = /[\u4e00-\u9fa5]/;
             return chinesePattern.test(inputText) ? 'Chinese' : 'English';
+        }
+
+        function updateResponseLabel(inputText) {
+            if (detectLanguage(inputText) === 'English') {
+                document.getElementById("responseLabel").textContent = 'Chinese';
+            } else {
+                document.getElementById("responseLabel").textContent = 'English';
+            }
         }
 
         function clearInput() {
