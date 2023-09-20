@@ -34,7 +34,10 @@ export class AppController {
   getConfig() {
     return { 
       jwt_expiration_time: this.configService.get('JWT_EXPIRATION_TIME'),
-      cognito_user_mgmt_lambda: this.configService.get('COGNITO_USER_MGMT_LAMBDA'), 
+      cognito_user_mgmt_lambda: this.configService.get('COGNITO_USER_MGMT_LAMBDA'),
+      user_pool_id: this.configService.get('USER_POOL_ID'),
+      translator_lambda_name: this.configService.get('TRANSLATOR_LAMBDA_NAME'),
+      identity_pool_id: this.configService.get('IDENTITY_POOL_ID'),
     };
   }
 
@@ -47,12 +50,12 @@ export class AppController {
     };
   }
 
-  @Get('app-config')
-  getAppConfig() {
-    return {
-      identityPoolId: this.configService.get('TRANSLATOR_LAMBDA_NAME'),
-      lambdaFunctionName: this.configService.get('IDENTITY_POOL_ID')
-    }
-  }
+  // @Get('app-config')
+  // getAppConfig() {
+  //   return {
+  //     identityPoolId: this.configService.get('TRANSLATOR_LAMBDA_NAME'),
+  //     lambdaFunctionName: this.configService.get('IDENTITY_POOL_ID')
+  //   }
+  // }
 
 }
