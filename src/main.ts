@@ -37,6 +37,7 @@ async function bootstrap() {
   // set the view engine
   app.setViewEngine('ejs');
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
+  app.useStaticAssets(join(__dirname, '..', 'views'));
   await app.listen(APP_PORT);
 
   if (module.hot) {
