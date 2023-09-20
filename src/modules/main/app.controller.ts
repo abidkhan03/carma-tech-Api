@@ -32,7 +32,10 @@ export class AppController {
   @Get('config')
   @Render('config') // this is the config.ejs template. Omit .ejs when rendering
   getConfig() {
-    return { jwt_expiration_time: this.configService.get('JWT_EXPIRATION_TIME') };
+    return { 
+      jwt_expiration_time: this.configService.get('JWT_EXPIRATION_TIME'),
+      cognito_user_mgmt_lambda: this.configService.get('COGNITO_USER_MGMT_LAMBDA'), 
+    };
   }
 
   @Get('eng-chinese-translator')
