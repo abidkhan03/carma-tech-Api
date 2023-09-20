@@ -1,4 +1,4 @@
-import { Get, Controller, HttpStatus, Res } from '@nestjs/common';
+import { Get, Controller, HttpStatus, Res, Render } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AppService } from '@modules/main/app.service';
 import { Response } from 'express';
@@ -24,16 +24,31 @@ export class AppController {
     return HttpStatus.OK;
   }
 
+  // @Get('eng-chinese-translator')
+  // serveTranslatorUI(@Res() res: Response) {
+  //   res.sendFile(join(process.cwd(), 'public/index.html'));
+  // }
+
+  @Get('config')
+  @Render('config') // this is the config.ejs template. Omit .ejs when rendering
+  getConfig() {
+    return { jwt_expiration_time: this.configService.get('JWT_EXPIRATION_TIME') };
+  }
+
   @Get('eng-chinese-translator')
-  serveTranslatorUI(@Res() res: Response) {
-    res.sendFile(join(process.cwd(), 'public/index.html'));
+  @Render('translator')  // renders the translator.ejs file
+  getTranslator() {
+    return {
+      lambdaFunctionName: this.configService.get('TRANSLATOR_LAMBDA_NAME'),
+      identityPoolId: this.configService.get('IDENTITY_POOL_ID')
+    };
   }
 
   @Get('app-config')
   getAppConfig() {
     return {
-      identityPoolId: this.configService.get('IDENTITY_POOL_ID'),
-      lambdaFunctionName: this.configService.get('LAMBDA_FUNCTION_NAME')
+      identityPoolId: this.configService.get('TRANSLATOR_LAMBDA_NAME'),
+      lambdaFunctionName: this.configService.get('IDENTITY_POOL_ID')
     }
   }
 
