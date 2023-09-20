@@ -155,7 +155,7 @@
             else console.log('Successfully retreived AWS credentials');
         });
 
-        function callLambdaFunction(inputText) {
+        function invokeLambdaFunction(inputText) {
             var lambda = new AWS.Lambda();
             var params = {
                 // Replace with your own Lambda function name
@@ -176,29 +176,22 @@
                     var response = JSON.parse(data.Payload);
                     if (response.statusCode === 200) {
                         var translationData = response.body;
-                        if (detectLanguage(translationData.output) === 'English') {
-                            document.getElementById("responseLabel").textContent = 'English';
-                        } else {
-                            document.getElementById("responseLabel").textContent = 'Chinese';
-                        }
+                        document.getElementById('response').value = translationData.output;
+
+                        const detectedResponseLanguage = detectLanguage(translationData.output);
+                        document.getElementById("responseLabel").textContent = detectedResponseLanguage;
                     } else {
                         console.log("lambda error: ", response.body)
                     }
                 }
             });
+        }
 
-            document.getElementById('submitBtn').addEventListener('click', function () {
-                const inputText = document.getElementById('userInput').value;
-                const detectedLanguage = detectLanguage(inputText);
+        function callLambdaFunction(inputText) {
+            const detectedInputLanguage = detectLanguage(inputText);
+            document.getElementById("userInputLabel").textContent = detectedInputLanguage;
 
-                document.getElementById("userInputLabel").textContent = detectedLanguage;
-                document.getElementById("responseLabel").textContent = detectedLanguage === 'English' ? 'Chinese' : 'English';
-
-                // var inputText = document.getElementById('userInput').value;
-                callLambdaFunction(inputText);
-            }
-            );
-
+            invokeLambdaFunction(inputText);
         }
 
         function detectLanguage(inputText) {
@@ -212,6 +205,12 @@
             document.getElementById("userInputLabel").textContent = 'User Input';
             document.getElementById("responseLabel").textContent = 'Response';
         }
+
+        document.getElementById('userInput').addEventListener('input', function () {
+            const inputText = document.getElementById('userInput').value;
+            const detectedLanguage = detectLanguage(inputText);
+            document.getElementById("userInputLabel").textContent = detectedLanguage;
+        });
 
     </script>
 </body>
