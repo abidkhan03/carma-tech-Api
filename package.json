@@ -34,6 +34,7 @@
     "@aws-sdk/lib-dynamodb": "^3.405.0",
     "@aws-sdk/smithy-client": "^3.374.0",
     "@nest-dynamodb/typedorm": "^1.1.0",
+    "@nestjs/axios": "^3.0.0",
     "@nestjs/common": "^10.2.4",
     "@nestjs/config": "^3.0.1",
     "@nestjs/core": "^10.2.4",
