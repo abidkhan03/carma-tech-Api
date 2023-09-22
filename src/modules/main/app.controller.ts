@@ -31,8 +31,8 @@ export class AppController {
       jwt_expiration_time: this.configService.get('JWT_EXPIRATION_TIME'),
       cognito_user_mgmt_lambda: this.configService.get('COGNITO_USER_MGMT_LAMBDA'),
       user_pool_id: this.configService.get('USER_POOL_ID'),
-      translator_lambda_name: this.configService.get('TRANSLATOR_LAMBDA_NAME'),
-      identity_pool_id: this.configService.get('IDENTITY_POOL_ID'),
+      translator_lambda_name: this.configService.get('Lambda_Name'),
+      identity_pool_id: this.configService.get('Lambda_Name'),
     };
   }
 
@@ -40,8 +40,8 @@ export class AppController {
   @Render('translator')  // renders the translator.ejs file
   getTranslator() {
     return {
-      lambdaFunctionName: this.configService.get('TRANSLATOR_LAMBDA_NAME'),
-      identityPoolId: this.configService.get('IDENTITY_POOL_ID')
+      lambdaFunctionName: this.configService.get('Lambda_Name'),
+      identityPoolId: this.configService.get('Identity_Pool_Id')
     };
   }
 
