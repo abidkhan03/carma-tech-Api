@@ -17,7 +17,6 @@ import { User } from '@modules/user/user.entity';
 
 // TypeDorm table
 import { ddbGlobalTable } from '@app/ddbTable';
-import { AwsModule } from '@app/aws/aws.module';
 
 @Module({
   imports: [
@@ -44,7 +43,6 @@ import { AwsModule } from '@app/aws/aws.module';
     }),
     AuthModule,
     CommonModule,
-    AwsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
