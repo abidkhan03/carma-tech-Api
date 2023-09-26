@@ -184,52 +184,16 @@
         }
 
         /* Error Modal */
-        /* #errorModal {
-            display: none;
-            position: relative;
-            top: 10px;
-            left: 40%;
-            transform: translateX(-50%);
-            z-index: 9999;
-            max-width: 80%;
-            overflow: hidden;
-        }
-
-        #errorModal>div {
-            background: #9c2b2e;
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid #383837;
-            overflow-y: auto;
-            max-height: 260px;
-        }
-
-        #errorModal #errorText {
-            color: #f7eded;
-            font-weight: bold;
-            white-space: pre-wrap;
-        } */
-
-        /* Removed commented out Error Modal styles */
-
         .alert-simple.alert-danger {
-            
+
             position: relative;
-            /* Fixed position so it stays in the center even when scrolled */
             top: 20%;
-            /* Position from the top */
             left: 50%;
-            /* Centering horizontally */
             transform: translateX(-50%);
-            /* Fine-tuning the center alignment */
             z-index: 9999;
-            /* Above other content */
             max-width: 80%;
-            /* 80% of the screen width, as was previously defined */
             width: auto;
-            /* To respect the content's natural width */
             padding: 10px;
-            /* Padding around the content */
             border: 1px solid rgba(241, 6, 6, 0.81);
             background-color: rgba(220, 17, 1, 0.33);
             box-shadow: 0px 0px 2px #ff0303;
@@ -238,9 +202,7 @@
             transition: 0.5s;
             cursor: pointer;
             border-radius: 10px;
-            /* Rounded corners for the alert */
             overflow: hidden;
-            /* In case content goes beyond the defined dimensions */
         }
 
         .alert-danger:hover {
@@ -273,7 +235,6 @@
                 submitting again.</span>
         </div>
     </div>
-
     <div class="form-container">
         <!-- User Input Form -->
         <div class="form-section">
@@ -351,6 +312,7 @@
             invokeLambdaFunction(document.getElementById('userInput').value);
         }
 
+        // Show error message in modal
         function showError(message) {
             document.getElementById('errorText').innerText = message;
             let modal = document.getElementById('dangerModal');
@@ -367,7 +329,6 @@
             modal.style.display = 'none';
         }
 
-
         function clearInput() {
             document.getElementById('userInput').value = '';
             document.getElementById('response').value = '';
@@ -375,11 +336,9 @@
             document.getElementById("responseLabel").textContent = 'Response';
         }
 
-        // Detect the language of the user input as the user types
+        // Listen for changes in the user input field
         document.getElementById('userInput').addEventListener('input', function () {
             const inputText = document.getElementById('userInput').value;
-            const detectedLanguage = detectLanguage(inputText);
-            document.getElementById("userInputLabel").textContent = detectedLanguage;
         });
     </script>
 </body>
