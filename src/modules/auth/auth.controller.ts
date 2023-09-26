@@ -23,7 +23,7 @@ import { ConfigService } from '@nestjs/config';
 @Controller('api/auth')
 @ApiTags('authentication')
 export class AuthController {
-  private lambdaClient: Lambda;
+  private lambdaClient: LambdaClient;
   private readonly logger = new Logger();
   constructor(
     private readonly authService: AuthService,
@@ -31,7 +31,7 @@ export class AuthController {
     private readonly configService: ConfigService
   ) {
 
-    this.lambdaClient = new Lambda({
+    this.lambdaClient = new LambdaClient({
       region: 'us-east-2',
     });
   }
@@ -76,15 +76,15 @@ export class AuthController {
       } else if (signupDto.phone) {
         lambdaPayload.queryStringParameters['phone'] = signupDto.phone;
       };
-      const lambdaParams = {
+      const invokeCommand = {
         FunctionName: this.configService.get('COGNITO_USER_MGMT_LAMBDA'),
         Payload: JSON.stringify(lambdaPayload),
       };
-      this.logger.info(`lambda function params: ${JSON.stringify(lambdaParams)}`)
+      this.logger.info(`lambda function invoke command: ${JSON.stringify(invokeCommand)}`);
+      const lambdaResponse = await this.lambdaClient.send(new InvokeCommand(invokeCommand));
 
-      const lambdaResponse = await this.lambdaClient.invoke(lambdaParams).promise();
       this.logger.info(`lambda response payload: ${JSON.stringify(lambdaResponse)}`);
-      const parsedPayload = JSON.parse(lambdaResponse.Payload as string);
+      const parsedPayload = JSON.parse(lambdaResponse.Payload as unknown as string);
       this.logger.info(`parsed payload: ${JSON.stringify(parsedPayload)}`);
 
       if (parsedPayload.statusCode === 400
@@ -98,8 +98,8 @@ export class AuthController {
       }
       // Handle any errors from the lambda function
       if (lambdaResponse.FunctionError) {
-        this.logger.error(`Error creating cognito: ${lambdaResponse.Payload as string}`)
-        throw new BadRequestException(lambdaResponse.Payload as string || 'Error creating user in cognito');
+        this.logger.error(`Error creating cognito: ${lambdaResponse.Payload as unknown as string}`)
+        throw new BadRequestException(lambdaResponse.Payload as unknown as string || 'Error creating user in cognito');
       }
       const user = await this.userService.create(signupDto);
       return await this.authService.createToken(user);
