@@ -20,7 +20,7 @@ export class SnsController {
         but note that this SNS tpoic stack depends on the nestjs (api) stack
         */
         // validate the message type
-        const logger = new Logger();
+        let logger = new Logger();
         logger.debug(`snsMessage: ${JSON.stringify(snsMessage)}`);
         if (snsMessage.Type === 'SubscriptionConfirmation') {
             // Handle SNS subscription URL callback
