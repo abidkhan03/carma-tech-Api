@@ -6,10 +6,16 @@ import { Logger } from '@aws-lambda-powertools/logger';
 
 @Controller('sns-endpoint')
 export class SnsController {
+    private readonly snsClient: SNSClient;
+
     constructor(
         private readonly httpService: HttpService,
         private readonly configService: ConfigService,
-    ) { }
+    ) {
+        this.snsClient = new SNSClient({
+            region: 'us-east-2',
+        });
+     }
 
     @Post()
     processSNSNotification(@Body() snsMessage: any): string {
@@ -21,7 +27,7 @@ export class SnsController {
         */
         // validate the message type
         let logger = new Logger();
-        logger.debug(`snsMessage: ${JSON.stringify(snsMessage)}`);
+        logger.info(`snsMessage: ${JSON.stringify(snsMessage)}`);
         if (snsMessage.Type === 'SubscriptionConfirmation') {
             // Handle SNS subscription URL callback
             // This URL should be fetched and visited to confirm the subscription.
@@ -34,7 +40,7 @@ export class SnsController {
             }
             );
             return "subscription successful";
-            
+
         } else if (snsMessage.Type === 'Notification') {
             if (snsMessage.Status === 'COMPLETED') {
                 // Handle completed Lambda task
