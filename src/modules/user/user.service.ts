@@ -28,8 +28,6 @@ export class UsersService {
 
   async getByEmailOrPhone(email?: string, phone?: string) {
     const queryBuilder = this.userRepository.createQueryBuilder('users');
-    const sql = queryBuilder.getSql();
-    console.log('sql builder: ', sql)
     console.log(`Email: ${email}, Phone: ${phone}`)
 
     if (email && phone) {
