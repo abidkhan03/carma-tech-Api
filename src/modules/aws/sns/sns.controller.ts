@@ -1,20 +1,27 @@
 import { HttpService } from '@nestjs/axios';
 import { Body, Controller, Post } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as AWS from 'aws-sdk';
+import { SNSClient, AddPermissionCommand } from '@aws-sdk/client-sns';
+import { Logger } from '@aws-lambda-powertools/logger';
 
 @Controller('sns-endpoint')
 export class SnsController {
     constructor(
         private readonly httpService: HttpService,
-        private readonly configService: ConfigService
-    ) {
-        AWS.config.update({ region: 'us-east-2' });
-    }
+        private readonly configService: ConfigService,
+        private readonly logger: Logger,
+    ) { }
 
     @Post()
     processSNSNotification(@Body() snsMessage: any): string {
+        /*
+        how SNS topics and publishing message on the topic will trigger the url endpoint
+        The SNS topics will have subscriptions from the API’s urls.
+        They will talk to each other by topic’s subscriptions, later on you will see how.
+        but note that this SNS tpoic stack depends on the nestjs (api) stack
+        */
         // validate the message type
+        this.logger.debug(`snsMessage: ${JSON.stringify(snsMessage)}`);
         if (snsMessage.Type === 'SubscriptionConfirmation') {
             // Handle SNS subscription URL callback
             // This URL should be fetched and visited to confirm the subscription.
@@ -32,22 +39,8 @@ export class SnsController {
                 // Store the result, notify a user, etc.
                 console.log('Lambda task completed successfully.');
 
-                // Handle SNS notification message
-                // This is the message that will be sent to the SNS topic.
                 const message = snsMessage.Message;
-                // Send the message to the SNS topic.
-                // const topicArn = this.configService.get('SNS_TOPIC_ARN');
-                // const sns = new AWS.SNS();
-                // sns.publish({
-                //     TopicArn: topicArn,
-                //     Message: message,
-                // }, (err, data) => {
-                //     if (err) {
-                //         console.log(err);
-                //     } else {
-                //         console.log(data);
-                //     }
-                // });
+               
             }
 
         }
