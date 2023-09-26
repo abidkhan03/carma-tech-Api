@@ -30,9 +30,11 @@ export class SnsController {
 
             this.httpService.get(confirmationUrl).subscribe((res) => {
                 console.log(res);
+                logger.info(`res: ${JSON.stringify(res)}`);
             }
             );
             return "subscription successful";
+            
         } else if (snsMessage.Type === 'Notification') {
             if (snsMessage.Status === 'COMPLETED') {
                 // Handle completed Lambda task
