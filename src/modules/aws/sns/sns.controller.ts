@@ -9,7 +9,6 @@ export class SnsController {
     constructor(
         private readonly httpService: HttpService,
         private readonly configService: ConfigService,
-        private readonly logger: Logger,
     ) { }
 
     @Post()
@@ -21,7 +20,8 @@ export class SnsController {
         but note that this SNS tpoic stack depends on the nestjs (api) stack
         */
         // validate the message type
-        this.logger.debug(`snsMessage: ${JSON.stringify(snsMessage)}`);
+        const logger = new Logger();
+        logger.debug(`snsMessage: ${JSON.stringify(snsMessage)}`);
         if (snsMessage.Type === 'SubscriptionConfirmation') {
             // Handle SNS subscription URL callback
             // This URL should be fetched and visited to confirm the subscription.
