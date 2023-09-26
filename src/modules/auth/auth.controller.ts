@@ -54,16 +54,16 @@ export class AuthController {
     const existingUser = await this.userService.getByEmailOrPhone(signupDto.email, signupDto.phone);
     if (existingUser) {
       if (existingUser.email === signupDto.email && existingUser.phone === signupDto.phone) {
-        this.logger.error(`User with provided email and phone number already exists: ${JSON.stringify(existingUser)}`);
+        this.logger.error(`User with provided email and phone number already exist: ${JSON.stringify(existingUser)}`);
         throw new ConflictException('User with provided email and phone number already exist');
 
       } else if (existingUser.email === signupDto.email) {
         this.logger.error(`User with provided email and phone number already exist: ${JSON.stringify(existingUser)}`);
-        throw new ConflictException('User with provided email already exist');
+        throw new ConflictException('User with provided email already exists');
 
       } else {
-        this.logger.error(`User with provided phone number already exist: ${JSON.stringify(existingUser)}`);
-        throw new ConflictException('User with provided phone number already exist');
+        this.logger.error(`User with provided phone number already exists: ${JSON.stringify(existingUser)}`);
+        throw new ConflictException('User with provided phone number already exists');
       }
     }
     try {
@@ -81,11 +81,11 @@ export class AuthController {
         Payload: JSON.stringify(lambdaPayload),
       };
       this.logger.info(`lambda function invoke command: ${JSON.stringify(invokeCommand)}`);
+
       const lambdaResponse = await this.lambdaClient.send(new InvokeCommand(invokeCommand));
 
       this.logger.info(`lambda response payload: ${JSON.stringify(lambdaResponse)}`);
-      const asciiDecoder = new TextDecoder('ascii');
-      this.logger.info(`ascii decoder: ${asciiDecoder.decode(lambdaResponse.Payload)}`);
+
       const parsedPayload = JSON.parse(new TextDecoder().decode(lambdaResponse.Payload));
 
       this.logger.info(`parsed payload: ${JSON.stringify(parsedPayload)}`);
@@ -93,11 +93,11 @@ export class AuthController {
       if (parsedPayload.statusCode === 400
         && parsedPayload.body.includes(
           'User with email already exists')) {
-        throw new ConflictException('User with provided email already exist in Cognito');
+        throw new ConflictException('User with provided email already exists in Cognito');
       } else if (parsedPayload.statusCode === 400
         && parsedPayload.body.includes(
           'User with phone number already exists')) {
-        throw new ConflictException('User with provided phone number already exist in Cognito');
+        throw new ConflictException('User with provided phone number already exists in Cognito');
       }
       // Handle any errors from the lambda function
       if (lambdaResponse.FunctionError) {
