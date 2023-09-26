@@ -26,7 +26,7 @@ describe('SnsController', () => {
         {
           provide: Logger,
           useValue: {
-            debug: jest.fn(),
+            get: jest.fn(),
           }
         }
       ],
