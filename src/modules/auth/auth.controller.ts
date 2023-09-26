@@ -84,7 +84,10 @@ export class AuthController {
       const lambdaResponse = await this.lambdaClient.send(new InvokeCommand(invokeCommand));
 
       this.logger.info(`lambda response payload: ${JSON.stringify(lambdaResponse)}`);
-      const parsedPayload = JSON.parse(lambdaResponse.Payload as unknown as string);
+      const asciiDecoder = new TextDecoder('ascii');
+      this.logger.info(`ascii decoder: ${asciiDecoder.decode(lambdaResponse.Payload)}`);
+      const parsedPayload = JSON.parse(new TextDecoder().decode(lambdaResponse.Payload));
+
       this.logger.info(`parsed payload: ${JSON.stringify(parsedPayload)}`);
 
       if (parsedPayload.statusCode === 400
@@ -98,8 +101,8 @@ export class AuthController {
       }
       // Handle any errors from the lambda function
       if (lambdaResponse.FunctionError) {
-        this.logger.error(`Error creating cognito: ${lambdaResponse.Payload as unknown as string}`)
-        throw new BadRequestException(lambdaResponse.Payload as unknown as string || 'Error creating user in cognito');
+        this.logger.error(`Error creating cognito: ${parsedPayload}`)
+        throw new BadRequestException(parsedPayload || 'Error creating user in cognito');
       }
       const user = await this.userService.create(signupDto);
       return await this.authService.createToken(user);
