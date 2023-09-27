@@ -20,7 +20,7 @@ export class SnsController {
     }
 
     @Post()
-    async processSNSNotification(@Body() snsMessage: any): Promise<string> {
+    processSNSNotification(@Body() snsMessage: any): string {
 
         const topicArn = this.configService.get('SNS_TOPIC_ARN');
         // this.logger.info(`sns topicArn: ${JSON.stringify(topicArn)}`);
@@ -47,14 +47,10 @@ export class SnsController {
             // Make an HTTP GET request to the provided URL to confirm the subscription.
 
             try {
-                const response = await axios.get(confirmationUrl);
+                const response =  this.httpService.get(confirmationUrl);
                 this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response)}`);
-                if (response.status === 200) {
-                    this.logger.info("Successfully confirmed SNS subscription!");
-                    return "subscription successful";
-                } else {
-                    this.logger.error(`Failed to confirm SNS subscription: ${response.status, response.statusText}`);
-                }
+                return "Subscription successful";
+                
             } catch (error) {
                 this.logger.error("Error confirming subscription: ", error.message);
                 return "Error confirming subscription2";
