@@ -29,11 +29,11 @@ export class SnsController {
 
         const topicArn = this.configService.get('SNS_TOPIC_ARN');
         this.logger.info(`sns topicArn: ${JSON.stringify(topicArn)}`);
-        const cognitoUser = this.configService.get('COGNITO_USER_MANAGEMENT_TOPIC_ARN');
+        const cognitoUser = this.configService.get('USER_POOL_ID');
         this.logger.info(`cognitoUser: ${JSON.stringify(cognitoUser)}`);
 
-        snsMessage = JSON.parse(snsMessage.Body);
-        this.logger.info(`snsMessage: ${JSON.stringify(snsMessage)}`);
+        // snsMessage = JSON.parse(snsMessage.Body);
+        this.logger.info(`snsMessage body: ${JSON.stringify(snsMessage.Body)}`);
 
         const message = this.snsClient.send(new PublishCommand({
             TopicArn: topicArn,
