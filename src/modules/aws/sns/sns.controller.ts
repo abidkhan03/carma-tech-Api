@@ -20,7 +20,7 @@ export class SnsController {
     }
 
     @Post()
-    processSNSNotification(@Body() snsMessage: any): string {
+    async processSNSNotification(@Body() snsMessage: any): Promise<string> {
 
         const topicArn = this.configService.get('SNS_TOPIC_ARN');
         // this.logger.info(`sns topicArn: ${JSON.stringify(topicArn)}`);
@@ -28,7 +28,7 @@ export class SnsController {
         // this.logger.info(`cognitoUser: ${JSON.stringify(cognitoUser)}`);
 
         // snsMessage = JSON.parse(snsMessage.Body);
-        this.logger.info(`snsMessage body: ${JSON.stringify(snsMessage)}`);
+        this.logger.info(`snsMessage: ${JSON.stringify(snsMessage)}`);
         if (!snsMessage) {
             this.logger.error("No message received", snsMessage);
             return "Error: No message received";
@@ -47,10 +47,10 @@ export class SnsController {
             // Make an HTTP GET request to the provided URL to confirm the subscription.
 
             try {
-                const response =  this.httpService.get(confirmationUrl);
-                this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response)}`);
+                const response =  await this.httpService.get(confirmationUrl).toPromise();
+                this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response.data)}`);
                 return "Subscription successful";
-                
+
             } catch (error) {
                 this.logger.error("Error confirming subscription: ", error.message);
                 return "Error confirming subscription2";
