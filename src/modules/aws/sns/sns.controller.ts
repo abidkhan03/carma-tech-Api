@@ -3,6 +3,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import { Logger } from '@aws-lambda-powertools/logger';
+import { AxiosInstance, Axios } from 'axios';
 
 @Controller('sns-endpoint')
 export class SnsController {
@@ -19,7 +20,7 @@ export class SnsController {
     }
 
     @Post()
-    async processSNSNotification(@Body() snsMessage: any): Promise<string> {
+    processSNSNotification(@Body() snsMessage: any): string {
 
         const topicArn = this.configService.get('SNS_TOPIC_ARN');
         // this.logger.info(`sns topicArn: ${JSON.stringify(topicArn)}`);
@@ -52,7 +53,7 @@ export class SnsController {
             // Make an HTTP GET request to the provided URL to confirm the subscription.
 
             try {
-                const response = await this.httpService.get(confirmationUrl);
+                const response = this.httpService.get(confirmationUrl).toPromise();
                 this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response)}`);
                 return "subscription successful";
             } catch (error) {
