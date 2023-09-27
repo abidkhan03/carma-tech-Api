@@ -22,9 +22,9 @@ export class SnsController {
     processSNSNotification(@Body() snsMessage: any): string {
 
         const topicArn = this.configService.get('SNS_TOPIC_ARN');
-        this.logger.info(`sns topicArn: ${JSON.stringify(topicArn)}`);
+        // this.logger.info(`sns topicArn: ${JSON.stringify(topicArn)}`);
         const cognitoUser = this.configService.get('USER_POOL_ID');
-        this.logger.info(`cognitoUser: ${JSON.stringify(cognitoUser)}`);
+        // this.logger.info(`cognitoUser: ${JSON.stringify(cognitoUser)}`);
 
         // snsMessage = JSON.parse(snsMessage.Body);
         this.logger.info(`snsMessage body: ${JSON.stringify(snsMessage)}`);
@@ -48,14 +48,17 @@ export class SnsController {
             // Handle SNS subscription URL callback
             // This URL should be fetched and visited to confirm the subscription.
             const confirmationUrl = snsMessage.SubscribeURL;
+            this.logger.info(`Confirming subscription with URL: ${confirmationUrl}`);
             // Make an HTTP GET request to the provided URL to confirm the subscription.
 
-            this.httpService.get(confirmationUrl).subscribe((res) => {
-                console.log(res);
-                this.logger.info(`res: ${JSON.stringify(res)}`);
+            try {
+                const response = this.httpService.get(confirmationUrl);
+                this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response)}`);
+                return "subscription successful";
+            } catch (error) {
+                this.logger.error("Error confirming subscription: ", error.message);
+                return "Error confirming subscription";
             }
-            );
-            return "subscription successful";
 
         } else if (snsMessage.Type === 'Notification') {
             if (!snsMessage.Message || !snsMessage.Status) {
