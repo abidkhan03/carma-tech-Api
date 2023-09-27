@@ -3,12 +3,11 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import { Logger } from '@aws-lambda-powertools/logger';
-import axios, { AxiosInstance } from 'axios';
+import axios from 'axios';
 
 @Controller('sns-endpoint')
 export class SnsController {
     private readonly snsClient: SNSClient;
-    private httpClient: AxiosInstance;
     private logger = new Logger();
 
     constructor(
@@ -18,11 +17,10 @@ export class SnsController {
         this.snsClient = new SNSClient({
             region: 'us-east-2',
         });
-        this.httpClient = axios.create();
     }
 
     @Post()
-    processSNSNotification(@Body() snsMessage: any): string {
+    async processSNSNotification(@Body() snsMessage: any): Promise<string> {
 
         const topicArn = this.configService.get('SNS_TOPIC_ARN');
         // this.logger.info(`sns topicArn: ${JSON.stringify(topicArn)}`);
@@ -36,12 +34,6 @@ export class SnsController {
             return "Error: No message received";
         }
 
-        const publishcommand = this.snsClient.send(new PublishCommand({
-            TopicArn: topicArn,
-            Message: JSON.stringify(snsMessage),
-        }));
-
-        console.log('publish command: ', publishcommand.toString());
 
         if (snsMessage.Type === 'SubscriptionConfirmation') {
             if (!snsMessage.SubscribeURL) {
@@ -55,12 +47,17 @@ export class SnsController {
             // Make an HTTP GET request to the provided URL to confirm the subscription.
 
             try {
-                const response = this.httpClient.get(confirmationUrl);
+                const response = await axios.get(confirmationUrl);
                 this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response)}`);
-                return "subscription successful";
+                if (response.status === 200) {
+                    this.logger.info("Successfully confirmed SNS subscription!");
+                    return "subscription successful";
+                } else {
+                    this.logger.error(`Failed to confirm SNS subscription: ${response.status, response.statusText}`);
+                }
             } catch (error) {
                 this.logger.error("Error confirming subscription: ", error.message);
-                return "Error confirming subscription";
+                return "Error confirming subscription2";
             }
 
         } else if (snsMessage.Type === 'Notification') {
