@@ -47,7 +47,7 @@ export class SnsController {
             // Make an HTTP GET request to the provided URL to confirm the subscription.
 
             try {
-                const response =  await this.httpService.get(confirmationUrl).toPromise();
+                const response =  await axios.get(confirmationUrl);
                 this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response.data)}`);
                 return "Subscription successful";
 
