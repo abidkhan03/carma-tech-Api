@@ -3,11 +3,12 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import { Logger } from '@aws-lambda-powertools/logger';
-import { AxiosInstance, Axios } from 'axios';
+import axios, { AxiosInstance } from 'axios';
 
 @Controller('sns-endpoint')
 export class SnsController {
     private readonly snsClient: SNSClient;
+    private httpClient: AxiosInstance;
     private logger = new Logger();
 
     constructor(
@@ -17,6 +18,7 @@ export class SnsController {
         this.snsClient = new SNSClient({
             region: 'us-east-2',
         });
+        this.httpClient = axios.create();
     }
 
     @Post()
@@ -49,11 +51,11 @@ export class SnsController {
             // Handle SNS subscription URL callback
             // This URL should be fetched and visited to confirm the subscription.
             const confirmationUrl = snsMessage.SubscribeURL;
-            this.logger.info(`Confirming subscription with URL: ${confirmationUrl}`);
+            this.logger.info(`Confirmation URL: ${confirmationUrl}`);
             // Make an HTTP GET request to the provided URL to confirm the subscription.
 
             try {
-                const response = this.httpService.get(confirmationUrl).toPromise();
+                const response = this.httpClient.get(confirmationUrl);
                 this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response)}`);
                 return "subscription successful";
             } catch (error) {
