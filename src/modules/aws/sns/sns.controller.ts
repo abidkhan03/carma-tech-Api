@@ -16,16 +16,10 @@ export class SnsController {
         this.snsClient = new SNSClient({
             region: 'us-east-2',
         });
-     }
+    }
 
     @Post()
     processSNSNotification(@Body() snsMessage: any): string {
-        /*
-        how SNS topics and publishing message on the topic will trigger the url endpoint
-        The SNS topics will have subscriptions from the API’s urls.
-        They will talk to each other by topic’s subscriptions, later on you will see how.
-        but note that this SNS tpoic stack depends on the nestjs (api) stack
-        */
 
         const topicArn = this.configService.get('SNS_TOPIC_ARN');
         this.logger.info(`sns topicArn: ${JSON.stringify(topicArn)}`);
@@ -33,16 +27,24 @@ export class SnsController {
         this.logger.info(`cognitoUser: ${JSON.stringify(cognitoUser)}`);
 
         // snsMessage = JSON.parse(snsMessage.Body);
-        this.logger.info(`snsMessage body: ${JSON.stringify(snsMessage.Body)}`);
+        this.logger.info(`snsMessage body: ${JSON.stringify(snsMessage)}`);
+        if (!snsMessage) {
+            this.logger.error("No message received", snsMessage);
+            return "Error: No message received";
+        }
 
-        const message = this.snsClient.send(new PublishCommand({
+        const publishcommand = this.snsClient.send(new PublishCommand({
             TopicArn: topicArn,
             Message: JSON.stringify(snsMessage),
         }));
 
-        console.log('publish command: ', message);
-        
+        console.log('publish command: ', publishcommand.toString());
+
         if (snsMessage.Type === 'SubscriptionConfirmation') {
+            if (!snsMessage.SubscribeURL) {
+                this.logger.error("SubscriptionConfirmation missing SubscribeURL: ", snsMessage);
+                return "Error: SubscriptionConfirmation missing SubscribeURL";
+            }
             // Handle SNS subscription URL callback
             // This URL should be fetched and visited to confirm the subscription.
             const confirmationUrl = snsMessage.SubscribeURL;
@@ -56,13 +58,18 @@ export class SnsController {
             return "subscription successful";
 
         } else if (snsMessage.Type === 'Notification') {
+            if (!snsMessage.Message || !snsMessage.Status) {
+                this.logger.error("Notification missing Message or Status");
+                return "Error: Notification missing Message or Status";
+            }
             if (snsMessage.Status === 'COMPLETED') {
                 // Handle completed Lambda task
                 // Store the result, notify a user, etc.
                 console.log('Lambda task completed successfully.');
 
                 const message = snsMessage.Message;
-               
+                this.logger.info(`message: ${JSON.stringify(message)}`);
+
             }
 
         }
