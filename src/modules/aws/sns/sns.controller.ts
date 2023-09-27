@@ -1,12 +1,13 @@
 import { HttpService } from '@nestjs/axios';
 import { Body, Controller, Post } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { SNSClient, AddPermissionCommand } from '@aws-sdk/client-sns';
+import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import { Logger } from '@aws-lambda-powertools/logger';
 
 @Controller('sns-endpoint')
 export class SnsController {
     private readonly snsClient: SNSClient;
+    private logger = new Logger();
 
     constructor(
         private readonly httpService: HttpService,
@@ -25,9 +26,22 @@ export class SnsController {
         They will talk to each other by topic’s subscriptions, later on you will see how.
         but note that this SNS tpoic stack depends on the nestjs (api) stack
         */
-        // validate the message type
-        let logger = new Logger();
-        logger.info(`snsMessage: ${JSON.stringify(snsMessage)}`);
+
+        const topicArn = this.configService.get('SNS_TOPIC_ARN');
+        this.logger.info(`sns topicArn: ${JSON.stringify(topicArn)}`);
+        const cognitoUser = this.configService.get('COGNITO_USER_MANAGEMENT_TOPIC_ARN');
+        this.logger.info(`cognitoUser: ${JSON.stringify(cognitoUser)}`);
+
+        snsMessage = JSON.parse(snsMessage.Body);
+        this.logger.info(`snsMessage: ${JSON.stringify(snsMessage)}`);
+
+        const message = this.snsClient.send(new PublishCommand({
+            TopicArn: topicArn,
+            Message: JSON.stringify(snsMessage),
+        }));
+
+        console.log('publish command: ', message);
+        
         if (snsMessage.Type === 'SubscriptionConfirmation') {
             // Handle SNS subscription URL callback
             // This URL should be fetched and visited to confirm the subscription.
@@ -36,7 +50,7 @@ export class SnsController {
 
             this.httpService.get(confirmationUrl).subscribe((res) => {
                 console.log(res);
-                logger.info(`res: ${JSON.stringify(res)}`);
+                this.logger.info(`res: ${JSON.stringify(res)}`);
             }
             );
             return "subscription successful";
