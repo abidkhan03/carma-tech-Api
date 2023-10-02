@@ -27,7 +27,9 @@ export class SnsController {
         const cognitoUser = this.configService.get('USER_POOL_ID');
         // this.logger.info(`cognitoUser: ${JSON.stringify(cognitoUser)}`);
 
-        // snsMessage = JSON.parse(snsMessage.Body);
+        this.logger.info('raw message body: ', snsMessage)
+        const snsMessageBody = JSON.parse(snsMessage.Body);
+        this.logger.info('parsed message body: ', snsMessageBody)
         this.logger.info(`snsMessage: ${JSON.stringify(snsMessage)}`);
         if (!snsMessage) {
             this.logger.error("No message received", snsMessage);
