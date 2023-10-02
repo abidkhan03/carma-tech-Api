@@ -28,8 +28,8 @@ export class SnsController {
         // this.logger.info(`cognitoUser: ${JSON.stringify(cognitoUser)}`);
 
         this.logger.info('raw message body: ', snsMessage)
-        const snsMessageBody = JSON.parse(snsMessage.Body);
-        this.logger.info('parsed message body: ', snsMessageBody)
+        // const snsMessageBody = JSON.parse(snsMessage.Body);
+        // this.logger.info('parsed message body: ', snsMessageBody)
         this.logger.info(`snsMessage: ${JSON.stringify(snsMessage)}`);
         if (!snsMessage) {
             this.logger.error("No message received", snsMessage);
