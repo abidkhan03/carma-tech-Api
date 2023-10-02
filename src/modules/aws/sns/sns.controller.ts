@@ -30,7 +30,7 @@ export class SnsController {
         // this.logger.info(`cognitoUser: ${JSON.stringify(cognitoUser)}`);
         this.logger.info(`sns Message: ${JSON.stringify(snsMessage)}`);
         this.logger.critical(`Message Body: ${JSON.stringify(snsMessage.Message)}`);
-        this.logger.critical(`sns Message Type: ${JSON.stringify(snsMessage.Message.type)}`);
+        this.logger.critical(`sns Message Type: ${JSON.stringify(snsMessage.Message.Type)}`);
         if (typeof snsMessage.Message === 'string') {
             this.logger.info(`SNSMessage Message: ${JSON.stringify(snsMessage.Message)}`);
             let parsedMessage = snsMessage.Message
