@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import { Logger } from '@aws-lambda-powertools/logger';
 import axios from 'axios';
+import { lastValueFrom } from 'rxjs';
 
 @Controller('sns-endpoint')
 export class SnsController {
@@ -49,7 +50,7 @@ export class SnsController {
             // Make an HTTP GET request to the provided URL to confirm the subscription.
 
             try {
-                const response =  await axios.get(confirmationUrl);
+                const response =  await lastValueFrom(this.httpService.get(confirmationUrl));
                 this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response.data)}`);
                 return "Subscription successful";
 
