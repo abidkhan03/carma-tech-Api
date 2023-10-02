@@ -28,7 +28,7 @@ export class SnsController {
         const cognitoUser = this.configService.get('USER_POOL_ID');
         // this.logger.info(`cognitoUser: ${JSON.stringify(cognitoUser)}`);
 
-        this.logger.info('raw message body: ', snsMessage);
+        this.logger.info(`raw message body: ${snsMessage.Body}`);
 
         const validFields = this.fieldsForSignature(snsMessage);
         this.logger.info(`validFields: ${JSON.stringify(validFields)}`);
@@ -39,6 +39,7 @@ export class SnsController {
         // const snsMessageBody = JSON.parse(snsMessage.Body);
         // this.logger.info('parsed message body: ', snsMessageBody)
         this.logger.info(`snsMessage: ${JSON.stringify(snsMessage)}`);
+        this.logger.info(`subscription: ${JSON.stringify(snsMessage.SubscribeURL)}`);
         if (!snsMessage) {
             this.logger.error("No message received", snsMessage);
             return "Error: No message received";
