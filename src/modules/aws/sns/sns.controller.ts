@@ -37,7 +37,7 @@ export class SnsController {
 
         if (snsMessage.Type === 'SubscriptionConfirmation') {
             if (!snsMessage.SubscribeURL) {
-                this.logger.error("SubscriptionConfirmation missing SubscribeURL: ", snsMessage);
+                this.logger.error(`SubscriptionConfirmation missing SubscribeURL: ${JSON.stringify(snsMessage)}}`);
                 return "Error: SubscriptionConfirmation missing SubscribeURL";
             }
             // Handle SNS subscription URL callback
