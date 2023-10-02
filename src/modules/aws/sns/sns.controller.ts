@@ -5,6 +5,7 @@ import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import { Logger } from '@aws-lambda-powertools/logger';
 import axios from 'axios';
 import { lastValueFrom } from 'rxjs';
+import { Buffer } from 'buffer';
 
 @Controller('sns-endpoint')
 export class SnsController {
