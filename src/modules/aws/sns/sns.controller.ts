@@ -4,7 +4,15 @@ import { ConfigService } from '@nestjs/config';
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import { Logger } from '@aws-lambda-powertools/logger';
 import axios from 'axios';
+import axiosRetry from 'axios-retry';
 import { lastValueFrom } from 'rxjs';
+import { createVerify } from 'crypto';
+import { LRUCache } from 'typescript-lru-cache';
+
+
+// const CERT_CACHE = new LRU({ max: 5000, maxAge: 1000 * 60 });
+const CERT_CACHE = new LRUCache<string>({ maxSize: 5000})
+const CERT_URL_PATTERN = /^https:\/\/sns\.[a-zA-Z0-9-]{3,}\.amazonaws\.com(\.cn)?\/SimpleNotificationService-[a-zA-Z0-9]{32}\.pem$/;
 
 @Controller('sns-endpoint')
 export class SnsController {
@@ -27,8 +35,14 @@ export class SnsController {
         // this.logger.info(`sns topicArn: ${JSON.stringify(topicArn)}`);
         const cognitoUser = this.configService.get('USER_POOL_ID');
         // this.logger.info(`cognitoUser: ${JSON.stringify(cognitoUser)}`);
+        this.logger.info('raw message body: ', snsMessage);
 
-        this.logger.info('raw message body: ', snsMessage)
+        const isValid = await this.validate(snsMessage);
+        if (!isValid) {
+            this.logger.error('Invalid SNS message');
+            throw new Error('Invalid SNS message');
+        }
+
         // const snsMessageBody = JSON.parse(snsMessage.Body);
         // this.logger.info('parsed message body: ', snsMessageBody)
         this.logger.info(`snsMessage: ${JSON.stringify(snsMessage)}`);
@@ -50,8 +64,14 @@ export class SnsController {
             // Make an HTTP GET request to the provided URL to confirm the subscription.
 
             try {
-                const response =  await lastValueFrom(this.httpService.get(confirmationUrl));
-                this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response.data)}`);
+                const response =  await this.fetchCert(confirmationUrl);
+                try {
+                    const response = await this.fetchCert(confirmationUrl);
+                    this.logger.info(`response: ${JSON.stringify(response)}`);
+                } catch (error) {
+                    this.logger.error(`Error confirming subscription: ${error.message}`);
+                    return "Error confirming subscription";
+                }
                 return "Subscription successful";
 
             } catch (error) {
@@ -78,4 +98,59 @@ export class SnsController {
 
         return 'OK';
     }
+
+    private fieldsForSignature(type: string): string[] {
+        if (type === 'SubscriptionConfirmation' || type === 'UnsubscribeConfirmation') {
+          return ['Message', 'MessageId', 'SubscribeURL', 'Timestamp', 'Token', 'TopicArn', 'Type'];
+        } else if (type === 'Notification') {
+          return ['Message', 'MessageId', 'Subject', 'Timestamp', 'TopicArn', 'Type'];
+        } else {
+          return [];
+        }
+      }
+    
+      private async fetchCert(certUrl: string): Promise<string> {
+        const cachedCertificate = CERT_CACHE.get(certUrl);
+        if (cachedCertificate) {
+          return cachedCertificate;
+        } else {
+            axiosRetry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+          try {
+            const response = await axios.get(certUrl);
+            if (response.status === 200) {
+              const certificate = response.data;
+              CERT_CACHE.set(certUrl, certificate);
+              return certificate;
+            } else {
+              throw new Error(`expected 200 status code, received: ${response.status}`);
+            }
+          } catch (err) {
+            throw err;
+          }
+        }
+      }
+    
+      private async validate(message: any): Promise<boolean> {
+        if (!('SignatureVersion' in message && 'SigningCertURL' in message && 'Type' in message && 'Signature' in message)) {
+          return false;
+        } else if (message.SignatureVersion !== '1') {
+          return false;
+        } else if (!CERT_URL_PATTERN.test(message.SigningCertURL)) {
+          return false;
+        } else {
+          try {
+            const certificate = await this.fetchCert(message.SigningCertURL);
+            const verify = createVerify('sha1WithRSAEncryption');
+            this.fieldsForSignature(message.Type).forEach(key => {
+              if (key in message) {
+                verify.write(`${key}\n${message[key]}\n`);
+              }
+            });
+            verify.end();
+            return verify.verify(certificate, message.Signature, 'base64');
+          } catch (err) {
+            return false;
+          }
+        }
+      }
 }
