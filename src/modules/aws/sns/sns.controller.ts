@@ -28,25 +28,34 @@ export class SnsController {
         const cognitoUser = this.configService.get('USER_POOL_ID');
         // this.logger.info(`cognitoUser: ${JSON.stringify(cognitoUser)}`);
 
-        this.logger.info(`raw message body: ${snsMessage.Body}`);
+        if (typeof snsMessage.Message === 'string') {
+            let parsedMessage = snsMessage.Message
+
+            if (snsMessage.Message && snsMessage.Message.type === "Buffer") {
+                parsedMessage = Buffer.from(snsMessage.Message.data).toString('utf8');
+                parsedMessage = JSON.parse(parsedMessage);
+              }
+
+        if (snsMessage.Message && snsMessage.Message.Type === 'SubscriptionConfirmation') {
 
         const validFields = this.fieldsForSignature(snsMessage);
         this.logger.info(`validFields: ${JSON.stringify(validFields)}`);
-        if (!validFields) {
-            this.logger.error('Invalid SNS message');
-            throw new Error('Invalid SNS message');
-        }
+        // if (!validFields) {
+        //     this.logger.error('Invalid SNS message');
+        //     throw new Error('Invalid SNS message');
+        // }
         // const snsMessageBody = JSON.parse(snsMessage.Body);
         // this.logger.info('parsed message body: ', snsMessageBody)
         this.logger.info(`snsMessage: ${JSON.stringify(snsMessage)}`);
-        this.logger.info(`subscription: ${JSON.stringify(snsMessage.SubscribeURL)}`);
-        if (!snsMessage) {
-            this.logger.error("No message received", snsMessage);
-            return "Error: No message received";
-        }
+
+        // this.logger.info(`subscription: ${JSON.stringify(snsMessage.SubscribeURL)}`);
+        // if (!snsMessage) {
+        //     this.logger.error("No message received", snsMessage);
+        //     return "Error: No message received";
+        // }
 
 
-        if (snsMessage.Type === 'SubscriptionConfirmation') {
+        if (parsedMessage.Type === 'SubscriptionConfirmation') {
             if (!snsMessage.SubscribeURL) {
                 this.logger.error(`SubscriptionConfirmation missing SubscribeURL: ${JSON.stringify(snsMessage)}}`);
                 return "Error: SubscriptionConfirmation missing SubscribeURL";
@@ -83,9 +92,11 @@ export class SnsController {
             }
 
         }
+    }
 
         return 'OK';
     }
+}
 
     private fieldsForSignature(type: string): string[] {
         if (type === 'SubscriptionConfirmation') {
