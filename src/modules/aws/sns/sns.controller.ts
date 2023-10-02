@@ -22,7 +22,7 @@ export class SnsController {
     }
 
     @Post()
-    processSNSNotification(@Body() snsMessage: any): string {
+    async processSNSNotification(@Body() snsMessage: any): Promise<string> {
 
         const topicArn = this.configService.get('SNS_TOPIC_ARN');
         // this.logger.info(`sns topicArn: ${JSON.stringify(topicArn)}`);
@@ -31,7 +31,7 @@ export class SnsController {
         this.logger.info(`sns Message: ${JSON.stringify(snsMessage)}`);
         this.logger.critical(`Message Body: ${JSON.stringify(snsMessage.Message)}`);
         // this.logger.critical(`sns Message Type: ${JSON.stringify(snsMessage.Message.Type)}`);
-        const parseMessage = Buffer.from(snsMessage.Message.data).toString('utf8');
+        const parseMessage = JSON.parse(Buffer.from(snsMessage.data).toString('utf8'));
         this.logger.info(`parseMessage with buffer: ${JSON.stringify(parseMessage)}`);
         const parsedMessage = JSON.parse(parseMessage);
         this.logger.info(`parsedMessage: ${JSON.stringify(parsedMessage)}`);
