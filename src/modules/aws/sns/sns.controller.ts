@@ -26,13 +26,12 @@ export class SnsController {
     async processSNSNotification(@Body() snsMessage: any): Promise<string> {
 
         this.logger.info(`Received SNS Message: ${JSON.stringify(snsMessage)}`);
-        this.logger.info('Received SNS Message Type: ' + snsMessage.type);
+        this.logger.info(`Received SNS Message Type: ${snsMessage.type}`);
 
-        if (snsMessage && snsMessage.type === 'Buffer') {
-            snsMessage = Buffer.from(snsMessage.data).toString('utf-8');
-        }
+        snsMessage = Buffer.from(snsMessage).toString();
 
-        this.logger.info(`Received SNS Message string: ${JSON.stringify(snsMessage.data)}`);
+        this.logger.info(`Received SNS Message string: ${JSON.stringify(snsMessage)}`);
+        this.logger.info(`SNS Message string type: ${snsMessage.type}`);
 
         const buf = new ArrayBuffer(64);
         const decoder = new TextDecoder();
