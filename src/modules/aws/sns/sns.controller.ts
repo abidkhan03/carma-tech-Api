@@ -23,24 +23,22 @@ export class SnsController {
 
 
     @Post()
-    async processSNSNotification(@Body() snsMessage: any): Promise<string> {
+    processSNSNotification(@Body() snsMessage: any): string {
 
         this.logger.info(`Received SNS Message: ${JSON.stringify(snsMessage)}`);
-        this.logger.info(`Received SNS Message Type: ${snsMessage.type}`);
+        this.logger.info(`Received SNS Message Type: ${JSON.stringify(snsMessage.type)}`);
 
-        snsMessage = Buffer.from(snsMessage).toString();
+        const sns = Buffer.from(snsMessage).toString();
 
-        this.logger.info(`Received SNS Message string: ${JSON.stringify(snsMessage)}`);
-        this.logger.info(`SNS Message string type: ${snsMessage.type}`);
+        this.logger.info(`Received SNS Message string: ${JSON.stringify(sns)}`);
+        this.logger.info(`SNS Message string type: ${JSON.stringify(typeof sns)}`);
 
-        const buf = new ArrayBuffer(64);
-        const decoder = new TextDecoder();
-        const str = decoder.decode(snsMessage.data);
-        this.logger.info(`SNS Message str: ${str}`);
+        // this.logger.info(`Received SNS Data: ${snsMessage.data}`);
+        // this.logger.info(`Received SNS Data Array: ${Array.isArray(snsMessage.data)}`);
+        // this.logger.info(`Received SNS Message Data: ${snsMessage.Message}`);
 
-        this.logger.info(`Received SNS Data: ${snsMessage.data}`);
-        this.logger.info(`Received SNS Data Array: ${Array.isArray(snsMessage.data)}`);
-        this.logger.info(`Received SNS Message Data: ${snsMessage.Message}`);
+        const message = JSON.parse(Buffer.from(snsMessage.data).toString());
+        this.logger.info(`Parsed SNS Message: ${JSON.stringify(message)}`);
 
         // Ensure the message is in Buffer format
         if (snsMessage && snsMessage.type === 'Buffer' && Array.isArray(snsMessage.data)) {
@@ -63,7 +61,7 @@ export class SnsController {
 
                     // Confirm the subscription by visiting the SubscribeURL.
                     try {
-                        const response = await lastValueFrom(this.httpService.get(parsedSnsMessage.SubscribeURL));
+                        const response = lastValueFrom(this.httpService.get(parsedSnsMessage.SubscribeURL));
                         this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response)}`);
                         return "Subscription successful";
                     } catch (error) {
