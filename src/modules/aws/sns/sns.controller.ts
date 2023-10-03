@@ -29,9 +29,9 @@ export class SnsController {
 
         if (snsMessage && snsMessage.type === 'Buffer') {
             snsMessage = Buffer.from(snsMessage.data).toString('utf8');
-          }
-          
-          this.logger.info(`Received SNS Message string: ${JSON.stringify(snsMessage)}`);          
+        }
+
+        this.logger.info(`Received SNS Message string: ${JSON.stringify(snsMessage.data)}`);
 
         this.logger.info(`Received SNS Data: ${snsMessage.data}`);
         this.logger.info(`Received SNS Data Array: ${Array.isArray(snsMessage.data)}`);
