@@ -42,6 +42,7 @@ export class SnsController {
             // Parse the string to a JSON object
             const parsedSnsMessage = JSON.parse(messageString);
             this.logger.info(`Parsed SNS Message: ${JSON.stringify(parsedSnsMessage)}`);
+            this.logger.critical(`parsedSnsMessage: ${parsedSnsMessage}`);
 
             // Check if it's a SubscriptionConfirmation message
             if (parsedSnsMessage.Type === 'SubscriptionConfirmation') {
