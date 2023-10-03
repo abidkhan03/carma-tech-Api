@@ -27,20 +27,20 @@ export class SnsController {
 
         this.logger.info(`Received SNS Message: ${JSON.stringify(snsMessage)}`);
 
-        const sns = Buffer.from(snsMessage).toString();
+        // const sns = Buffer.from(snsMessage).toString();
 
-        this.logger.info(`Received SNS Message string: ${JSON.stringify(sns)}`);
-        this.logger.info(`SNS Message string type: ${JSON.stringify(typeof sns)}`);
+        // this.logger.info(`Received SNS Message string: ${JSON.stringify(sns)}`);
+        // this.logger.info(`SNS Message string type: ${JSON.stringify(typeof sns)}`);
 
 
         // Ensure the message is in Buffer format
         try {
             // Convert the buffer to a string
-            const messageString = Buffer.from(snsMessage).toString();
-            this.logger.info(`Converted Message String: ${messageString}`);
+            // const messageString = Buffer.from(snsMessage).toString();
+            // this.logger.info(`Converted Message String: ${messageString}`);
 
             // Parse the string to a JSON object
-            const parsedSnsMessage = JSON.parse(messageString);
+            const parsedSnsMessage = JSON.parse(snsMessage);
             this.logger.info(`Parsed SNS Message: ${JSON.stringify(parsedSnsMessage)}`);
             this.logger.critical(`parsedSnsMessage: ${JSON.stringify(parsedSnsMessage.SubscribeURL)}`);
 
