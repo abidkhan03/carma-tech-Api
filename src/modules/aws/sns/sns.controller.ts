@@ -41,23 +41,23 @@ export class SnsController {
 
         // Check if the message is a Buffer
         if (snsMessage && snsMessage.type === 'Buffer' && Array.isArray(snsMessage.data)) {
-            // Convert the buffer to a string
-            const messageString = Buffer.from(snsMessage.data).toString('utf8');
-            this.logger.info(`Converted Message String: ${messageString}`);
-            const parsedMessage2 = JSON.parse(messageString);
-            this.logger.info(`parsedMessage: ${JSON.stringify(parsedMessage2)}`);
-
             try {
+                // Convert the buffer to a string
+                const messageString = Buffer.from(snsMessage.data).toString('utf8');
+                this.logger.info(`Converted Message String: ${messageString}`);
+
                 // Try to parse the string to a JSON object
-                parsedSnsMessage = JSON.parse(messageString);
+                const parsedSnsMessage = JSON.parse(messageString);
                 this.logger.info(`Parsed sns Message: ${JSON.stringify(parsedSnsMessage)}`);
+
+                // Additional handling code...
             } catch (err) {
-                this.logger.error(`Error parsing JSON: ${err.message}`);
-                return 'Error parsing message';
+                this.logger.error(`Error processing message: ${err.message}`);
+                return 'Error processing message';
             }
         } else {
             this.logger.warn('SNS Message is not in expected Buffer format.');
-            parsedSnsMessage = snsMessage; // handle as is, or throw an error as per your use case
+            // Handle non-buffer message or throw an error as per your use case
         }
 
         if (snsMessage.Message && snsMessage.Message.Type === 'SubscriptionConfirmation') {
