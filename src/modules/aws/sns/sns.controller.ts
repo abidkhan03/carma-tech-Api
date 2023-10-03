@@ -36,8 +36,11 @@ export class SnsController {
 
         this.logger.info(`Decoded Data: ${JSON.stringify(parsedData)}`);
 
-        const messageString = Buffer.from(snsMessage.data).toString('utf8');
-        this.logger.info(`Converted Message String: ${messageString}`);
+        const messageString = Buffer.from(JSON.parse(snsMessage).data);
+        this.logger.info(`Converted json to buffer: ${JSON.stringify(messageString)}`);
+        const bufferString = messageString.toString('utf8');
+        this.logger.info(`Converted Buffer to String: ${bufferString}`);
+        this.logger.info(`buffer string--> ${JSON.stringify(bufferString)}`);
 
         let parsedSnsMessage: any;
 
