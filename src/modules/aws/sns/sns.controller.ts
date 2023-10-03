@@ -20,21 +20,17 @@ export class SnsController {
             region: 'us-east-2',
         });
     }
-
+346866
     @Post()
     async processSNSNotification(@Body() snsMessage: any): Promise<string> {
 
-        const topicArn = this.configService.get('SNS_TOPIC_ARN');
-        // this.logger.info(`sns topicArn: ${JSON.stringify(topicArn)}`);
-        const cognitoUser = this.configService.get('USER_POOL_ID');
-        // this.logger.info(`cognitoUser: ${JSON.stringify(cognitoUser)}`);
         this.logger.info(`sns Message: ${JSON.stringify(snsMessage)}`);
         this.logger.critical(`Message Body: ${JSON.stringify(snsMessage.Message)}`);
         // this.logger.critical(`sns Message Type: ${JSON.stringify(snsMessage.Message.Type)}`);
-        const parseMessage = JSON.parse(Buffer.from(snsMessage.data).toString('utf8'));
-        this.logger.info(`parseMessage with buffer: ${JSON.stringify(parseMessage)}`);
-        const parsedMessage = JSON.parse(parseMessage);
-        this.logger.info(`parsedMessage: ${JSON.stringify(parsedMessage)}`);
+        const parseMessage1 = Buffer.from(snsMessage.data).toString();
+        this.logger.info(`parseMessage with buffer: ${JSON.stringify(parseMessage1)}`);
+        const parsedMessage2 = JSON.parse(snsMessage.data);
+        this.logger.info(`parsedMessage: ${JSON.stringify(parsedMessage2)}`);
         if (typeof snsMessage.Message === 'string') {
             this.logger.info(`SNSMessage Message: ${JSON.stringify(snsMessage.Message)}`);
             let parsedMessage = snsMessage.Message
