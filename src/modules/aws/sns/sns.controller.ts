@@ -32,7 +32,7 @@ export class SnsController {
             snsMessage = Buffer.from(snsMessage.data).toString('utf-8');
         }
 
-        this.logger.info(`Received SNS Message string: ${JSON.stringify(JSON.parse(snsMessage.data))}`);
+        this.logger.info(`Received SNS Message string: ${JSON.stringify(snsMessage.data)}`);
 
         const buf = new ArrayBuffer(64);
         const decoder = new TextDecoder();
