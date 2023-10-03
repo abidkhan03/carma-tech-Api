@@ -25,13 +25,20 @@ export class SnsController {
     async processSNSNotification(@Body() snsMessage: any): Promise<string> {
 
         this.logger.info(`sns Message: ${JSON.stringify(snsMessage)}`);
-        this.logger.info(`SNS Message Data: ${JSON.stringify(snsMessage.data)}`);
+        if (snsMessage && Array.isArray(snsMessage.data)) {
+            this.logger.info(`SNS Message Data: ${JSON.stringify(snsMessage.data)}`);
+            
+        } else {
+            this.logger.error(`Unexpected SNS Message format: ${JSON.stringify(snsMessage)}`);
+        }
+        // this.logger.info(`SNS Message Data: ${JSON.stringify(snsMessage.data)}`);
 
-        const decodeData = new TextDecoder('utf-8').decode(snsMessage.data);
+        const decodeData = new TextDecoder('utf-8').decode(new Uint8Array(snsMessage.data));
         this.logger.info(`Decoded Data: ${decodeData}`);
+
         this.logger.info(`Decoded Data JSON: ${JSON.stringify(decodeData)}`);
 
-        const messageString = Buffer.from(JSON.parse(snsMessage.data));
+        const messageString = Buffer.from(snsMessage.data);
         this.logger.info(`Converted json to buffer: ${JSON.stringify(messageString)}`);
         const bufferString = messageString.toString('utf8');
         this.logger.info(`Converted Buffer to String: ${bufferString}`);
