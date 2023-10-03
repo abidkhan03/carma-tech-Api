@@ -26,58 +26,47 @@ export class SnsController {
     processSNSNotification(@Body() snsMessage: any): string {
 
         this.logger.info(`Received SNS Message: ${JSON.stringify(snsMessage)}`);
-        this.logger.info(`Received SNS Message Type: ${JSON.stringify(snsMessage.type)}`);
 
         const sns = Buffer.from(snsMessage).toString();
 
         this.logger.info(`Received SNS Message string: ${JSON.stringify(sns)}`);
         this.logger.info(`SNS Message string type: ${JSON.stringify(typeof sns)}`);
 
-        // this.logger.info(`Received SNS Data: ${snsMessage.data}`);
-        // this.logger.info(`Received SNS Data Array: ${Array.isArray(snsMessage.data)}`);
-        // this.logger.info(`Received SNS Message Data: ${snsMessage.Message}`);
-
-        const message = JSON.parse(Buffer.from(snsMessage.data).toString());
-        this.logger.info(`Parsed SNS Message: ${JSON.stringify(message)}`);
 
         // Ensure the message is in Buffer format
-        if (snsMessage && snsMessage.type === 'Buffer' && Array.isArray(snsMessage.data)) {
-            try {
-                // Convert the buffer to a string
-                const messageString = Buffer.from(snsMessage.data).toString('base64');
-                this.logger.info(`Converted Message String: ${messageString}`);
+        try {
+            // Convert the buffer to a string
+            const messageString = Buffer.from(snsMessage).toString();
+            this.logger.info(`Converted Message String: ${messageString}`);
 
-                // Parse the string to a JSON object
-                const parsedSnsMessage = JSON.parse(messageString);
-                this.logger.info(`Parsed SNS Message: ${JSON.stringify(parsedSnsMessage)}`);
+            // Parse the string to a JSON object
+            const parsedSnsMessage = JSON.parse(messageString);
+            this.logger.info(`Parsed SNS Message: ${JSON.stringify(parsedSnsMessage)}`);
 
-                // Check if it's a SubscriptionConfirmation message
-                if (parsedSnsMessage.Type === 'SubscriptionConfirmation') {
-                    // Ensure the SubscribeURL is present
-                    if (!parsedSnsMessage.SubscribeURL) {
-                        this.logger.error(`SubscriptionConfirmation missing SubscribeURL: ${JSON.stringify(parsedSnsMessage)}}`);
-                        return "Error: SubscriptionConfirmation missing SubscribeURL";
-                    }
-
-                    // Confirm the subscription by visiting the SubscribeURL.
-                    try {
-                        const response = lastValueFrom(this.httpService.get(parsedSnsMessage.SubscribeURL));
-                        this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response)}`);
-                        return "Subscription successful";
-                    } catch (error) {
-                        this.logger.error(`Error confirming subscription: ${error.message}`);
-                        return "Error confirming subscription";
-                    }
-                } else {
-                    // Handle other message types as per your use case
-                    this.logger.warn(`Received non-subscription message type: ${parsedSnsMessage.Type}`);
+            // Check if it's a SubscriptionConfirmation message
+            if (parsedSnsMessage.Type === 'SubscriptionConfirmation') {
+                // Ensure the SubscribeURL is present
+                if (!parsedSnsMessage.SubscribeURL) {
+                    this.logger.error(`SubscriptionConfirmation missing SubscribeURL: ${JSON.stringify(parsedSnsMessage)}}`);
+                    return "Error: SubscriptionConfirmation missing SubscribeURL";
                 }
-            } catch (err) {
-                this.logger.error(`Error processing message: ${err.message}`);
-                return 'Error processing message';
+
+                // Confirm the subscription by visiting the SubscribeURL.
+                try {
+                    const response = lastValueFrom(this.httpService.get(parsedSnsMessage.SubscribeURL));
+                    this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response)}`);
+                    return "Subscription successful";
+                } catch (error) {
+                    this.logger.error(`Error confirming subscription: ${error.message}`);
+                    return "Error confirming subscription";
+                }
+            } else {
+                // Handle other message types as per your use case
+                this.logger.warn(`Received non-subscription message type: ${parsedSnsMessage.Type}`);
             }
-        } else {
-            this.logger.warn('SNS Message is not in expected Buffer format.');
+        } catch (err) {
+            this.logger.error(`Error processing message: ${err.message}`);
+            return 'Error processing message';
         }
 
         return 'OK';
