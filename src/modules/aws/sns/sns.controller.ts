@@ -27,6 +27,12 @@ export class SnsController {
 
         this.logger.info(`Received SNS Message: ${JSON.stringify(snsMessage)}`);
 
+        if (snsMessage && snsMessage.type === 'Buffer') {
+            snsMessage = Buffer.from(snsMessage.data).toString('utf8');
+          }
+          
+          this.logger.info(`Received SNS Message string: ${JSON.stringify(snsMessage)}`);          
+
         this.logger.info(`Received SNS Data: ${snsMessage.data}`);
         this.logger.info(`Received SNS Data Array: ${Array.isArray(snsMessage.data)}`);
         this.logger.info(`Received SNS Message Data: ${snsMessage.Message.data}`);
@@ -35,7 +41,7 @@ export class SnsController {
         if (snsMessage && snsMessage.type === 'Buffer' && Array.isArray(snsMessage.data)) {
             try {
                 // Convert the buffer to a string
-                const messageString = Buffer.from(snsMessage.data).toString('utf8');
+                const messageString = Buffer.from(snsMessage.data).toString('base64');
                 this.logger.info(`Converted Message String: ${messageString}`);
 
                 // Parse the string to a JSON object
