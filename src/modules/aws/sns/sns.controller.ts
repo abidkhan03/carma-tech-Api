@@ -32,9 +32,9 @@ export class SnsController {
         // if (typeof snsMessage.Message === 'string') {
         // this.logger.info(`SNSMessage Message: ${JSON.stringify(snsMessage.Message)}`);
 
-        const parsedData = JSON.parse(new TextDecoder().decode(snsMessage.data));
+        const parsedData = new TextDecoder().decode(snsMessage.data);
 
-        this.logger.info(`Parsed Data: ${JSON.stringify(parsedData)}`);
+        this.logger.info(`Decoded Data: ${JSON.stringify(parsedData)}`);
 
         let parsedSnsMessage: any;
 
