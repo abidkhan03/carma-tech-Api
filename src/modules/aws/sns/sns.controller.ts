@@ -25,12 +25,17 @@ export class SnsController {
     async processSNSNotification(@Body() snsMessage: any): Promise<string> {
 
         this.logger.info(`sns Message: ${JSON.stringify(snsMessage)}`);
-        this.logger.critical(`Message Body: ${JSON.stringify(snsMessage.Message)}`);
+        // this.logger.critical(`Message Body: ${JSON.stringify(snsMessage.Message)}`);
         // this.logger.critical(`sns Message Type: ${JSON.stringify(snsMessage.Message.Type)}`);
         // const parseMessage1 = Buffer.from(snsMessage.data).toString();
         // this.logger.info(`parseMessage with buffer: ${JSON.stringify(parseMessage1)}`);
         // if (typeof snsMessage.Message === 'string') {
         // this.logger.info(`SNSMessage Message: ${JSON.stringify(snsMessage.Message)}`);
+
+        const parsedData = JSON.parse(new TextDecoder().decode(snsMessage.data));
+
+        this.logger.info(`Parsed Data: ${JSON.stringify(parsedData)}`);
+
         let parsedSnsMessage: any;
 
         // Check if the message is a Buffer
