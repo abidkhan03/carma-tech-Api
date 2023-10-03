@@ -36,14 +36,17 @@ export class SnsController {
 
         this.logger.info(`Decoded Data: ${JSON.stringify(parsedData)}`);
 
+        const messageString = Buffer.from(snsMessage.data).toString('utf8');
+        this.logger.info(`Converted Message String: ${messageString}`);
+
         let parsedSnsMessage: any;
 
         // Check if the message is a Buffer
         if (snsMessage && snsMessage.type === 'Buffer' && Array.isArray(snsMessage.data)) {
             // Convert the buffer to a string
-            const messageString = Buffer.from(snsMessage.data).toString('utf-8');
+            const messageString = Buffer.from(snsMessage.data).toString('utf8');
             this.logger.info(`Converted Message String: ${messageString}`);
-            const parsedMessage2 = JSON.parse(snsMessage.data);
+            const parsedMessage2 = JSON.parse(messageString);
             this.logger.info(`parsedMessage: ${JSON.stringify(parsedMessage2)}`);
 
             try {
