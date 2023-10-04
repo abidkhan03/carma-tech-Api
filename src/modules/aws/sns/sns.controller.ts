@@ -1,85 +1,64 @@
 import { HttpService } from '@nestjs/axios';
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
-import { Logger } from '@aws-lambda-powertools/logger';
 import axios from 'axios';
-import { lastValueFrom } from 'rxjs';
-import { Buffer } from 'buffer';
+import { Logger } from '@aws-lambda-powertools/logger';
+import { SNSClient } from '@aws-sdk/client-sns';
+import AWS from 'aws-sdk';
 
 @Controller('sns-endpoint')
 export class SnsController {
-    private readonly snsClient: SNSClient;
-    private logger = new Logger();
+    private readonly logger = new Logger();
+    // private readonly snsClient = new SNSClient({ region: 'us-east-2' });
+    private readonly snsInstance = new AWS.SNS({ region: 'us-east-2' });
 
     constructor(
         private readonly httpService: HttpService,
-        private readonly configService: ConfigService,
-    ) {
-        this.snsClient = new SNSClient({
-            region: 'us-east-2',
-        });
-    }
-
+        private readonly configService: ConfigService
+    ) { }
 
     @Post()
     async processSNSNotification(@Body() snsMessage: any): Promise<string> {
 
         this.logger.info(`Received SNS Message: ${JSON.stringify(snsMessage)}`);
+        // Parse the string to a JSON object
+        snsMessage = JSON.parse(snsMessage);
+        this.logger.info(`Parsed SNS Message: ${JSON.stringify(snsMessage)}`);
+        this.logger.info(`Parsed Message SubscribeUrl: ${JSON.stringify(snsMessage.SubscribeURL)}`);
+        // validate the message type
+        if (snsMessage.Type === 'SubscriptionConfirmation') {
+            // Handle SNS subscription URL callback
+            // This URL should be fetched and visited to confirm the subscription.
 
-        // const sns = Buffer.from(snsMessage).toString();
+            const confirmationUrl = snsMessage.SubscribeURL;
+            this.logger.info(`confirmation url: ${JSON.stringify(confirmationUrl)}`);
+            // Make an HTTP GET request to the provided URL to confirm the subscription.
+            try {
+                const response = await axios.get(confirmationUrl);
+                this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response)}`);
+                return 'Subscription successful';
 
-        // this.logger.info(`Received SNS Message string: ${JSON.stringify(sns)}`);
-        // this.logger.info(`SNS Message string type: ${JSON.stringify(typeof sns)}`);
-
-
-        // Ensure the message is in Buffer format
-        try {
-            // Convert the buffer to a string
-            // const messageString = Buffer.from(snsMessage).toString();
-            // this.logger.info(`Converted Message String: ${messageString}`);
-
-            // Parse the string to a JSON object
-            const parsedSnsMessage = JSON.parse(snsMessage);
-            this.logger.info(`Parsed SNS Message: ${JSON.stringify(parsedSnsMessage)}`);
-            this.logger.critical(`parsedSnsMessage url: ${JSON.stringify(parsedSnsMessage.SubscribeURL)}`);
-
-            // Check if it's a SubscriptionConfirmation message
-            if (parsedSnsMessage.Type === 'SubscriptionConfirmation') {
-                // // Ensure the SubscribeURL is present
-                // if (!parsedSnsMessage.SubscribeURL) {
-                //     this.logger.error(`SubscriptionConfirmation missing SubscribeURL: ${JSON.stringify(parsedSnsMessage)}}`);
-                //     return "Error: SubscriptionConfirmation missing SubscribeURL";
-                // }
-
-                // Confirm the subscription by visiting the SubscribeURL.
-                try {
-                    const response = await axios.get(parsedSnsMessage.SubscribeURL);
-                    this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response)}`);
-                    return "Subscription successful";
-                } catch (error) {
-                    this.logger.error(`Error confirming subscription: ${error.message}`);
-                    return "Error confirming subscription";
-                }
-            } else {
-                // Handle other message types as per your use case
-                this.logger.warn(`Received non-subscription message type: ${parsedSnsMessage.Type}`);
+            } catch (error) {
+                this.logger.error("Error confirming subscription: ", error.message);
+                return "Error confirming subscription2";
             }
-        } catch (err) {
-            this.logger.error(`Error processing message: ${err.message}`);
-            return 'Error processing message';
+        } else if (snsMessage.Type === 'Notification') {
+            if (snsMessage.Status === 'COMPLETED') {
+                // Handle completed Lambda task
+                // Store the result, notify a user, etc.
+                console.log('Lambda task completed successfully.');
+                this.logger.info(`Lambda task completed successfully: ${JSON.stringify(snsMessage.Status)}`);
+            }
+
         }
 
         return 'OK';
     }
 
-    private fieldsForSignature(type: string): string[] {
-        if (type === 'SubscriptionConfirmation') {
-            return ['Message', 'MessageId', 'SubscribeURL', 'Timestamp', 'Token', 'TopicArn', 'Type'];
-        } else if (type === 'Notification') {
-            return ['Message', 'MessageId', 'Subject', 'Timestamp', 'TopicArn', 'Type'];
-        } else {
-            return [];
-        }
+    private isConfirmSubscription(headers: {
+        'x-amz-sns-message-type': string
+    }) {
+        return headers['x-amz-sns-message-type'] === 'SubscriptionConfirmation';
     }
+
 }
