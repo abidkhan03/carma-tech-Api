@@ -47,7 +47,7 @@ export class SnsController {
                 return 'Subscription successful';
 
             } catch (error) {
-                this.logger.error("Error confirming subscription: ", error.message);
+                this.logger.error(`Error confirming subscription: ${JSON.stringify(error.message || error.response.data || error)}`);
                 return "Error confirming subscription2";
             }
         } else if (snsMessage.Type === 'Notification') {
