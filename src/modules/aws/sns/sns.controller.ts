@@ -5,12 +5,14 @@ import axios from 'axios';
 import { Logger } from '@aws-lambda-powertools/logger';
 import { SNSClient } from '@aws-sdk/client-sns';
 import AWS from 'aws-sdk';
+import https from 'https';
 
+AWS.config.update({ region: 'us-east-2' });
 @Controller('sns-endpoint')
 export class SnsController {
     private readonly logger = new Logger();
     // private readonly snsClient = new SNSClient({ region: 'us-east-2' });
-    private readonly snsInstance = new AWS.SNS({ region: 'us-east-2' });
+    private readonly snsInstance = new AWS.SNS();
 
     constructor(
         private readonly httpService: HttpService,
@@ -34,8 +36,14 @@ export class SnsController {
             this.logger.info(`confirmation url: ${JSON.stringify(confirmationUrl)}`);
             // Make an HTTP GET request to the provided URL to confirm the subscription.
             try {
-                const response = await axios.get(confirmationUrl);
-                this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response)}`);
+                https.get(snsMessage.SubscribeURL, (resp) => {
+                    // Handle response
+                    this.logger.info(`statusCode: ${resp.statusCode}`);
+                }).on("error", (err) => {
+                    console.log("Error: " + err.message);
+                });
+                // const response = await axios.get(confirmationUrl);
+                // this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response)}`);
                 return 'Subscription successful';
 
             } catch (error) {
