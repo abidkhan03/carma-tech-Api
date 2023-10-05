@@ -18,7 +18,7 @@ export class SnsService {
     return new Promise((resolve, reject) => {
       this.sns.confirmSubscription(
         {
-          TopicArn: this.configService.get('SNS_TOPIC_ARN'),
+          TopicArn: topicArn,
           Token: token,
         },
         (err, res) => {
