@@ -4,19 +4,18 @@ import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { Logger } from '@aws-lambda-powertools/logger';
 import { SNSClient } from '@aws-sdk/client-sns';
-import AWS from 'aws-sdk';
 import https from 'https';
 
 @Controller('sns-endpoint')
 export class SnsController {
     private readonly logger = new Logger();
-    // private readonly snsClient = new SNSClient({ region: 'us-east-2' });
-    private readonly snsInstance = new AWS.SNS({ region: 'us-east-2' });
-
+    private readonly snsClient: SNSClient;
     constructor(
         private readonly httpService: HttpService,
         private readonly configService: ConfigService
-    ) { }
+    ) {
+        this.snsClient = new SNSClient({ region: 'us-east-2' });
+     }
 
     @Post()
     async processSNSNotification(@Body() snsMessage: any): Promise<string> {
