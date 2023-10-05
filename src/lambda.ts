@@ -9,6 +9,7 @@ import { setupSwagger } from '@app/swagger';
 import { AppModule } from '@app/modules/main/app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import { SnsMessageMiddleware } from '@modules/aws/sns/sns.middleware';
 
 
 //Declare a ReplaySubject to store the serverlessExpress instance.
@@ -27,6 +28,8 @@ async function bootstrap(): Promise<Handler> {
    // Set view engine
    app.setViewEngine('ejs');
    app.setBaseViewsDir(join(__dirname, '..', 'views'));
+
+   app.use('/sns-endpoint', SnsMessageMiddleware);
 
   await app.init();
   const expressApp = app.getHttpAdapter().getInstance();
