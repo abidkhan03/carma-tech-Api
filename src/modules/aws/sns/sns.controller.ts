@@ -34,11 +34,11 @@ export class SnsController {
             this.logger.info(`confirmation url: ${JSON.stringify(confirmationUrl)}`);
             // Make an HTTP GET request to the provided URL to confirm the subscription.
             try {
-                https.get(snsMessage.SubscribeURL, (resp) => {
+                https.get(confirmationUrl, (resp) => {
                     // Handle response
                     this.logger.info(`statusCode: ${resp.statusCode}`);
                 }).on("error", (err) => {
-                    console.log("Error: " + err.message);
+                    this.logger.error(`Error confirmation: ${JSON.stringify(err.message)}`)
                 });
                 // const response = await axios.get(confirmationUrl);
                 // this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response)}`);
