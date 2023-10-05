@@ -1,33 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as AWS from 'aws-sdk';
+import { SNSClient, ConfirmSubscriptionCommand } from '@aws-sdk/client-sns';
+
 
 @Injectable()
 export class SnsService {
-  private readonly sns: AWS.SNS;
+  private readonly sns = new SNSClient;
 
   constructor( private readonly configService: ConfigService ) {
-    this.sns = new AWS.SNS(
-        {
-          region: 'us-east-2',
-        },
-    );
+    this.sns = new SNSClient({ region: 'us-east-2' });
   }
 
   confirmSubscription(topicArn: string, token: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.sns.confirmSubscription(
-        {
-          TopicArn: topicArn,
-          Token: token,
-        },
-        (err, res) => {
-          if (err) {
-            return reject(err);
-          }
-          return resolve(res.SubscriptionArn);
-        },
-      );
+        const params = {
+            Token: token,
+            TopicArn: topicArn,
+        };
+        this.sns.send(new ConfirmSubscriptionCommand(params))
+            .then((data) => {
+            resolve(data.SubscriptionArn);
+            })
+            .catch((err) => {
+            reject(err);
+            });
+
     });
   }
 }

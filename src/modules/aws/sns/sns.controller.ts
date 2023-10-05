@@ -1,6 +1,7 @@
 import { Controller, Post, Headers, Body, HttpException, HttpStatus } from '@nestjs/common';
 import { SnsService } from './sns.service';
 import { Logger } from '@aws-lambda-powertools/logger';
+import { SNSClient, ConfirmSubscriptionCommand } from '@aws-sdk/client-sns';
 
 @Controller('sns-endpoint')
 export class SnsController {
@@ -14,6 +15,10 @@ export class SnsController {
         @Headers('x-amz-sns-topic-arn') topicArn: string,
         @Body() body: { Token: string },
     ) {
+        this.logger.info(`Received SNS Message: ${JSON.stringify(body)}`);
+        this.logger.info(`message type: ${JSON.stringify(messageType)}`);
+        this.logger.info(`topic arn: ${JSON.stringify(topicArn)}`);
+        
         if (messageType !== 'SubscriptionConfirmation') {
             this.logger.info(`No subscriptionconfirmation in sns header: ${JSON.stringify(messageType)}`);
             throw new HttpException('No SubscriptionConfirmation in sns headers', HttpStatus.BAD_REQUEST);
