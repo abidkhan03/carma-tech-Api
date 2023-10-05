@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { SnsController } from './sns/sns.controller';
 import { HttpModule } from '@nestjs/axios';
+import { SnsService } from './sns/sns.service';
 
 @Module({
   imports: [HttpModule],
-  controllers: [SnsController]
+  controllers: [SnsController],
+  providers: [SnsService],
 })
 export class AwsModule {}
 
