@@ -19,10 +19,10 @@ export class SnsController {
      }
 
     @Post()
-    processSNSNotification(
+    async processSNSNotification(
         @Body() snsMessage: any,
         @Headers() headers: any,
-        ): string {
+        ): Promise<string> {
 
         this.logger.info(`Received SNS Message: ${JSON.stringify(snsMessage)}`);
         this.logger.info(`All Headers: ${JSON.stringify(headers)}`);
@@ -47,7 +47,7 @@ export class SnsController {
             this.logger.info(`confirmation url: ${JSON.stringify(confirmationUrl)}`);
             // Make an HTTP GET request to the provided URL to confirm the subscription.
             try {
-                const response = this.httpService.get(confirmationUrl);
+                const response = await this.httpService.get(confirmationUrl);
                 this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response)}`);
 
                 const params = {
@@ -55,7 +55,7 @@ export class SnsController {
                     TopicArn: topicArn,
                 };
 
-                const data = this.snsClient.send(new ConfirmSubscriptionCommand(params));
+                const data = await this.snsClient.send(new ConfirmSubscriptionCommand(params));
                 this.logger.info(`Confirmed subscription with response: ${JSON.stringify(data)}`);
                 // const response = await axios.get(confirmationUrl);
                 // this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response)}`);
