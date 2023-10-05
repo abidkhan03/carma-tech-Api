@@ -56,7 +56,7 @@ export class SnsController {
 
                 const params = {
                     Token: snsMessage.Token,
-                    TopicArn: topicArn,
+                    TopicArn: this.configService.get('SNS_TOPIC_ARN'),
                 };
 
                 const data = await this.snsClient.send(new ConfirmSubscriptionCommand(params));

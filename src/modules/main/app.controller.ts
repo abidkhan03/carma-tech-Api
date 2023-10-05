@@ -34,6 +34,7 @@ export class AppController {
       translator_lambda_name: this.configService.get('TRANSLATOR_LAMBDA_NAME'),
       identity_pool_id: this.configService.get('IDENTITY_POOL_ID'),
       sns_topic_name: this.configService.get('SNS_TOPIC_NAME'),
+      sns_topic_arn: this.configService.get('SNS_TOPIC_ARN'),
     };
   }
 
