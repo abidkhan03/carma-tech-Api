@@ -7,7 +7,7 @@ import { Logger } from '@aws-lambda-powertools/logger';
 import { SNSClient, ConfirmSubscriptionCommand } from '@aws-sdk/client-sns';
 import https from 'https';
 
-@Controller('sns')
+@Controller('endpoint')
 export class SnsController {
     private readonly logger = new Logger();
     private readonly snsClient: SNSClient;
@@ -38,12 +38,12 @@ export class SnsController {
         this.logger.info(`Parsed SNS Message: ${JSON.stringify(snsMessage)}`);
         this.logger.info(`Parsed Message SubscribeUrl: ${JSON.stringify(snsMessage.SubscribeURL)}`);
 
-        if (messageType !== 'SubscriptionConfirmation') {
-            this.logger.error(`Unexpected message type: ${messageType}`);
-            return 'Unexpected message type';
-        }
+        // if (messageType === 'SubscriptionConfirmation') {
+        //     this.logger.error(`Unexpected message type: ${messageType}`);
+        //     return 'Unexpected message type';
+        // }
         // validate the message type
-        if (snsMessage.Type === 'SubscriptionConfirmation') {
+        if (messageType === 'SubscriptionConfirmation') {
             // Handle SNS subscription URL callback
             // This URL should be fetched and visited to confirm the subscription.
 
@@ -51,12 +51,12 @@ export class SnsController {
             this.logger.info(`confirmation url: ${JSON.stringify(confirmationUrl)}`);
             // Make an HTTP GET request to the provided URL to confirm the subscription.
             try {
-                const response = await axios.get(confirmationUrl);
+                const response = await this.httpService.get(confirmationUrl);
                 this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response)}`);
 
                 const params = {
                     Token: snsMessage.Token,
-                    TopicArn: this.configService.get('SNS_TOPIC_ARN'),
+                    TopicArn: topicArn,
                 };
 
                 const data = await this.snsClient.send(new ConfirmSubscriptionCommand(params));
