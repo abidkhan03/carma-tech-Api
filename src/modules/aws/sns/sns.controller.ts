@@ -18,11 +18,11 @@ export class SnsController {
         this.logger.info(`Received SNS Message: ${JSON.stringify(body)}`);
         this.logger.info(`message type: ${JSON.stringify(messageType)}`);
         this.logger.info(`topic arn: ${JSON.stringify(topicArn)}`);
-        
-        if (messageType !== 'SubscriptionConfirmation') {
-            this.logger.info(`No subscriptionconfirmation in sns header: ${JSON.stringify(messageType)}`);
-            throw new HttpException('No SubscriptionConfirmation in sns headers', HttpStatus.BAD_REQUEST);
-        }
+
+        // if (messageType !== 'SubscriptionConfirmation') {
+        //     this.logger.info(`No subscriptionconfirmation in sns header: ${JSON.stringify(messageType)}`);
+        //     throw new HttpException('No SubscriptionConfirmation in sns headers', HttpStatus.BAD_REQUEST);
+        // }
 
         try {
             const subscriptionArn = await this.snsService.confirmSubscription(topicArn, body.Token);
