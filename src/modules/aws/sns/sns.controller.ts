@@ -7,7 +7,7 @@ import { Logger } from '@aws-lambda-powertools/logger';
 import { SNSClient, ConfirmSubscriptionCommand } from '@aws-sdk/client-sns';
 import https from 'https';
 
-@Controller('sns-confirmation')
+@Controller('sns-confirm')
 export class SnsController {
     private readonly logger = new Logger();
     private readonly snsClient: SNSClient;
@@ -47,7 +47,7 @@ export class SnsController {
             this.logger.info(`confirmation url: ${JSON.stringify(confirmationUrl)}`);
             // Make an HTTP GET request to the provided URL to confirm the subscription.
             try {
-                const response = await this.httpService.get(confirmationUrl);
+                const response = this.httpService.get(confirmationUrl);
                 this.logger.info(`Confirmed subscription with response: ${JSON.stringify(response)}`);
 
                 const params = {
