@@ -7,7 +7,7 @@ import { Logger } from '@aws-lambda-powertools/logger';
 import { SNSClient, ConfirmSubscriptionCommand } from '@aws-sdk/client-sns';
 import https from 'https';
 
-@Controller('sns-endpoint')
+@Controller('sns')
 export class SnsController {
     private readonly logger = new Logger();
     private readonly snsClient: SNSClient;
