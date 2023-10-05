@@ -7,12 +7,11 @@ import { SNSClient } from '@aws-sdk/client-sns';
 import AWS from 'aws-sdk';
 import https from 'https';
 
-AWS.config.update({ region: 'us-east-2' });
 @Controller('sns-endpoint')
 export class SnsController {
     private readonly logger = new Logger();
     // private readonly snsClient = new SNSClient({ region: 'us-east-2' });
-    private readonly snsInstance = new AWS.SNS();
+    private readonly snsInstance = new AWS.SNS({ region: 'us-east-2' });
 
     constructor(
         private readonly httpService: HttpService,
