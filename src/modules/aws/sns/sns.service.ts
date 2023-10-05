@@ -13,6 +13,8 @@ export class SnsService {
   }
 
   confirmSubscription(topicArn: string, token: string): Promise<string> {
+    topicArn = this.configService.get('SNS_TOPIC_ARN');
+    
     return new Promise((resolve, reject) => {
         const params = {
             Token: token,
