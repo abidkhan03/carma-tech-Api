@@ -6,7 +6,7 @@ import { SNSClient, ConfirmSubscriptionCommand } from '@aws-sdk/client-sns';
 
 @Injectable()
 export class SnsService {
-  private readonly sns = new SNSClient;
+  private readonly sns: SNSClient;
 
   constructor( private readonly configService: ConfigService ) {
     this.sns = new SNSClient({ region: 'us-east-2' });

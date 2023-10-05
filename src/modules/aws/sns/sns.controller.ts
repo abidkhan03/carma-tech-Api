@@ -11,29 +11,34 @@ export class SnsController {
 
     @Post()
     async confirmSubscription(
-        @Headers('x-amz-sns-message-type') messageType: string,
-        @Headers('x-amz-sns-topic-arn') topicArn: string,
-        @Body() body: { Token: string },
+        @Headers() headers: any,
+        @Body() body: any,
     ) {
         this.logger.info(`Received SNS Message: ${JSON.stringify(body)}`);
-        this.logger.info(`message type: ${JSON.stringify(messageType)}`);
-        this.logger.info(`topic arn: ${JSON.stringify(topicArn)}`);
-
-        // if (messageType !== 'SubscriptionConfirmation') {
-        //     this.logger.info(`No subscriptionconfirmation in sns header: ${JSON.stringify(messageType)}`);
-        //     throw new HttpException('No SubscriptionConfirmation in sns headers', HttpStatus.BAD_REQUEST);
-        // }
+        this.logger.info(`All Headers: ${JSON.stringify(headers)}`);
+        
+        const messageType = headers['x-amz-sns-message-type'];
+        const topicArn = headers['x-amz-sns-topic-arn'];
+        
+        this.logger.info(`Message Type: ${messageType}`);
+        this.logger.info(`Topic ARN: ${topicArn}`);
+        
+        if (messageType !== 'SubscriptionConfirmation') {
+            this.logger.warn(`No SubscriptionConfirmation in sns headers`);
+            throw new HttpException('No SubscriptionConfirmation in sns headers', HttpStatus.BAD_REQUEST);
+        }
 
         try {
             const subscriptionArn = await this.snsService.confirmSubscription(topicArn, body.Token);
-            this.logger.info(`SubscriptionArn: ${JSON.stringify(subscriptionArn)}`);
+            this.logger.info(`SubscriptionArn: ${subscriptionArn}`);
             return { subscriptionArn };
         } catch (error) {
-            this.logger.error(`Error confirming subscription: ${JSON.stringify(error.message || error.response.data || error)}`);
+            this.logger.error(`Error confirming subscription: ${error.message}`);
             throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
+
 
 
 
