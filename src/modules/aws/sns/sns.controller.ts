@@ -1,11 +1,12 @@
 
 import { HttpService } from '@nestjs/axios';
-import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpException, HttpStatus, Post, Query } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { Logger } from '@aws-lambda-powertools/logger';
 import { SNSClient, ConfirmSubscriptionCommand } from '@aws-sdk/client-sns';
-import https from 'https';
+import { CostExplorerClient, GetCostAndUsageCommand, Granularity } from '@aws-sdk/client-cost-explorer';
+import { SnsService } from './sns.service';
 
 @Controller('sns-confirm')
 export class SnsController {
@@ -13,16 +14,17 @@ export class SnsController {
     private readonly snsClient: SNSClient;
     constructor(
         private readonly httpService: HttpService,
-        private readonly configService: ConfigService
+        private readonly configService: ConfigService,
+        private readonly snsService: SnsService,
     ) {
         this.snsClient = new SNSClient({ region: 'us-east-2' });
-     }
+    }
 
     @Post()
     async processSNSNotification(
         @Body() snsMessage: any,
         @Headers() headers: any,
-        ): Promise<string> {
+    ): Promise<string> {
 
         this.logger.info(`Received SNS Message: ${JSON.stringify(snsMessage)}`);
         this.logger.info(`All Headers: ${JSON.stringify(headers)}`);
@@ -78,10 +80,46 @@ export class SnsController {
         return 'OK';
     }
 
-    private isConfirmSubscription(headers: {
-        'x-amz-sns-message-type': string
-    }) {
-        return headers['x-amz-sns-message-type'] === 'SubscriptionConfirmation';
+    @Get('infra-cost')
+    async getInfrastructureCost(
+        @Query('start') start: string,
+        @Query('end') end: string,
+        @Query('granularity') granularity: 'DAILY' | 'MONTHLY' | 'HOURLY',
+        @Query('format') format: string
+    ): Promise<any> {
+        this.logger.info(`Fetching cost data from ${start} to ${end} with granularity ${granularity}`);
+        return this.snsService.getCostAndUsage(start, end, granularity, format);
     }
+    // async getInfraStructureCost(
+    //     @Query('start') startDate: string,
+    //     @Query('end') endDate: string,
+    //     @Query('format') format: string,
 
+    // ): Promise<any> {
+    //     const params = {
+    //         TimePeriod: {
+    //             Start: startDate,
+    //             End: endDate,
+    //         },
+    //         Granularity: Granularity.DAILY || Granularity.MONTHLY || Granularity.HOURLY,
+    //         Filter: {
+    //             And: [
+    //                 {
+    //                     Dimensions: {
+    //                         Key: "AZ" || "INSTANCE_TYPE" || "LINKED_ACCOUNT" || "LINKED_ACCOUNT_NAME" || "OPERATION" || "PURCHASE_TYPE" || "REGION" || "SERVICE" || "SERVICE_CODE" || "USAGE_TYPE" || "USAGE_TYPE_GROUP" || "RECORD_TYPE" || "OPERATING_SYSTEM" || "TENANCY" || "SCOPE" || "PLATFORM" || "SUBSCRIPTION_ID" || "LEGAL_ENTITY_NAME" || "DEPLOYMENT_OPTION" || "DATABASE_ENGINE" || "CACHE_ENGINE" || "INSTANCE_TYPE_FAMILY" || "BILLING_ENTITY" || "RESERVATION_ID" || "RESOURCE_ID" || "RIGHTSIZING_TYPE" || "SAVINGS_PLANS_TYPE" || "SAVINGS_PLAN_ARN" || "PAYMENT_OPTION" || "AGREEMENT_END_DATE_TIME_AFTER" || "AGREEMENT_END_DATE_TIME_BEFORE" || "INVOICING_ENTITY" || "ANOMALY_TOTAL_IMPACT_ABSOLUTE" || "ANOMALY_TOTAL_IMPACT_PERCENTAGE",
+    //                         Values: ['EC2: Running Hours', 'RDS: Running Hours'],
+    //                     },
+    //                 },
+    //             ],
+    //         },
+    //     };
+    //     try {
+    //         const data = await this.snsService.getCostAndUsage(params);
+    //         // format data in JSON format
+    //         return data;
+    //     } catch (error) {
+    //         throw new HttpException('Failed to fetch cost data', HttpStatus.INTERNAL_SERVER_ERROR)
+    //     }
+    // }
 }
+
