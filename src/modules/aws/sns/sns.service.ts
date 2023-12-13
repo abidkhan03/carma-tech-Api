@@ -4,12 +4,14 @@ import * as AWS from 'aws-sdk';
 import { SNSClient, ConfirmSubscriptionCommand } from '@aws-sdk/client-sns';
 import { CostExplorerClient, GetCostAndUsageCommand } from '@aws-sdk/client-cost-explorer';
 import * as fs from 'fs';
+import { Logger } from '@aws-lambda-powertools/logger';
 
 
 @Injectable()
 export class SnsService {
   private readonly sns: SNSClient;
   private readonly costExplorerClient: CostExplorerClient;
+  private readonly logger = new Logger();
 
   constructor( private readonly configService: ConfigService ) {
     this.sns = new SNSClient({ region: 'us-east-2' });
@@ -39,7 +41,7 @@ export class SnsService {
     // end date should be latest date and start date should be 7 days before
     end = new Date(end).toISOString();
     start = new Date(new Date().setDate(new Date().getDate() - 7)).toISOString();
-    
+
     const params = {
       TimePeriod: {
         Start: start,
@@ -60,7 +62,7 @@ export class SnsService {
 
     const command = new GetCostAndUsageCommand(params);
     const data = await this.costExplorerClient.send(command);
-
+    this.logger.info(`Cost data: ${JSON.stringify(data)}`);
   // Format the data as per the 'format' parameter to convert to a csv
   if (format === 'csv') {
     const csvData = [];
