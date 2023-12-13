@@ -39,7 +39,7 @@ export class SnsService {
 
   async getCostAndUsage(start: string, end: string, granularity: "DAILY" | "HOURLY" | "MONTHLY", format: string): Promise<any> {
     // end date should be latest date and start date should be 7 days before
-    end = new Date(end).toISOString();
+    end = new Date().toISOString();
     start = new Date(new Date().setDate(new Date().getDate() - 7)).toISOString();
 
     const params = {
