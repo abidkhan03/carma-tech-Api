@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as AWS from 'aws-sdk';
 import { SNSClient, ConfirmSubscriptionCommand } from '@aws-sdk/client-sns';
-import { CostExplorerClient, GetCostAndUsageCommand } from '@aws-sdk/client-cost-explorer';
+import { CostExplorerClient, Dimension, GetCostAndUsageCommand } from '@aws-sdk/client-cost-explorer';
 import * as fs from 'fs';
 import { Logger } from '@aws-lambda-powertools/logger';
+import { join } from 'path';
 
 
 @Injectable()
@@ -58,6 +59,27 @@ export class SnsService {
         'UsageQuantity',
 
       ],
+      Filter: {
+        Dimensions: {
+          Key: Dimension.SERVICE,
+          Values: [
+            'EC2: Running Hours',
+            'EC2: CloudWatch - Alarms',
+            'EC2: CloudWatch - Metrics',
+            'EC2: CloudWatch - Requests',
+            'EC2: Data Transfer - Inter AZ',
+            'EC2: Elastic IP - Additional Address',
+            'EC2: Elastic IP - Idle Address',
+            'EC2: NAT Gateway - Data Processed',
+            'EC2: NAT Gateway - Running Hours',
+            'RDS: Running Hours',
+            'RDS: I/O Requests',
+            'RDS: Storage',
+
+          ]
+        }
+      },
+      
     };
 
     const command = new GetCostAndUsageCommand(params);
@@ -80,11 +102,24 @@ export class SnsService {
       csvData.push(row);
     });
 
-    const csvPath = 'cost_data.csv';
-    fs.writeFileSync(csvPath, '');
-    csvData.forEach(row => {
-      fs.appendFileSync(csvPath, Object.values(row).join(',') + '\n');
+    this.logger.info(`CSV data: ${JSON.stringify(csvData)}`);
+    
+    const csvPath = join('/tmp', 'cost_data.csv');
+    const writeStream = fs.createWriteStream(csvPath);
+    writeStream.on('error', (err) => {
+      this.logger.error(`Error writing CSV file: ${err}`);
     });
+
+    // write the csv headers
+    writeStream.write(Object.keys(csvData[0]).join(',') + '\n');
+
+    csvData.forEach(row => {
+      writeStream.write(Object.values(row).join(',') + '\n');
+    })
+
+    writeStream.end();
+
+    this.logger.info(`CSV data written to ${csvPath}`);
 
     return csvPath;
   }
