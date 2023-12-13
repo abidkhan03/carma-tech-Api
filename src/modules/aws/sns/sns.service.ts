@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as AWS from 'aws-sdk';
 import { SNSClient, ConfirmSubscriptionCommand } from '@aws-sdk/client-sns';
-import { CostExplorerClient, Dimension, GetCostAndUsageCommand } from '@aws-sdk/client-cost-explorer';
+import { CostExplorerClient, Dimension, GetCostAndUsageCommand, GroupDefinitionType } from '@aws-sdk/client-cost-explorer';
 import * as fs from 'fs';
 import { Logger } from '@aws-lambda-powertools/logger';
 import { join } from 'path';
@@ -79,7 +79,12 @@ export class SnsService {
       //     ]
       //   }
       // },
-      
+      GroupBy:[
+        {
+          Type: GroupDefinitionType.DIMENSION,
+          Key: 'SERVICE'
+        }
+      ]
     };
 
     const command = new GetCostAndUsageCommand(params);
