@@ -2,11 +2,13 @@ import { Module } from '@nestjs/common';
 import { SnsController } from './sns/sns.controller';
 import { HttpModule } from '@nestjs/axios';
 import { SnsService } from './sns/sns.service';
+import { ServicesCostController } from './services-cost/services-cost.controller';
+import { ServiceCostService } from './services-cost/service-cost.service';
 
 @Module({
   imports: [HttpModule],
-  controllers: [SnsController],
-  providers: [SnsService],
+  controllers: [SnsController, ServicesCostController],
+  providers: [SnsService, ServiceCostService],
 })
 export class AwsModule {}
 
@@ -24,6 +26,7 @@ import axiosRetry from 'axios-retry';
 import { lastValueFrom } from 'rxjs';
 import { createVerify } from 'crypto';
 import { LRUCache } from 'typescript-lru-cache';
+import { ServicesCostController } from './services-cost/services-cost.controller';
 
 
 // const CERT_CACHE = new LRU({ max: 5000, maxAge: 1000 * 60 });
