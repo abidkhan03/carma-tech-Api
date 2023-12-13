@@ -38,10 +38,10 @@ export class SnsService {
     });
   }
 
-  async getCostAndUsage(start: string, end: string, granularity: "DAILY" | "HOURLY" | "MONTHLY", format: string): Promise<any> {
+  async getCostAndUsage(start: string, end: string, granularity: "DAILY" | "HOURLY" | "MONTHLY", format?: string): Promise<any> {
     // end date should be latest date and start date should be 7 days before
-    end = new Date().toISOString().slice(0, 10);
-    start = new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().slice(0,10);
+    // end = new Date().toISOString().slice(0, 10);
+    // start = new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().slice(0,10);
 
     const params = {
       TimePeriod: {
@@ -59,26 +59,26 @@ export class SnsService {
         'UsageQuantity',
 
       ],
-      Filter: {
-        Dimensions: {
-          Key: Dimension.SERVICE,
-          Values: [
-            'EC2: Running Hours',
-            'EC2: CloudWatch - Alarms',
-            'EC2: CloudWatch - Metrics',
-            'EC2: CloudWatch - Requests',
-            'EC2: Data Transfer - Inter AZ',
-            'EC2: Elastic IP - Additional Address',
-            'EC2: Elastic IP - Idle Address',
-            'EC2: NAT Gateway - Data Processed',
-            'EC2: NAT Gateway - Running Hours',
-            'RDS: Running Hours',
-            'RDS: I/O Requests',
-            'RDS: Storage',
+      // Filter: {
+      //   Dimensions: {
+      //     Key: Dimension.SERVICE,
+      //     Values: [
+      //       'EC2: Running Hours',
+      //       'EC2: CloudWatch - Alarms',
+      //       'EC2: CloudWatch - Metrics',
+      //       'EC2: CloudWatch - Requests',
+      //       'EC2: Data Transfer - Inter AZ',
+      //       'EC2: Elastic IP - Additional Address',
+      //       'EC2: Elastic IP - Idle Address',
+      //       'EC2: NAT Gateway - Data Processed',
+      //       'EC2: NAT Gateway - Running Hours',
+      //       'RDS: Running Hours',
+      //       'RDS: I/O Requests',
+      //       'RDS: Storage',
 
-          ]
-        }
-      },
+      //     ]
+      //   }
+      // },
       
     };
 

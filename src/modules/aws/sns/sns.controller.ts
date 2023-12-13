@@ -91,7 +91,7 @@ export class SnsController {
         end = new Date().toISOString().slice(0, 10);
         start = new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().slice(0,10);
         granularity = 'DAILY';
-        format = 'csv';
+        // format = 'csv';
 
         this.logger.info(`granularity: ${granularity}`);
         this.logger.info(`format: ${format}`);
