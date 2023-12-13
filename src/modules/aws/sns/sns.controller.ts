@@ -89,10 +89,10 @@ export class SnsController {
     ): Promise<any> {
         // end date should be latest date and start date should be 7 days before in yyyy-MM-dd format
         end = new Date().toISOString().slice(0, 10);
-        start = new Date(new Date().setDate(new Date().getDate() - 7)).toISOString();
+        start = new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().slice(0,10);
         granularity = 'DAILY';
         format = 'csv';
-        
+
         this.logger.info(`granularity: ${granularity}`);
         this.logger.info(`format: ${format}`);
         this.logger.info(`Fetching cost data from ${start} to ${end} with granularity ${granularity}`);

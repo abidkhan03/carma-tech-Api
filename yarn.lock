@@ -1868,20 +1868,12 @@
     "@smithy/types" "^1.2.0"
     tslib "^2.5.0"
 
-"@smithy/abort-controller@^2.0.15":
+"@smithy/abort-controller@^2.0.15", "@smithy/abort-controller@^2.0.9":
   version "2.0.15"
   resolved "https://registry.npmjs.org/@smithy/abort-controller/-/abort-controller-2.0.15.tgz"
   integrity sha512-JkS36PIS3/UCbq/MaozzV7jECeL+BTt4R75bwY8i+4RASys4xOyUS1HsRyUNSqUXFP4QyCz5aNnh3ltuaxv+pw==
   dependencies:
     "@smithy/types" "^2.7.0"
-    tslib "^2.5.0"
-
-"@smithy/abort-controller@^2.0.9":
-  version "2.0.9"
-  resolved "https://registry.npmjs.org/@smithy/abort-controller/-/abort-controller-2.0.9.tgz"
-  integrity sha512-8liHOEbx99xcy4VndeQNQhyA0LS+e7UqsuRnDTSIA26IKBv/7vA9w09KOd4fgNULrvX0r3WpA6cwsQTRJpSWkg==
-  dependencies:
-    "@smithy/types" "^2.3.3"
     tslib "^2.5.0"
 
 "@smithy/config-resolver@^2.0.10", "@smithy/config-resolver@^2.0.21":
@@ -1962,18 +1954,7 @@
     "@smithy/util-base64" "^1.1.0"
     tslib "^2.5.0"
 
-"@smithy/fetch-http-handler@^2.1.5":
-  version "2.1.5"
-  resolved "https://registry.npmjs.org/@smithy/fetch-http-handler/-/fetch-http-handler-2.1.5.tgz"
-  integrity sha512-BIeCHGfr5JCGN+EMTwZK74ELvjPXOIrI7OLM5OhZJJ6AmZyRv2S9ANJk18AtLwht0TsSm+8WoXIEp8LuxNgUyA==
-  dependencies:
-    "@smithy/protocol-http" "^3.0.5"
-    "@smithy/querystring-builder" "^2.0.9"
-    "@smithy/types" "^2.3.3"
-    "@smithy/util-base64" "^2.0.0"
-    tslib "^2.5.0"
-
-"@smithy/fetch-http-handler@^2.3.1":
+"@smithy/fetch-http-handler@^2.1.5", "@smithy/fetch-http-handler@^2.3.1":
   version "2.3.1"
   resolved "https://registry.npmjs.org/@smithy/fetch-http-handler/-/fetch-http-handler-2.3.1.tgz"
   integrity sha512-6MNk16fqb8EwcYY8O8WxB3ArFkLZ2XppsSNo1h7SQcFdDDwIumiJeO6wRzm7iB68xvsOQzsdQKbdtTieS3hfSQ==
@@ -2068,15 +2049,7 @@
   dependencies:
     tslib "^2.5.0"
 
-"@smithy/middleware-stack@^2.0.2", "@smithy/middleware-stack@^2.0.3":
-  version "2.0.3"
-  resolved "https://registry.npmjs.org/@smithy/middleware-stack/-/middleware-stack-2.0.3.tgz"
-  integrity sha512-AlhPmbwpkC4lQBVaVHXczmjFvsAhDHhrakqLt038qFLotnJcvDLhmMzAtu23alBeOSkKxkTQq0LsAt2N0WpAbw==
-  dependencies:
-    "@smithy/types" "^2.3.3"
-    tslib "^2.5.0"
-
-"@smithy/middleware-stack@^2.0.9":
+"@smithy/middleware-stack@^2.0.2", "@smithy/middleware-stack@^2.0.9":
   version "2.0.9"
   resolved "https://registry.npmjs.org/@smithy/middleware-stack/-/middleware-stack-2.0.9.tgz"
   integrity sha512-bCB5dUtGQ5wh7QNL2ELxmDc6g7ih7jWU3Kx6MYH1h4mZbv9xL3WyhKHojRltThCB1arLPyTUFDi+x6fB/oabtA==
@@ -2105,18 +2078,7 @@
     "@smithy/types" "^1.2.0"
     tslib "^2.5.0"
 
-"@smithy/node-http-handler@^2.1.5":
-  version "2.1.5"
-  resolved "https://registry.npmjs.org/@smithy/node-http-handler/-/node-http-handler-2.1.5.tgz"
-  integrity sha512-52uF+BrZaFiBh+NT/bADiVDCQO91T+OwDRsuaAeWZC1mlCXFjAPPQdxeQohtuYOe9m7mPP/xIMNiqbe8jvndHA==
-  dependencies:
-    "@smithy/abort-controller" "^2.0.9"
-    "@smithy/protocol-http" "^3.0.5"
-    "@smithy/querystring-builder" "^2.0.9"
-    "@smithy/types" "^2.3.3"
-    tslib "^2.5.0"
-
-"@smithy/node-http-handler@^2.2.1":
+"@smithy/node-http-handler@^2.1.5", "@smithy/node-http-handler@^2.2.1":
   version "2.2.1"
   resolved "https://registry.npmjs.org/@smithy/node-http-handler/-/node-http-handler-2.2.1.tgz"
   integrity sha512-8iAKQrC8+VFHPAT8pg4/j6hlsTQh+NKOWlctJBrYtQa4ExcxX7aSg3vdQ2XLoYwJotFUurg/NLqFCmZaPRrogw==
@@ -2143,20 +2105,12 @@
     "@smithy/types" "^1.2.0"
     tslib "^2.5.0"
 
-"@smithy/protocol-http@^3.0.11":
+"@smithy/protocol-http@^3.0.11", "@smithy/protocol-http@^3.0.5":
   version "3.0.11"
   resolved "https://registry.npmjs.org/@smithy/protocol-http/-/protocol-http-3.0.11.tgz"
   integrity sha512-3ziB8fHuXIRamV/akp/sqiWmNPR6X+9SB8Xxnozzj+Nq7hSpyKdFHd1FLpBkgfGFUTzzcBJQlDZPSyxzmdcx5A==
   dependencies:
     "@smithy/types" "^2.7.0"
-    tslib "^2.5.0"
-
-"@smithy/protocol-http@^3.0.5":
-  version "3.0.5"
-  resolved "https://registry.npmjs.org/@smithy/protocol-http/-/protocol-http-3.0.5.tgz"
-  integrity sha512-3t3fxj+ip4EPHRC2fQ0JimMxR/qCQ1LSQJjZZVZFgROnFLYWPDgUZqpoi7chr+EzatxJVXF/Rtoi5yLHOWCoZQ==
-  dependencies:
-    "@smithy/types" "^2.3.3"
     tslib "^2.5.0"
 
 "@smithy/querystring-builder@^1.1.0":
@@ -2174,15 +2128,6 @@
   integrity sha512-e1q85aT6HutvouOdN+dMsN0jcdshp50PSCvxDvo6aIM57LqeXimjfONUEgfqQ4IFpYWAtVixptyIRE5frMp/2A==
   dependencies:
     "@smithy/types" "^2.7.0"
-    "@smithy/util-uri-escape" "^2.0.0"
-    tslib "^2.5.0"
-
-"@smithy/querystring-builder@^2.0.9":
-  version "2.0.9"
-  resolved "https://registry.npmjs.org/@smithy/querystring-builder/-/querystring-builder-2.0.9.tgz"
-  integrity sha512-Yt6CPF4j3j1cuwod/DRflbuXxBFjJm7gAjy6W1RE21Rz5/kfGFqiZBXWmmXwGtnnhiLThYwoHK4S6/TQtnx0Fg==
-  dependencies:
-    "@smithy/types" "^2.3.3"
     "@smithy/util-uri-escape" "^2.0.0"
     tslib "^2.5.0"
 
@@ -2233,7 +2178,7 @@
     "@smithy/util-stream" "^1.1.0"
     tslib "^2.5.0"
 
-"@smithy/smithy-client@^2.1.18":
+"@smithy/smithy-client@^2.1.18", "@smithy/smithy-client@^2.1.6":
   version "2.1.18"
   resolved "https://registry.npmjs.org/@smithy/smithy-client/-/smithy-client-2.1.18.tgz"
   integrity sha512-7FqdbaJiVaHJDD9IfDhmzhSDbpjyx+ZsfdYuOpDJF09rl8qlIAIlZNoSaflKrQ3cEXZN2YxGPaNWGhbYimyIRQ==
@@ -2243,16 +2188,6 @@
     "@smithy/util-stream" "^2.0.23"
     tslib "^2.5.0"
 
-"@smithy/smithy-client@^2.1.6":
-  version "2.1.7"
-  resolved "https://registry.npmjs.org/@smithy/smithy-client/-/smithy-client-2.1.7.tgz"
-  integrity sha512-r6T/oiBQ8vCbGqObH4/h0YqD0jFB1hAS9KFRmuTfaNJueu/L2hjmjqFjv3PV5lkbNHTgUYraSv4cFQ1naxiELQ==
-  dependencies:
-    "@smithy/middleware-stack" "^2.0.3"
-    "@smithy/types" "^2.3.3"
-    "@smithy/util-stream" "^2.0.12"
-    tslib "^2.5.0"
-
 "@smithy/types@^1.2.0":
   version "1.2.0"
   resolved "https://registry.npmjs.org/@smithy/types/-/types-1.2.0.tgz"
@@ -2260,21 +2195,7 @@
   dependencies:
     tslib "^2.5.0"
 
-"@smithy/types@^2.3.2":
-  version "2.3.2"
-  resolved "https://registry.npmjs.org/@smithy/types/-/types-2.3.2.tgz"
-  integrity sha512-iH0cdKi7HQlzfAM3w2shFk/qZYKAqJWswtpmQpPtlruF+uFZeGEpMJjgDRyhWiddfVM4e2oP4nMaOBsMy6lXgg==
-  dependencies:
-    tslib "^2.5.0"
-
-"@smithy/types@^2.3.3":
-  version "2.3.3"
-  resolved "https://registry.npmjs.org/@smithy/types/-/types-2.3.3.tgz"
-  integrity sha512-zTdIPR9PvFVNRdIKMQu4M5oyTaycIbUqLheQqaOi9rTWPkgjGO2wDBxMA1rBHQB81aqAEv+DbSS4jfKyQMnXRA==
-  dependencies:
-    tslib "^2.5.0"
-
-"@smithy/types@^2.7.0":
+"@smithy/types@^2.3.2", "@smithy/types@^2.3.3", "@smithy/types@^2.7.0":
   version "2.7.0"
   resolved "https://registry.npmjs.org/@smithy/types/-/types-2.7.0.tgz"
   integrity sha512-1OIFyhK+vOkMbu4aN2HZz/MomREkrAC/HqY5mlJMUJfGrPRwijJDTeiN8Rnj9zUaB8ogXAfIOtZrrgqZ4w7Wnw==
@@ -2298,15 +2219,7 @@
     "@smithy/util-buffer-from" "^1.1.0"
     tslib "^2.5.0"
 
-"@smithy/util-base64@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/@smithy/util-base64/-/util-base64-2.0.0.tgz"
-  integrity sha512-Zb1E4xx+m5Lud8bbeYi5FkcMJMnn+1WUnJF3qD7rAdXpaL7UjkFQLdmW5fHadoKbdHpwH9vSR8EyTJFHJs++tA==
-  dependencies:
-    "@smithy/util-buffer-from" "^2.0.0"
-    tslib "^2.5.0"
-
-"@smithy/util-base64@^2.0.1":
+"@smithy/util-base64@^2.0.0", "@smithy/util-base64@^2.0.1":
   version "2.0.1"
   resolved "https://registry.npmjs.org/@smithy/util-base64/-/util-base64-2.0.1.tgz"
   integrity sha512-DlI6XFYDMsIVN+GH9JtcRp3j02JEVuWIn/QOZisVzpIAprdsxGveFed0bjbMRCqmIFe8uetn5rxzNrBtIGrPIQ==
@@ -2429,21 +2342,7 @@
     "@smithy/util-utf8" "^1.1.0"
     tslib "^2.5.0"
 
-"@smithy/util-stream@^2.0.12":
-  version "2.0.12"
-  resolved "https://registry.npmjs.org/@smithy/util-stream/-/util-stream-2.0.12.tgz"
-  integrity sha512-FOCpRLaj6gvSyUC5mJAACT+sPMPmp9sD1o+hVbUH/QxwZfulypA3ZIFdAg/59/IY0d/1Q4CTztsiHEB5LgjN4g==
-  dependencies:
-    "@smithy/fetch-http-handler" "^2.1.5"
-    "@smithy/node-http-handler" "^2.1.5"
-    "@smithy/types" "^2.3.3"
-    "@smithy/util-base64" "^2.0.0"
-    "@smithy/util-buffer-from" "^2.0.0"
-    "@smithy/util-hex-encoding" "^2.0.0"
-    "@smithy/util-utf8" "^2.0.0"
-    tslib "^2.5.0"
-
-"@smithy/util-stream@^2.0.23":
+"@smithy/util-stream@^2.0.12", "@smithy/util-stream@^2.0.23":
   version "2.0.23"
   resolved "https://registry.npmjs.org/@smithy/util-stream/-/util-stream-2.0.23.tgz"
   integrity sha512-OJMWq99LAZJUzUwTk+00plyxX3ESktBaGPhqNIEVab+53gLULiWN9B/8bRABLg0K6R6Xg4t80uRdhk3B/LZqMQ==
@@ -2479,15 +2378,7 @@
     "@smithy/util-buffer-from" "^1.1.0"
     tslib "^2.5.0"
 
-"@smithy/util-utf8@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/@smithy/util-utf8/-/util-utf8-2.0.0.tgz"
-  integrity sha512-rctU1VkziY84n5OXe3bPNpKR001ZCME2JCaBBFgtiM2hfKbHFudc/BkMuPab8hRbLd0j3vbnBTTZ1igBf0wgiQ==
-  dependencies:
-    "@smithy/util-buffer-from" "^2.0.0"
-    tslib "^2.5.0"
-
-"@smithy/util-utf8@^2.0.2":
+"@smithy/util-utf8@^2.0.0", "@smithy/util-utf8@^2.0.2":
   version "2.0.2"
   resolved "https://registry.npmjs.org/@smithy/util-utf8/-/util-utf8-2.0.2.tgz"
   integrity sha512-qOiVORSPm6Ce4/Yu6hbSgNHABLP2VMv8QOC3tTDNHHlWY19pPyc++fBTbZPtx6egPXi4HQxKDnMxVxpbtX2GoA==
