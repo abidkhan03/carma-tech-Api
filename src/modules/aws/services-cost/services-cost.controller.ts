@@ -18,8 +18,8 @@ export class ServicesCostController {
         @Query('format') format: string
     ): Promise<any> {
 
-        const defaultStart = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString();
-        const defaultEnd = new Date().toISOString();
+        const defaultStart = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().slice(0, 10);
+        const defaultEnd = new Date().toISOString().slice(0, 10);
         start = start || defaultStart;
         end = end || defaultEnd;
         granularity = granularity || 'DAILY';

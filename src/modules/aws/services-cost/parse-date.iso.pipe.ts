@@ -10,10 +10,10 @@ export class ParseDateIsoPipe implements PipeTransform<string, string | null> {
 
         try {
             const parsedDate = DateTime.fromISO(value, { zone: 'utc' });
-            return parsedDate.toFormat('yyyy-MM-dd');
+            return parsedDate.toISODate();
 
         } catch (error) {
-            throw new BadRequestException('Invalid date format, should be ISO8601');
+            throw new BadRequestException('Invalid date format, should be in yyyy-MM-dd format');
         }
 
         // const parsedDate = DateTime.fromISO(value, { zone: 'utc' });
