@@ -23,7 +23,6 @@ export class ServicesCostController {
         start = start || defaultStart;
         end = end || defaultEnd;
         granularity = granularity || 'DAILY';
-        format = format || 'csv';
         this.logger.info(`Fetching cost data from ${start} to ${end} with granularity ${granularity}`);
 
         // if (start && end) {
