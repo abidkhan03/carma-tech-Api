@@ -80,37 +80,47 @@ export class ServiceCostService {
         this.logger.info(`Cost data: ${JSON.stringify(data)}`);
       // Format the data as per the 'format' parameter to convert to a csv
       if (format === 'csv') {
-        const csvData = [];
+        let csvData = 'TimePeriod,Service,AmortizedCost,BlendedCost,NetAmortizedCost,NetUnblendedCost,NormalizedUsageAmount,UnblendedCost,UsageQuantity\n';
         data.ResultsByTime.forEach(result => {
-          const row = {
-            TimePeriod: result.TimePeriod.Start,
-            AmortizedCost: result.Total.AmortizedCost.Amount,
-            BlendedCost: result.Total.BlendedCost.Amount,
-            NetAmortizedCost: result.Total.NetAmortizedCost.Amount,
-            NetUnblendedCost: result.Total.NetUnblendedCost.Amount,
-            NormalizedUsageAmount: result.Total.NormalizedUsageAmount.Amount,
-            UnblendedCost: result.Total.UnblendedCost.Amount,
-            UsageQuantity: result.Total.UsageQuantity.Amount
-          };
-          csvData.push(row);
+          result.Groups.forEach(group => {
+            const service = group.Keys[0];
+            const metrics = group.Metrics;
+            const row = `${result.TimePeriod.Start},${service},${metrics.AmortizedCost.Amount},${metrics.BlendedCost.Amount},${metrics.NetAmortizedCost.Amount},${metrics.NetUnblendedCost.Amount},${metrics.NormalizedUsageAmount.Amount},${metrics.UnblendedCost.Amount},${metrics.UsageQuantity.Amount}`;
+            csvData += row + '\n';
+          });
         });
+        // const csvData = [];
+        // data.ResultsByTime.forEach(result => {
+        //   const row = {
+        //     TimePeriod: result.TimePeriod.Start,
+        //     AmortizedCost: result.Total.AmortizedCost.Amount,
+        //     BlendedCost: result.Total.BlendedCost.Amount,
+        //     NetAmortizedCost: result.Total.NetAmortizedCost.Amount,
+        //     NetUnblendedCost: result.Total.NetUnblendedCost.Amount,
+        //     NormalizedUsageAmount: result.Total.NormalizedUsageAmount.Amount,
+        //     UnblendedCost: result.Total.UnblendedCost.Amount,
+        //     UsageQuantity: result.Total.UsageQuantity.Amount
+        //   };
+        //   csvData.push(row);
+        // });
     
         this.logger.info(`CSV data: ${JSON.stringify(csvData)}`);
         
         const csvPath = join('/tmp', 'cost_data.csv');
-        const writeStream = fs.createWriteStream(csvPath);
-        writeStream.on('error', (err) => {
-          this.logger.error(`Error writing CSV file: ${err}`);
-        });
+        fs.writeFileSync(csvPath, csvData); 
+        // const writeStream = fs.createWriteStream(csvPath);
+        // writeStream.on('error', (err) => {
+        //   this.logger.error(`Error writing CSV file: ${err}`);
+        // });
     
-        // write the csv headers
-        writeStream.write(Object.keys(csvData[0]).join(',') + '\n');
+        // // write the csv headers
+        // writeStream.write(Object.keys(csvData[0]).join(',') + '\n');
     
-        csvData.forEach(row => {
-          writeStream.write(Object.values(row).join(',') + '\n');
-        })
+        // csvData.forEach(row => {
+        //   writeStream.write(Object.values(row).join(',') + '\n');
+        // })
     
-        writeStream.end();
+        // writeStream.end();
     
         this.logger.info(`CSV data written to ${csvPath}`);
     
