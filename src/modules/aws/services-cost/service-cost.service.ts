@@ -123,8 +123,10 @@ export class ServiceCostService {
         // writeStream.end();
     
         this.logger.info(`CSV data written to ${csvPath}`);
-    
-        return csvData;
+        // return csvData in a json format
+        return {
+          data: csvData
+        }
       }
     
       return data;
