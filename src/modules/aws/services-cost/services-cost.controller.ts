@@ -18,19 +18,28 @@ export class ServicesCostController {
         @Query('format') format: string
     ): Promise<any> {
 
-        if(start && end) {
-            this.logger.info(`Fetching cost data from ${start} to ${end} with granularity ${granularity}`);
-        } else {
-            this.logger.info('Fetching default cost data for the last 30 days with granularity DAILY');
-        // end date should be latest date and start date should be 30 days before in yyyy-MM-dd format
-        end = new Date().toISOString().slice(0, 10);
-        start = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().slice(0,10);
-        }
-        granularity = 'DAILY';
+        const defaultStart = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().slice(0, 10);
+        const defaultEnd = new Date().toISOString().slice(0, 10);
+        start = start || defaultStart;
+        end = end || defaultEnd;
+        granularity = granularity || 'DAILY';
+        format = format || 'csv';
+        this.logger.info(`Fetching cost data from ${start} to ${end} with granularity ${granularity}`);
+
+        // if (start && end) {
+        //     this.logger.info(`Fetching cost data from ${start} to ${end} with granularity ${granularity}`);
+        // } else {
+        //     this.logger.info('Fetching default cost data for the last 30 days with granularity DAILY');
+        //     // Set default values if null
+        //     end = new Date().toISOString().slice(0, 10);
+        //     start = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().slice(0, 10);
+        // }
+        // granularity = 'DAILY';
         // format = 'csv';
 
         return this.costService.getCostAndUsage(start, end, granularity, format);
     }
+
     // async getInfraStructureCost(
     //     @Query('start') startDate: string,
     //     @Query('end') endDate: string,
