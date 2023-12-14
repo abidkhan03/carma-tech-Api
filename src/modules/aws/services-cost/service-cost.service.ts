@@ -35,38 +35,38 @@ export class ServiceCostService {
             'UsageQuantity',
     
           ],
-          Filter: {
-            Dimensions: {
-              Key: Dimension.SERVICE,
-              Values: [
-                'AWS Lambda',
-                'AWS Step Functions',
-                'AWS Key Management Service',
-                'AWS Secrets Manager',
-                'Amazon EC2 Container Registry (ECR)',
-                'EC2 - Other',
-                'Amazon Relational Database Service',
-                'Amazon Simple Notification Service',
-                'Amazon Simple Storage Service',
-                'AmazonCloudWatch',
-                'Amazon Rekognition',
-                'AWS Glue',
-                'Amazon Athena',
-                'EC2: Running Hours',
-                'EC2: CloudWatch - Alarms',
-                'EC2: CloudWatch - Metrics',
-                'EC2: CloudWatch - Requests',
-                'EC2: Data Transfer - Inter AZ',
-                'EC2: Elastic IP - Additional Address',
-                'EC2: Elastic IP - Idle Address',
-                'EC2: NAT Gateway - Data Processed',
-                'EC2: NAT Gateway - Running Hours',
-                'RDS: Running Hours',
-                'RDS: I/O Requests',
-                'RDS: Storage',
-              ]
-            }
-          },
+          // Filter: {
+          //   Dimensions: {
+          //     Key: Dimension.SERVICE,
+          //     Values: [
+          //       'AWS Lambda',
+          //       'AWS Step Functions',
+          //       'AWS Key Management Service',
+          //       'AWS Secrets Manager',
+          //       'Amazon EC2 Container Registry (ECR)',
+          //       'EC2 - Other',
+          //       'Amazon Relational Database Service',
+          //       'Amazon Simple Notification Service',
+          //       'Amazon Simple Storage Service',
+          //       'AmazonCloudWatch',
+          //       'Amazon Rekognition',
+          //       'AWS Glue',
+          //       'Amazon Athena',
+          //       'EC2: Running Hours',
+          //       'EC2: CloudWatch - Alarms',
+          //       'EC2: CloudWatch - Metrics',
+          //       'EC2: CloudWatch - Requests',
+          //       'EC2: Data Transfer - Inter AZ',
+          //       'EC2: Elastic IP - Additional Address',
+          //       'EC2: Elastic IP - Idle Address',
+          //       'EC2: NAT Gateway - Data Processed',
+          //       'EC2: NAT Gateway - Running Hours',
+          //       'RDS: Running Hours',
+          //       'RDS: I/O Requests',
+          //       'RDS: Storage',
+          //     ]
+          //   }
+          // },
           GroupBy:[
             {
               Type: GroupDefinitionType.DIMENSION,
@@ -114,7 +114,7 @@ export class ServiceCostService {
     
         this.logger.info(`CSV data written to ${csvPath}`);
     
-        return csvPath;
+        return csvData;
       }
     
       return data;

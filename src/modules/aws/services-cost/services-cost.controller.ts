@@ -1,6 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { Logger } from '@aws-lambda-powertools/logger';
 import { ServiceCostService } from './service-cost.service';
+import { ParseDateIsoPipe } from './parse-date.iso.pipe';
 
 @Controller('services-cost')
 export class ServicesCostController {
@@ -11,20 +12,23 @@ export class ServicesCostController {
 
     @Get('infra-cost')
     async getInfrastructureCost(
-        @Query('start') start: string,
-        @Query('end') end: string,
+        @Query('start', ParseDateIsoPipe) start: string,
+        @Query('end', ParseDateIsoPipe) end: string,
         @Query('granularity') granularity: 'DAILY' | 'MONTHLY' | 'HOURLY',
         @Query('format') format: string
     ): Promise<any> {
-        // end date should be latest date and start date should be 7 days before in yyyy-MM-dd format
+
+        if(start && end) {
+            this.logger.info(`Fetching cost data from ${start} to ${end} with granularity ${granularity}`);
+        } else {
+            this.logger.info('Fetching default cost data for the last 30 days with granularity DAILY');
+        // end date should be latest date and start date should be 30 days before in yyyy-MM-dd format
         end = new Date().toISOString().slice(0, 10);
-        start = new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().slice(0,10);
+        start = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().slice(0,10);
+        }
         granularity = 'DAILY';
         // format = 'csv';
 
-        this.logger.info(`granularity: ${granularity}`);
-        this.logger.info(`format: ${format}`);
-        this.logger.info(`Fetching cost data from ${start} to ${end} with granularity ${granularity}`);
         return this.costService.getCostAndUsage(start, end, granularity, format);
     }
     // async getInfraStructureCost(
