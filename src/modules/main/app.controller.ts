@@ -31,6 +31,7 @@ export class AppController {
       jwt_expiration_time: this.configService.get('JWT_EXPIRATION_TIME'),
       cognito_user_mgmt_lambda: this.configService.get('COGNITO_USER_MGMT_LAMBDA'),
       user_pool_id: this.configService.get('USER_POOL_ID'),
+      cognito_user_client_id: this.configService.get('COGNITO_USER_CLIENT_ID'),
       translator_lambda_name: this.configService.get('TRANSLATOR_LAMBDA_NAME'),
       identity_pool_id: this.configService.get('IDENTITY_POOL_ID'),
       sns_topic_name: this.configService.get('SNS_TOPIC_NAME'),
