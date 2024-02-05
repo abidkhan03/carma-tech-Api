@@ -1,3 +1,4 @@
+import { User } from './../user/user.entity';
 import {
   Controller,
   Body,
@@ -19,11 +20,21 @@ import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 import { Logger } from '@aws-lambda-powertools/logger';
 import { Lambda } from 'aws-sdk';
 import { ConfigService } from '@nestjs/config';
+import {
+  AuthenticationDetails,
+  CognitoUser,
+  CognitoUserAttribute,
+  CognitoUserPool,
+} from 'amazon-cognito-identity-js';
+import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
+import { sign } from 'crypto';
 
 @Controller('api/auth')
 @ApiTags('authentication')
 export class AuthController {
   private lambdaClient: LambdaClient;
+  private readonly userPool: CognitoUserPool;
+  private readonly provideClient: CognitoIdentityProviderClient;
   private readonly logger = new Logger();
   constructor(
     private readonly authService: AuthService,
@@ -34,6 +45,15 @@ export class AuthController {
     this.lambdaClient = new LambdaClient({
       region: 'us-east-2',
     });
+
+      this.userPool = new CognitoUserPool({
+        UserPoolId: this.configService.get('USER_POOL_ID'),
+        ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
+      });
+    
+      this.provideClient = new CognitoIdentityProviderClient({
+        region: 'us-east-2',
+      });
   }
 
 
@@ -44,6 +64,51 @@ export class AuthController {
   async signin(@Body() signinDto: SigninDto): Promise<any> {
     const user = await this.authService.validateUser(signinDto);
     return await this.authService.createToken(user);
+  }
+
+  @Post('register')
+  @ApiResponse({ status: 201, description: 'Successful Registration' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async register(@Body() signupDto: SignupDto): Promise<any> {
+    const existingUser = await this.userService.getByEmailOrPhone(signupDto.email, signupDto.phone);
+    if (existingUser) {
+      if (existingUser.email === signupDto.email && existingUser.phone === signupDto.phone) {
+        this.logger.error(`User with provided email and phone number already exist: ${JSON.stringify(existingUser)}`);
+        throw new ConflictException('User with provided email and phone number already exist');
+
+      } else if (existingUser.email === signupDto.email) {
+        this.logger.error(`User with provided email and phone number already exist: ${JSON.stringify(existingUser)}`);
+        throw new ConflictException('User with provided email already exists');
+
+      } else {
+        this.logger.error(`User with provided phone number already exists: ${JSON.stringify(existingUser)}`);
+        throw new ConflictException('User with provided phone number already exists');
+      }
+    }
+    try {
+      const authenticationDetails = new AuthenticationDetails({
+        Username: signupDto.firstName + signupDto.lastName,
+        Password: signupDto.password,
+      });
+      const userData = {
+        Username: signupDto.firstName + signupDto.lastName,
+        Pool: this.userPool,
+      };
+
+      const newUser = new CognitoUser(userData);
+
+      newUser.authenticateUser(authenticationDetails, {
+        onSuccess: (result) => {
+          return result;
+        },
+        onFailure: (err) => {
+          throw new BadRequestException(err);
+        },
+      });
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
   }
 
   @Post('signup')
@@ -111,6 +176,9 @@ export class AuthController {
       throw new ConflictException(`Failed to invoke CreateUserLambda: ${error.message}`);
     }
   }
+
+  // create a post handler of registerUser
+  @Post('register')
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard())
