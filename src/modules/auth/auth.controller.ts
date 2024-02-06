@@ -28,6 +28,7 @@ import {
 } from 'amazon-cognito-identity-js';
 import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
 import { sign } from 'crypto';
+import { RegisterRequestDto } from '@modules/auth/dto/register.dto';
 
 @Controller('api/auth')
 @ApiTags('authentication')
@@ -70,44 +71,11 @@ export class AuthController {
   @ApiResponse({ status: 201, description: 'Successful Registration' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async register(@Body() signupDto: SignupDto): Promise<any> {
-    const existingUser = await this.userService.getByEmailOrPhone(signupDto.email, signupDto.phone);
-    if (existingUser) {
-      if (existingUser.email === signupDto.email && existingUser.phone === signupDto.phone) {
-        this.logger.error(`User with provided email and phone number already exist: ${JSON.stringify(existingUser)}`);
-        throw new ConflictException('User with provided email and phone number already exist');
-
-      } else if (existingUser.email === signupDto.email) {
-        this.logger.error(`User with provided email and phone number already exist: ${JSON.stringify(existingUser)}`);
-        throw new ConflictException('User with provided email already exists');
-
-      } else {
-        this.logger.error(`User with provided phone number already exists: ${JSON.stringify(existingUser)}`);
-        throw new ConflictException('User with provided phone number already exists');
-      }
-    }
+  async register(@Body() registerRequest: RegisterRequestDto): Promise<any> {
     try {
-      const authenticationDetails = new AuthenticationDetails({
-        Username: signupDto.firstName + signupDto.lastName,
-        Password: signupDto.password,
-      });
-      const userData = {
-        Username: signupDto.firstName + signupDto.lastName,
-        Pool: this.userPool,
-      };
-
-      const newUser = new CognitoUser(userData);
-
-      newUser.authenticateUser(authenticationDetails, {
-        onSuccess: (result) => {
-          return result;
-        },
-        onFailure: (err) => {
-          throw new BadRequestException(err);
-        },
-      });
-    } catch (error) {
-      throw new BadRequestException(error);
+      return await this.authService.register(registerRequest);
+    } catch (e) {
+      throw new BadRequestException(e.message);
     }
   }
 
@@ -176,9 +144,6 @@ export class AuthController {
       throw new ConflictException(`Failed to invoke CreateUserLambda: ${error.message}`);
     }
   }
-
-  // create a post handler of registerUser
-  @Post('register')
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard())
