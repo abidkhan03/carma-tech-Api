@@ -19,8 +19,8 @@ export class AuthService {
     private readonly userService: UsersService,
   ) {
     this.userPool = new CognitoUserPool({
-      UserPoolId: 'us-east-2_0Pitx53J7',
-      ClientId: '5l1nf7orlu8lai7dpu83rs9551',
+      UserPoolId: this.configService.get('USER_POOL_ID') || 'us-east-2_0Pitx53J7',
+      ClientId: this.configService.get('COGNITO_USER_CLIENT_ID') || '5l1nf7orlu8lai7dpu83rs9551',
     });
   }
 
