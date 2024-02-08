@@ -18,10 +18,10 @@ export class RegisterRequestDto {
   )
   password: string;
 
-  @Matches(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$&+,:;=?@#|'<>.^*()%!-])[A-Za-z\d@$&+,:;=?@#|'<>.^*()%!-]{6,}$/,
-    { message: 'invalid password' },
-  )
-  passwordConfirmation: string;
+  // @Matches(
+  //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$&+,:;=?@#|'<>.^*()%!-])[A-Za-z\d@$&+,:;=?@#|'<>.^*()%!-]{6,}$/,
+  //   { message: 'invalid password' },
+  // )
+  // passwordConfirmation: string;
 
 }

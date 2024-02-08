@@ -41,20 +41,20 @@ export class AuthService {
       throw new ConflictException('User email already exists');
     }
     // check if password and password confirmation match
-    if (registerDto.password !== registerDto.passwordConfirmation) {
-      throw new ConflictException('Password and password confirmation do not match');
-    }
+    // if (registerDto.password !== registerDto.passwordConfirmation) {
+    //   throw new ConflictException('Passwords do not match');
+    // }
 
     let attributes = [
       { Name: 'name', Value: registerDto.name },
       { Name: 'username', Value: registerDto.username },
       { Name: 'email', Value: registerDto.email },
     ];
-    let customAttribute = {
-      Name: 'custom:passwordConfirmation',
-      Value: registerDto.passwordConfirmation
-    }
-    attributes.push(new CognitoUserAttribute(customAttribute));
+    // let customAttribute = {
+    //   Name: 'custom:passwordConfirmation',
+    //   Value: registerDto.passwordConfirmation
+    // }
+    // attributes.push(new CognitoUserAttribute(customAttribute));
 
     try {
       const input = {
@@ -62,7 +62,7 @@ export class AuthService {
         Username: registerDto.username,
         Password: registerDto.password,
         UserAttributes: attributes,
-        // ValidationData: attributes,
+        ValidationData: attributes,
       };
       const signupCommand = new SignUpCommand(input);
       const response = await this.cognitoIdentity.send(signupCommand);
