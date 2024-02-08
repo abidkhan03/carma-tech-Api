@@ -46,11 +46,11 @@ export class AuthService {
       { Name: 'username', Value: registerDto.username },
       { Name: 'email', Value: registerDto.email },
     ];
-    let customAttribute = {
-      Name: 'custom:passwordConfirmation',
-      Value: registerDto.passwordConfirmation
-    }
-    attributes.push(new CognitoUserAttribute(customAttribute));
+    // let customAttribute = {
+    //   Name: 'custom:passwordConfirmation',
+    //   Value: registerDto.passwordConfirmation
+    // }
+    // attributes.push(new CognitoUserAttribute(customAttribute));
 
     try {
       const input = {
