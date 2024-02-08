@@ -22,6 +22,6 @@ export class RegisterRequestDto {
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$&+,:;=?@#|'<>.^*()%!-])[A-Za-z\d@$&+,:;=?@#|'<>.^*()%!-]{6,}$/,
     { message: 'invalid password' },
   )
-  confirmPassword: string;
+  passwordConfirmation: string;
 
 }

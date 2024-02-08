@@ -51,12 +51,16 @@ export class AuthService {
             Value: registerDto.name
           },
           {
+            Name: 'username',
+            Value: registerDto.username
+          },
+          {
             Name: 'email',
             Value: registerDto.email
           },
           {
-            Name: 'custom:confirmPassword',
-            Value: registerDto.confirmPassword
+            Name: 'custom:passwordConfirmation',
+            Value: registerDto.passwordConfirmation
           }
         ],
         ValidationData: [
@@ -65,12 +69,16 @@ export class AuthService {
             Value: registerDto.name
           },
           {
+            Name: 'username',
+            Value: registerDto.username
+          },
+          {
             Name: 'email',
             Value: registerDto.email
           },
           {
-            Name: 'custom:confirmPassword',
-            Value: registerDto.confirmPassword
+            Name: 'custom:passwordConfirmation',
+            Value: registerDto.passwordConfirmation
           }
         ]
       };
@@ -89,7 +97,9 @@ export class AuthService {
           message = 'User already exists.';
           break;
         case 'InvalidParameterException':
-          message = 'Invalid parameters provided';
+          message = `Invalid parameters provided ${awsError.message}`;
+          break;
+        case 'UserNotFoundException':
           break;
         case 'TooManyRequestsException':
           message = 'Too many requests, please try again later';
