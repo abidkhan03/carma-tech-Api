@@ -83,7 +83,7 @@ export class AuthController {
   @ApiResponse({ status: 201, description: 'Successful Registration' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async confirm(@Body() email: string, code: string): Promise<any> {
+  async confirm(@Body('email') email: string, @Body('code') code: string): Promise<any> {
     try {
       return await this.authService.confirmSignUp(email, code);
     } catch (e) {

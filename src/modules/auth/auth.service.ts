@@ -114,41 +114,6 @@ export class AuthService {
     }
   }
 
-  // async register(authRegisterRequest: RegisterRequestDto) {
-  //   const { name, email, password } = authRegisterRequest;
-  //   console.log("UserPoolId: ", this.configService.get('USER_POOL_ID'));
-  //   console.log("ClientId: ", this.configService.get('COGNITO_USER_CLIENT_ID'));
-  //   const userPoolId = this.configService.get('USER_POOL_ID');
-  //   const clientId = this.configService.get('COGNITO_USER_CLIENT_ID');
-  //   if (!userPoolId || !clientId) {
-  //     throw new Error("UserPoolId or ClientId is not defined.");
-  //   }
-  //   // check email is existed
-  //   const existedUser = await fetchListUsers(email);
-  //   if (existedUser.length > 0) throw new Error('The email is duplicated.');
-
-  //   this.userPool = new CognitoUserPool({
-  //     UserPoolId: userPoolId,
-  //     ClientId: clientId,
-  //   });
-
-  //   return new Promise((resolve, reject) => {
-  //     return this.userPool.signUp(
-  //       name,
-  //       password,
-  //       [new CognitoUserAttribute({ Name: 'email', Value: email })],
-  //       null,
-  //       (err, result) => {
-  //         if (!result) {
-  //           reject(err);
-  //         } else {
-  //           resolve(result.user);
-  //         }
-  //       },
-  //     );
-  //   });
-  // }
-
   async createToken(user: User) {
     return {
       expiresIn: this.configService.get('JWT_EXPIRATION_TIME'),
