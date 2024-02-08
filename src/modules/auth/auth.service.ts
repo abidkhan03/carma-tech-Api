@@ -23,9 +23,11 @@ export class AuthService {
       ClientId: this.configService.get('COGNITO_USER_CLIENT_ID') || '5l1nf7orlu8lai7dpu83rs9551',
     });
   }
-
+  
   async register(authRegisterRequest: RegisterRequestDto) {
     const { name, email, password } = authRegisterRequest;
+    console.log("UserPooldId: ", this.configService.get('USER_POOL_ID'));
+    console.log("ClientId: ", this.configService.get('COGNITO_USER_CLIENT_ID'));
     // check email is existed
     const existedUser = await fetchListUsers(email);
     if (existedUser.length > 0) throw new Error('The email is duplicated.');
