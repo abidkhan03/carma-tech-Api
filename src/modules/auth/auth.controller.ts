@@ -47,14 +47,14 @@ export class AuthController {
       region: 'us-east-2',
     });
 
-      this.userPool = new CognitoUserPool({
-        UserPoolId: this.configService.get('USER_POOL_ID') || 'us-east-2_0Pitx53J7',
-        ClientId: this.configService.get('COGNITO_USER_CLIENT_ID') || '5l1nf7orlu8lai7dpu83rs9551',
-      });
-    
-      this.provideClient = new CognitoIdentityProviderClient({
-        region: 'us-east-2',
-      });
+    this.userPool = new CognitoUserPool({
+      UserPoolId: this.configService.get('USER_POOL_ID') || 'us-east-2_0Pitx53J7',
+      ClientId: this.configService.get('COGNITO_USER_CLIENT_ID') || '5l1nf7orlu8lai7dpu83rs9551',
+    });
+
+    this.provideClient = new CognitoIdentityProviderClient({
+      region: 'us-east-2',
+    });
   }
 
 
@@ -83,9 +83,9 @@ export class AuthController {
   @ApiResponse({ status: 201, description: 'Successful Registration' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async confirm(@Body('email') email: string, @Body('code') code: string): Promise<any> {
+  async confirm(@Body('username') username: string, @Body('confirmCode') confirmCode: string): Promise<any> {
     try {
-      return await this.authService.confirmSignUp(email, code);
+      return await this.authService.confirmSignUp(username, confirmCode);
     } catch (e) {
       throw new BadRequestException(e.message);
     }

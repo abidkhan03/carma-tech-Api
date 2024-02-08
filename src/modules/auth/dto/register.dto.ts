@@ -4,6 +4,9 @@ export class RegisterRequestDto {
   @IsString()
   name: string;
 
+  @IsString()
+  username: string;
+
   @IsEmail()
   email: string;
 
@@ -14,5 +17,11 @@ export class RegisterRequestDto {
     { message: 'invalid password' },
   )
   password: string;
+
+  @Matches(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$&+,:;=?@#|'<>.^*()%!-])[A-Za-z\d@$&+,:;=?@#|'<>.^*()%!-]{6,}$/,
+    { message: 'invalid password' },
+  )
+  confirmPassword: string;
 
 }

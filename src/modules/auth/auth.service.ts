@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { Hash } from '@app/utils/hash.util';
@@ -8,7 +8,7 @@ import { User } from '@modules/user/user.entity';
 import { SigninDto } from '@modules/auth/dto/signin.dto';
 import { CognitoUserAttribute, CognitoUserPool } from 'amazon-cognito-identity-js';
 import { RegisterRequestDto } from '@modules/auth/dto/register.dto';
-import { fetchListUsers } from '@app/utils/helper.util';
+import { checkUserExists } from '@app/utils/helper.util';
 
 import cognito, {
   CognitoIdentityProviderClient,
@@ -35,10 +35,15 @@ export class AuthService {
   }
 
   public async registerUser(registerDto: RegisterRequestDto) {
+    // check if user exists in cognito
+    const userExists = await checkUserExists(registerDto.username, registerDto.email);
+    if (userExists.length > 0) {
+      throw new ConflictException('User already exists');
+    }
     try {
       const input = {
         ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
-        Username: registerDto.email,
+        Username: registerDto.username,
         Password: registerDto.password,
         UserAttributes: [
           {
@@ -48,14 +53,33 @@ export class AuthService {
           {
             Name: 'email',
             Value: registerDto.email
+          },
+          {
+            Name: 'custom:confirmPassword',
+            Value: registerDto.confirmPassword
           }
         ],
+        ValidationData: [
+          {
+            Name: 'name',
+            Value: registerDto.name
+          },
+          {
+            Name: 'email',
+            Value: registerDto.email
+          },
+          {
+            Name: 'custom:confirmPassword',
+            Value: registerDto.confirmPassword
+          }
+        ]
       };
       const signupCommand = new SignUpCommand(input);
       const response = await this.cognitoIdentity.send(signupCommand);
+      const email = registerDto.email;
       return {
-        message: 'Success',
-        detaisl: response,
+        statusCode: response.$metadata.httpStatusCode,
+        message: `User created successfully, check your email ${email} to confirm your account`,
       };
     } catch (error) {
       const awsError = error as AWSError;
@@ -79,16 +103,19 @@ export class AuthService {
     }
   }
 
-  public async confirmSignUp(email: string, code: string) {
+  public async confirmSignUp(username: string, code: string) {
     try {
       const input = {
         ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
-        Username: email,
+        Username: username,
         ConfirmationCode: code
       };
       const confirmSignUpCommand = new ConfirmSignUpCommand(input);
       const response = await this.cognitoIdentity.send(confirmSignUpCommand);
-      return response;
+      return {
+        statusCode: response.$metadata.httpStatusCode,
+        message: 'User confirmed successfully',
+      };
       
     } catch (error) {
       const awsError = error as AWSError;
