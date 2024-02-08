@@ -80,14 +80,38 @@ export class AuthService {
   }
 
   public async confirmSignUp(email: string, code: string) {
-    const input = {
-      ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
-      Username: email,
-      ConfirmationCode: code
-    };
-    const confirmSignUpCommand = new ConfirmSignUpCommand(input);
-    const response = await this.cognitoIdentity.send(confirmSignUpCommand);
-    return response;
+    try {
+      const input = {
+        ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
+        Username: email,
+        ConfirmationCode: code
+      };
+      const confirmSignUpCommand = new ConfirmSignUpCommand(input);
+      const response = await this.cognitoIdentity.send(confirmSignUpCommand);
+      return response;
+      
+    } catch (error) {
+      const awsError = error as AWSError;
+      let message: string;
+      switch (awsError.name) {
+        case 'UserNotFoundException':
+          message = 'User not found.';
+          break;
+        case 'CodeMismatchException':
+          message = 'Code mismatch.';
+          break;
+        case 'NotAuthorizedException':
+          message = 'Not authorized.';
+          break;
+        case 'ExpiredCodeException':
+          message = 'Expired code.';
+          break;
+        default:
+          message = `An unexpected error occurred ${awsError.message}`;
+          break;
+      }
+      return { message: message, details: awsError };
+    }
   }
 
   // async register(authRegisterRequest: RegisterRequestDto) {
