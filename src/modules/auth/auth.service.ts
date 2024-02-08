@@ -19,7 +19,7 @@ import crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
-  private userPool: CognitoUserPool;
+  // private userPool: CognitoUserPool;
   private cognitoIdentity: CognitoIdentityProviderClient;
   constructor(
     private readonly jwtService: JwtService,
@@ -70,47 +70,48 @@ export class AuthService {
           message = 'Too many requests, please try again later';
           break;
         default:
-          message = 'An unexpected error occurred';
+          message = `An unexpected error occurred ${awsError.message}`;
+          break;
       }
       return { message: message, details: awsError };
 
     }
   }
 
-  async register(authRegisterRequest: RegisterRequestDto) {
-    const { name, email, password } = authRegisterRequest;
-    console.log("UserPoolId: ", this.configService.get('USER_POOL_ID'));
-    console.log("ClientId: ", this.configService.get('COGNITO_USER_CLIENT_ID'));
-    const userPoolId = this.configService.get('USER_POOL_ID');
-    const clientId = this.configService.get('COGNITO_USER_CLIENT_ID');
-    if (!userPoolId || !clientId) {
-      throw new Error("UserPoolId or ClientId is not defined.");
-    }
-    // check email is existed
-    const existedUser = await fetchListUsers(email);
-    if (existedUser.length > 0) throw new Error('The email is duplicated.');
+  // async register(authRegisterRequest: RegisterRequestDto) {
+  //   const { name, email, password } = authRegisterRequest;
+  //   console.log("UserPoolId: ", this.configService.get('USER_POOL_ID'));
+  //   console.log("ClientId: ", this.configService.get('COGNITO_USER_CLIENT_ID'));
+  //   const userPoolId = this.configService.get('USER_POOL_ID');
+  //   const clientId = this.configService.get('COGNITO_USER_CLIENT_ID');
+  //   if (!userPoolId || !clientId) {
+  //     throw new Error("UserPoolId or ClientId is not defined.");
+  //   }
+  //   // check email is existed
+  //   const existedUser = await fetchListUsers(email);
+  //   if (existedUser.length > 0) throw new Error('The email is duplicated.');
 
-    this.userPool = new CognitoUserPool({
-      UserPoolId: userPoolId,
-      ClientId: clientId,
-    });
+  //   this.userPool = new CognitoUserPool({
+  //     UserPoolId: userPoolId,
+  //     ClientId: clientId,
+  //   });
 
-    return new Promise((resolve, reject) => {
-      return this.userPool.signUp(
-        name,
-        password,
-        [new CognitoUserAttribute({ Name: 'email', Value: email })],
-        null,
-        (err, result) => {
-          if (!result) {
-            reject(err);
-          } else {
-            resolve(result.user);
-          }
-        },
-      );
-    });
-  }
+  //   return new Promise((resolve, reject) => {
+  //     return this.userPool.signUp(
+  //       name,
+  //       password,
+  //       [new CognitoUserAttribute({ Name: 'email', Value: email })],
+  //       null,
+  //       (err, result) => {
+  //         if (!result) {
+  //           reject(err);
+  //         } else {
+  //           resolve(result.user);
+  //         }
+  //       },
+  //     );
+  //   });
+  // }
 
   async createToken(user: User) {
     return {

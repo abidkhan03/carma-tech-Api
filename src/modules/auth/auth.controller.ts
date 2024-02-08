@@ -73,7 +73,7 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async register(@Body() registerRequest: RegisterRequestDto): Promise<any> {
     try {
-      return await this.authService.register(registerRequest);
+      return await this.authService.registerUser(registerRequest);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
