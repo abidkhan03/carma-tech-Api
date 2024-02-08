@@ -79,6 +79,18 @@ export class AuthController {
     }
   }
 
+  @Post('confirmSignup')
+  @ApiResponse({ status: 201, description: 'Successful Registration' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async confirm(@Body() email: string, code: string): Promise<any> {
+    try {
+      return await this.authService.confirmSignUp(email, code);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
   @Post('signup')
   @ApiResponse({ status: 201, description: 'Successful Registration' })
   @ApiResponse({ status: 400, description: 'Bad Request' })

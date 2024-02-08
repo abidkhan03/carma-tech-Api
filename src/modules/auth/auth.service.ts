@@ -13,6 +13,7 @@ import { fetchListUsers } from '@app/utils/helper.util';
 import cognito, {
   CognitoIdentityProviderClient,
   SignUpCommand,
+  ConfirmSignUpCommand,
   InitiateAuthCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import crypto from 'crypto';
@@ -76,6 +77,17 @@ export class AuthService {
       return { message: message, details: awsError };
 
     }
+  }
+
+  public async confirmSignUp(email: string, code: string) {
+    const input = {
+      ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
+      Username: email,
+      ConfirmationCode: code
+    };
+    const confirmSignUpCommand = new ConfirmSignUpCommand(input);
+    const response = await this.cognitoIdentity.send(confirmSignUpCommand);
+    return response;
   }
 
   // async register(authRegisterRequest: RegisterRequestDto) {
