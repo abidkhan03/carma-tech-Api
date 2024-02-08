@@ -40,47 +40,25 @@ export class AuthService {
     if (userExists.length > 0) {
       throw new ConflictException('User already exists');
     }
+
+    let attributes = [
+      { Name: 'name', Value: registerDto.name },
+      { Name: 'username', Value: registerDto.username },
+      { Name: 'email', Value: registerDto.email },
+    ];
+    let customAttribute = {
+      Name: 'custom:passwordConfirmation',
+      Value: registerDto.passwordConfirmation
+    }
+    attributes.push(new CognitoUserAttribute(customAttribute));
+
     try {
       const input = {
         ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
         Username: registerDto.username,
         Password: registerDto.password,
-        UserAttributes: [
-          {
-            Name: 'name',
-            Value: registerDto.name
-          },
-          {
-            Name: 'username',
-            Value: registerDto.username
-          },
-          {
-            Name: 'email',
-            Value: registerDto.email
-          },
-          {
-            Name: 'custom:passwordConfirmation',
-            Value: registerDto.passwordConfirmation
-          }
-        ],
-        ValidationData: [
-          {
-            Name: 'name',
-            Value: registerDto.name
-          },
-          {
-            Name: 'username',
-            Value: registerDto.username
-          },
-          {
-            Name: 'email',
-            Value: registerDto.email
-          },
-          {
-            Name: 'custom:passwordConfirmation',
-            Value: registerDto.passwordConfirmation
-          }
-        ]
+        UserAttributes: attributes,
+        ValidationData: attributes,
       };
       const signupCommand = new SignUpCommand(input);
       const response = await this.cognitoIdentity.send(signupCommand);
@@ -126,7 +104,7 @@ export class AuthService {
         statusCode: response.$metadata.httpStatusCode,
         message: 'User confirmed successfully',
       };
-      
+
     } catch (error) {
       const awsError = error as AWSError;
       let message: string;
