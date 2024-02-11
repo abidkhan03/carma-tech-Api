@@ -38,7 +38,7 @@ export class AuthController {
   private readonly userPool: CognitoUserPool;
   private readonly provideClient: CognitoIdentityProviderClient;
   private readonly logger = new Logger();
-  private snsNotification: SnsService;
+  private snsNotification: AuthService;
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UsersService,
@@ -68,6 +68,8 @@ export class AuthController {
     const user = await this.authService.validateUser(signinDto);
     return await this.authService.createToken(user);
   }
+
+
 
   @Post('register')
   @ApiResponse({ status: 201, description: 'Successful Registration' })

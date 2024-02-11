@@ -9,8 +9,8 @@ import { SigninDto } from '@modules/auth/dto/signin.dto';
 import { CognitoUserAttribute, CognitoUserPool } from 'amazon-cognito-identity-js';
 import { RegisterRequestDto } from '@modules/auth/dto/register.dto';
 import { checkUserExists } from '@app/utils/helper.util';
-import { SnsService } from '@modules/aws/sns/sns.service';
 import { Logger } from '@aws-lambda-powertools/logger';
+import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 
 import cognito, {
   CognitoIdentityProviderClient,
@@ -25,7 +25,8 @@ import crypto from 'crypto';
 export class AuthService {
   // private userPool: CognitoUserPool;
   private cognitoIdentity: CognitoIdentityProviderClient;
-  private snsNotification: SnsService;
+  private snsNotification: SNSClient;
+  private snsTopicArn: string;
   private readonly logger = new Logger();
   constructor(
     private readonly jwtService: JwtService,
@@ -37,9 +38,24 @@ export class AuthService {
     //   ClientId: this.configService.get('COGNITO_USER_CLIENT_ID') || '5l1nf7orlu8lai7dpu83rs9551',
     // });
     this.cognitoIdentity = new CognitoIdentityProviderClient({ region: 'us-east-2' });
+    this.snsTopicArn = this.configService.get('SNS_TOPIC_ARN');
   }
 
-
+  async sendSnsNotification(message: string) {
+    this.logger.info(`SNS notification message: ${message}`);
+    try {
+      const command = new PublishCommand({
+        TopicArn: this.snsTopicArn,
+        Message: message,
+        Subject: "Cognito User Management Error",
+      });
+      console.log(`Command: ${JSON.stringify(command)}`);
+      await this.snsNotification.send(command);
+    } catch (error) {
+      this.logger.error("Failed to send SNS notification", error);
+      throw error;
+    }
+  }
 
   public async registerUser(registerDto: RegisterRequestDto) {
     // check if user exists in cognito
@@ -96,7 +112,7 @@ export class AuthService {
       }
       // Send SNS notification
       const snsNotification = this.logger.info(`SNS topic ARN in Reg Service: ${this.configService.get('SNS_TOPIC_ARN')}`);
-      await this.snsNotification.sendSnsNotification(message);
+      await this.sendSnsNotification(message);
       return {
         message: message, details: awsError,
         httpStatusCode: awsError.$metadata.httpStatusCode,
@@ -142,7 +158,7 @@ export class AuthService {
           break;
       }
       // Send SNS notification
-      await this.snsNotification.sendSnsNotification(message);
+      await this.sendSnsNotification(message);
       return { message: message, details: awsError };
     }
   }
