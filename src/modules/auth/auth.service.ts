@@ -10,6 +10,7 @@ import { CognitoUserAttribute, CognitoUserPool } from 'amazon-cognito-identity-j
 import { RegisterRequestDto } from '@modules/auth/dto/register.dto';
 import { checkUserExists } from '@app/utils/helper.util';
 import { SnsService } from '@modules/aws/sns/sns.service';
+import { Logger } from '@aws-lambda-powertools/logger';
 
 import cognito, {
   CognitoIdentityProviderClient,
@@ -25,6 +26,7 @@ export class AuthService {
   // private userPool: CognitoUserPool;
   private cognitoIdentity: CognitoIdentityProviderClient;
   private snsNotification: SnsService;
+  private readonly logger = new Logger();
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -93,6 +95,7 @@ export class AuthService {
           break;
       }
       // Send SNS notification
+      this.logger.info(`SNS topic ARN in Reg Service: ${this.configService.get('SNS_TOPIC_ARN')}`);
       await this.snsNotification.sendSnsNotification(message);
       return { message: message, details: awsError };
 

@@ -72,6 +72,7 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async register(@Body() registerRequest: RegisterRequestDto): Promise<any> {
+    this.logger.info(`SNS topic ARN: ${this.configService.get('SNS_TOPIC_ARN')}`);
     try {
       return await this.authService.registerUser(registerRequest);
     } catch (e) {
