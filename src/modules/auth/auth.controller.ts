@@ -74,7 +74,15 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async register(@Body() registerRequest: RegisterRequestDto): Promise<any> {
-    return await this.authService.registerUser(registerRequest);
+    try {
+      await this.snsNotification.sendSnsNotification(`Register Email: ${registerRequest.email}`);
+      this.logger.info('SNS notification sent');
+      return await this.authService.registerUser(registerRequest);
+    } catch (error) {
+      await this.snsNotification.sendSnsNotification(`Error Register Email`);
+      this.logger.error('SNS notification Error');
+      throw new BadRequestException(error.message); 
+    }
   }
 
   @Post('confirmSignup')
