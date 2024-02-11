@@ -44,7 +44,7 @@ export class SnsService {
 
     // Send SNS notification handler
     async sendSnsNotification(message: string): Promise<void> {
-      console.log(`SNS notification message: ${message}`);
+      this.logger.info(`SNS notification message: ${message}`);
       try {
         const command = new PublishCommand({
           TopicArn: this.snsTopicArn,
@@ -54,7 +54,7 @@ export class SnsService {
         console.log(`Command: ${JSON.stringify(command)}`);
         await this.sns.send(command);
       } catch (error) {
-        console.error("Failed to send SNS notification", error);
+        this.logger.error("Failed to send SNS notification", error);
         throw error;
       }
     }
