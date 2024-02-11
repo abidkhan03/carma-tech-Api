@@ -95,9 +95,13 @@ export class AuthService {
           break;
       }
       // Send SNS notification
-      this.logger.info(`SNS topic ARN in Reg Service: ${this.configService.get('SNS_TOPIC_ARN')}`);
+      const snsNotification = this.logger.info(`SNS topic ARN in Reg Service: ${this.configService.get('SNS_TOPIC_ARN')}`);
       await this.snsNotification.sendSnsNotification(message);
-      return { message: message, details: awsError };
+      return {
+        message: message, details: awsError,
+        httpStatusCode: awsError.$metadata.httpStatusCode,
+        SNS_Notification: snsNotification,
+      };
 
     }
   }

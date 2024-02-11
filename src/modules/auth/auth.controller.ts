@@ -75,12 +75,8 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async register(@Body() registerRequest: RegisterRequestDto): Promise<any> {
     this.logger.info(`SNS topic ARN: ${this.configService.get('SNS_TOPIC_ARN')}`);
-    try {
-      return await this.authService.registerUser(registerRequest);
-    } catch (e) {
-      throw new BadRequestException(e.message);
-    }
-  }SNS_TOPIC_ARN
+    return await this.authService.registerUser(registerRequest);
+  }
 
   @Post('confirmSignup')
   @ApiResponse({ status: 201, description: 'Successful Registration' })
@@ -111,7 +107,7 @@ export class AuthController {
         } catch (error) {
           console.error("Error sending test SNS message:", error);
         }
-        
+
         this.logger.error(`User with provided email and phone number already exist: ${JSON.stringify(existingUser)}`);
         throw new ConflictException('User with provided email already exists');
 
