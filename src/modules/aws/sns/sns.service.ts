@@ -29,6 +29,7 @@ export class SnsService {
         const params = {
             Token: token,
             TopicArn: topicArn,
+            
         };
         this.sns.send(new ConfirmSubscriptionCommand(params))
             .then((data) => {
@@ -43,15 +44,18 @@ export class SnsService {
 
     // Send SNS notification handler
     async sendSnsNotification(message: string): Promise<void> {
+      console.log(`SNS notification message: ${message}`);
       try {
         const command = new PublishCommand({
           TopicArn: this.snsTopicArn,
           Message: message,
           Subject: "Cognito User Management Error",
         });
+        console.log(`Command: ${JSON.stringify(command)}`);
         await this.sns.send(command);
       } catch (error) {
         console.error("Failed to send SNS notification", error);
+        throw error;
       }
     }
 
