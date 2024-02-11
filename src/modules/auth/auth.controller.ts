@@ -74,7 +74,6 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async register(@Body() registerRequest: RegisterRequestDto): Promise<any> {
-    this.logger.info(`SNS topic ARN: ${this.configService.get('SNS_TOPIC_ARN')}`);
     return await this.authService.registerUser(registerRequest);
   }
 
@@ -98,17 +97,24 @@ export class AuthController {
     const existingUser = await this.userService.getByEmailOrPhone(signupDto.email, signupDto.phone);
     if (existingUser) {
       if (existingUser.email === signupDto.email && existingUser.phone === signupDto.phone) {
+        try {
+          this.logger.error("Error sending test SNS message: User with provided email and phone number already exist");
+          await this.snsNotification.sendSnsNotification("Test message to verify SNS functionality");
+        } catch (error) {
+          this.logger.error("Error sending test SNS message:", error);
+        }
         this.logger.error(`User with provided email and phone number already exist: ${JSON.stringify(existingUser)}`);
         throw new ConflictException('User with provided email and phone number already exist');
 
       } else if (existingUser.email === signupDto.email) {
         try {
+          this.logger.info("Error Sending SNS Message: User with provided email already exists");
           await this.snsNotification.sendSnsNotification("Test message to verify SNS functionality");
         } catch (error) {
-          console.error("Error sending test SNS message:", error);
+          this.logger.error("Error sending test SNS message:", error);
         }
 
-        this.logger.error(`User with provided email and phone number already exist: ${JSON.stringify(existingUser)}`);
+        this.logger.error(`User with provided email already exists: ${JSON.stringify(existingUser)}`);
         throw new ConflictException('User with provided email already exists');
 
       } else {
