@@ -60,9 +60,6 @@ export class AuthService {
       throw new ConflictException('User email already exists');
     }
     // check if password and password confirmation match
-    // if (registerDto.password !== registerDto.passwordConfirmation) {
-    //   throw new ConflictException('Passwords do not match');
-    // }
 
     let attributes = [
       { Name: 'name', Value: registerDto.name },
