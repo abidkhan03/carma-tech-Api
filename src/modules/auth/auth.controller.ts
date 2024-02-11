@@ -29,6 +29,7 @@ import {
 import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
 import { sign } from 'crypto';
 import { RegisterRequestDto } from '@modules/auth/dto/register.dto';
+import { SnsService } from '@modules/aws/sns/sns.service';
 
 @Controller('api/auth')
 @ApiTags('authentication')
@@ -37,6 +38,7 @@ export class AuthController {
   private readonly userPool: CognitoUserPool;
   private readonly provideClient: CognitoIdentityProviderClient;
   private readonly logger = new Logger();
+  private snsNotification: SnsService;
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UsersService,
@@ -78,7 +80,7 @@ export class AuthController {
     } catch (e) {
       throw new BadRequestException(e.message);
     }
-  }
+  }SNS_TOPIC_ARN
 
   @Post('confirmSignup')
   @ApiResponse({ status: 201, description: 'Successful Registration' })
@@ -104,6 +106,12 @@ export class AuthController {
         throw new ConflictException('User with provided email and phone number already exist');
 
       } else if (existingUser.email === signupDto.email) {
+        try {
+          await this.snsNotification.sendSnsNotification("Test message to verify SNS functionality");
+        } catch (error) {
+          console.error("Error sending test SNS message:", error);
+        }
+        
         this.logger.error(`User with provided email and phone number already exist: ${JSON.stringify(existingUser)}`);
         throw new ConflictException('User with provided email already exists');
 
