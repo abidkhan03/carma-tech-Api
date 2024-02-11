@@ -9,13 +9,14 @@ import { SigninDto } from '@modules/auth/dto/signin.dto';
 import { CognitoUserAttribute, CognitoUserPool } from 'amazon-cognito-identity-js';
 import { RegisterRequestDto } from '@modules/auth/dto/register.dto';
 import { checkUserExists } from '@app/utils/helper.util';
-import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
+import { SnsService } from '@modules/aws/sns/sns.service';
 
 import cognito, {
   CognitoIdentityProviderClient,
   SignUpCommand,
   ConfirmSignUpCommand,
   InitiateAuthCommand,
+  DeliveryMediumType,
 } from '@aws-sdk/client-cognito-identity-provider';
 import crypto from 'crypto';
 
@@ -23,8 +24,7 @@ import crypto from 'crypto';
 export class AuthService {
   // private userPool: CognitoUserPool;
   private cognitoIdentity: CognitoIdentityProviderClient;
-  private snsClient: SNSClient;
-  private snsTopicArn: string;
+  private snsNotification: SnsService;
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -35,23 +35,9 @@ export class AuthService {
     //   ClientId: this.configService.get('COGNITO_USER_CLIENT_ID') || '5l1nf7orlu8lai7dpu83rs9551',
     // });
     this.cognitoIdentity = new CognitoIdentityProviderClient({ region: 'us-east-2' });
-    this.snsClient = new SNSClient({ region: 'us-east-2' });
-    this.snsTopicArn = this.configService.get('SNS_TOPIC_ARN');
   }
 
-  // Send SNS notification handler
-  async sendSnsNotification(message: string): Promise<void> {
-    try {
-      const command = new PublishCommand({
-        TopicArn: this.snsTopicArn,
-        Message: message,
-        Subject: "Cognito User Management Error",
-      });
-      await this.snsClient.send(command);
-    } catch (error) {
-      console.error("Failed to send SNS notification.", error);
-    }
-  }
+
 
   public async registerUser(registerDto: RegisterRequestDto) {
     // check if user exists in cognito
@@ -107,7 +93,7 @@ export class AuthService {
           break;
       }
       // Send SNS notification
-      await this.sendSnsNotification(message);
+      await this.snsNotification.sendSnsNotification(message);
       return { message: message, details: awsError };
 
     }
@@ -118,7 +104,8 @@ export class AuthService {
       const input = {
         ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
         Username: username,
-        ConfirmationCode: code
+        ConfirmationCode: code,
+        DeliveryMediumType: 'Email'
       };
       const confirmSignUpCommand = new ConfirmSignUpCommand(input);
       const response = await this.cognitoIdentity.send(confirmSignUpCommand);
@@ -148,7 +135,7 @@ export class AuthService {
           break;
       }
       // Send SNS notification
-      await this.sendSnsNotification(message);
+      await this.snsNotification.sendSnsNotification(message);
       return { message: message, details: awsError };
     }
   }
