@@ -20,13 +20,13 @@ import cognito, {
   DeliveryMediumType,
 } from '@aws-sdk/client-cognito-identity-provider';
 import crypto from 'crypto';
+import { SnsService } from '@modules/aws/sns/sns.service';
 
 @Injectable()
 export class AuthService {
   // private userPool: CognitoUserPool;
   private cognitoIdentity: CognitoIdentityProviderClient;
-  private snsClient: SNSClient;
-  private snsTopicArn: string;
+  private snsClient: SnsService;
   private readonly logger = new Logger();
   constructor(
     private readonly jwtService: JwtService,
@@ -38,33 +38,16 @@ export class AuthService {
     //   ClientId: this.configService.get('COGNITO_USER_CLIENT_ID') || '5l1nf7orlu8lai7dpu83rs9551',
     // });
     this.cognitoIdentity = new CognitoIdentityProviderClient({ region: 'us-east-2' });
-    this.snsTopicArn = this.configService.get('SNS_TOPIC_ARN');
-    this.snsClient = new SNSClient({ region: 'us-east-2' });
   }
 
-  async sendSnsNotification(message: string, subject: string) {
-    this.logger.info(`SNS notification message: ${message}`);
-    this.logger.info(`SNS topic ARN in service: ${this.snsTopicArn}`);
-    try {
-      const command = new PublishCommand({
-        TopicArn: this.snsTopicArn,
-        Message: message,
-        Subject: subject,
-      });
-      // console.log(`Command: ${JSON.stringify(command)}`);
-      await this.snsClient.send(command);
-    } catch (error) {
-      this.logger.error("Failed to send SNS notification", error);
-      throw error;
-    }
-  }
+  
 
   public async registerUser(registerDto: RegisterRequestDto) {
     // check if user exists in cognito
     const userExists = await checkUserExists(registerDto.email);
     if (userExists.length > 0) {
       const subject = 'User Registration Error'
-      await this.sendSnsNotification('User email already exists', subject);
+      await this.snsClient.sendSnsNotification('User email already exists', subject);
       throw new ConflictException('User email already exists');
     }
     // check if password and password confirmation match
@@ -117,7 +100,7 @@ export class AuthService {
       // Send SNS notification
       const snsNotification = this.logger.info(`SNS topic ARN in Reg Service: ${this.configService.get('SNS_TOPIC_ARN')}`);
       const subject = 'User Registration Error'
-      await this.sendSnsNotification(message, subject);
+      await this.snsClient.sendSnsNotification(message, subject);
       return {
         message: message, details: awsError,
         httpStatusCode: awsError.$metadata.httpStatusCode,
@@ -164,7 +147,7 @@ export class AuthService {
       }
       // Send SNS notification
       const subject = 'User Confirmation Error';
-      await this.sendSnsNotification(message, subject);
+      await this.snsClient.sendSnsNotification(message, subject);
       return { message: message, details: awsError };
     }
   }
