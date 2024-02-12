@@ -1,3 +1,4 @@
+import { User } from './../user/user.entity';
 import {
   Controller,
   Body,
@@ -19,11 +20,22 @@ import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 import { Logger } from '@aws-lambda-powertools/logger';
 import { Lambda } from 'aws-sdk';
 import { ConfigService } from '@nestjs/config';
+import {
+  AuthenticationDetails,
+  CognitoUser,
+  CognitoUserAttribute,
+  CognitoUserPool,
+} from 'amazon-cognito-identity-js';
+import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
+import { sign } from 'crypto';
+import { RegisterRequestDto } from '@modules/auth/dto/register.dto';
 
 @Controller('api/auth')
 @ApiTags('authentication')
 export class AuthController {
   private lambdaClient: LambdaClient;
+  private readonly userPool: CognitoUserPool;
+  private readonly provideClient: CognitoIdentityProviderClient;
   private readonly logger = new Logger();
   constructor(
     private readonly authService: AuthService,
@@ -32,6 +44,15 @@ export class AuthController {
   ) {
 
     this.lambdaClient = new LambdaClient({
+      region: 'us-east-2',
+    });
+
+    this.userPool = new CognitoUserPool({
+      UserPoolId: this.configService.get('USER_POOL_ID') || 'us-east-2_0Pitx53J7',
+      ClientId: this.configService.get('COGNITO_USER_CLIENT_ID') || '5l1nf7orlu8lai7dpu83rs9551',
+    });
+
+    this.provideClient = new CognitoIdentityProviderClient({
       region: 'us-east-2',
     });
   }
@@ -46,6 +67,25 @@ export class AuthController {
     return await this.authService.createToken(user);
   }
 
+
+
+  @Post('register')
+  @ApiResponse({ status: 201, description: 'Successful Registration' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async register(@Body() registerRequest: RegisterRequestDto): Promise<any> {
+    return await this.authService.registerUser(registerRequest);
+  }
+
+  @Post('confirmSignup')
+  @ApiResponse({ status: 201, description: 'Successful Registration' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async confirm(@Body('username') username: string, @Body('confirmCode') confirmCode: string): Promise<any> {
+    return await this.authService.confirmSignUp(username, confirmCode);
+
+  }
+
   @Post('signup')
   @ApiResponse({ status: 201, description: 'Successful Registration' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
@@ -58,7 +98,7 @@ export class AuthController {
         throw new ConflictException('User with provided email and phone number already exist');
 
       } else if (existingUser.email === signupDto.email) {
-        this.logger.error(`User with provided email and phone number already exist: ${JSON.stringify(existingUser)}`);
+        this.logger.error(`User with provided email already exists: ${JSON.stringify(existingUser)}`);
         throw new ConflictException('User with provided email already exists');
 
       } else {

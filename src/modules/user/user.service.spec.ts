@@ -74,6 +74,8 @@ describe('UsersService', () => {
         lastName: 'Doe',
         email: 'test@example.com',
         password: 'password',
+        phone: '+1234567890',
+        external_identity_id: '123',
         created_at: new Date(),
         updated_at: new Date(),
       };
@@ -98,6 +100,8 @@ describe('UsersService', () => {
         lastName: 'Doe',
         email,
         password: 'password',
+        phone: '+1234567890',
+        external_identity_id: '123',
         created_at: new Date(),
         updated_at: new Date(),
       };
