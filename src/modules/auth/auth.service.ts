@@ -49,7 +49,7 @@ export class AuthService {
         Message: message,
         Subject: "Cognito User Management Error",
       });
-      console.log(`Command: ${JSON.stringify(command)}`);
+      // console.log(`Command: ${JSON.stringify(command)}`);
       await this.snsNotification.send(command);
     } catch (error) {
       this.logger.error("Failed to send SNS notification", error);

@@ -77,8 +77,8 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async register(@Body() registerRequest: RegisterRequestDto): Promise<any> {
     try {
-      await this.snsNotification.sendSnsNotification(`Register Email: ${registerRequest.email}`);
       this.logger.info('SNS notification sent');
+      await this.snsNotification.sendSnsNotification('SNS notification sent');
       return await this.authService.registerUser(registerRequest);
     } catch (error) {
       await this.snsNotification.sendSnsNotification(`Error Register Email`);
