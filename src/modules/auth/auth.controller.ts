@@ -74,11 +74,7 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async register(@Body() registerRequest: RegisterRequestDto): Promise<any> {
-    try {
-      return await this.authService.registerUser(registerRequest);
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
+    return await this.authService.registerUser(registerRequest);
   }
 
   @Post('confirmSignup')
@@ -86,11 +82,8 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async confirm(@Body('username') username: string, @Body('confirmCode') confirmCode: string): Promise<any> {
-    try {
-      return await this.authService.confirmSignUp(username, confirmCode);
-    } catch (e) {
-      throw new BadRequestException(e.message);
-    }
+    return await this.authService.confirmSignUp(username, confirmCode);
+
   }
 
   @Post('signup')
