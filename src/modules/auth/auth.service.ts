@@ -25,7 +25,7 @@ import crypto from 'crypto';
 export class AuthService {
   // private userPool: CognitoUserPool;
   private cognitoIdentity: CognitoIdentityProviderClient;
-  private snsNotification: SNSClient;
+  private snsClient: SNSClient;
   private snsTopicArn: string;
   private readonly logger = new Logger();
   constructor(
@@ -39,18 +39,20 @@ export class AuthService {
     // });
     this.cognitoIdentity = new CognitoIdentityProviderClient({ region: 'us-east-2' });
     this.snsTopicArn = this.configService.get('SNS_TOPIC_ARN');
+    this.snsClient = new SNSClient({ region: 'us-east-2' });
   }
 
-  async sendSnsNotification(message: string) {
+  async sendSnsNotification(message: string, subject: string) {
     this.logger.info(`SNS notification message: ${message}`);
+    this.logger.info(`SNS topic ARN in service: ${this.snsTopicArn}`);
     try {
       const command = new PublishCommand({
         TopicArn: this.snsTopicArn,
         Message: message,
-        Subject: "Cognito User Management Error",
+        Subject: subject,
       });
       // console.log(`Command: ${JSON.stringify(command)}`);
-      await this.snsNotification.send(command);
+      await this.snsClient.send(command);
     } catch (error) {
       this.logger.error("Failed to send SNS notification", error);
       throw error;
@@ -112,7 +114,8 @@ export class AuthService {
       }
       // Send SNS notification
       const snsNotification = this.logger.info(`SNS topic ARN in Reg Service: ${this.configService.get('SNS_TOPIC_ARN')}`);
-      await this.sendSnsNotification(message);
+      const subject = 'User Registration Error'
+      await this.sendSnsNotification(message, subject);
       return {
         message: message, details: awsError,
         httpStatusCode: awsError.$metadata.httpStatusCode,
@@ -158,7 +161,8 @@ export class AuthService {
           break;
       }
       // Send SNS notification
-      await this.sendSnsNotification(message);
+      const subject = 'User Confirmation Error';
+      await this.sendSnsNotification(message, subject);
       return { message: message, details: awsError };
     }
   }

@@ -29,7 +29,6 @@ import {
 import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
 import { sign } from 'crypto';
 import { RegisterRequestDto } from '@modules/auth/dto/register.dto';
-import { SnsService } from '@modules/aws/sns/sns.service';
 
 @Controller('api/auth')
 @ApiTags('authentication')
@@ -38,7 +37,6 @@ export class AuthController {
   private readonly userPool: CognitoUserPool;
   private readonly provideClient: CognitoIdentityProviderClient;
   private readonly logger = new Logger();
-  private snsNotification: AuthService;
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UsersService,
@@ -77,13 +75,9 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async register(@Body() registerRequest: RegisterRequestDto): Promise<any> {
     try {
-      this.logger.info('SNS notification sent');
-      await this.snsNotification.sendSnsNotification('SNS notification sent');
       return await this.authService.registerUser(registerRequest);
     } catch (error) {
-      await this.snsNotification.sendSnsNotification(`Error Register Email`);
-      this.logger.error('SNS notification Error');
-      throw new BadRequestException(error.message); 
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -107,23 +101,10 @@ export class AuthController {
     const existingUser = await this.userService.getByEmailOrPhone(signupDto.email, signupDto.phone);
     if (existingUser) {
       if (existingUser.email === signupDto.email && existingUser.phone === signupDto.phone) {
-        try {
-          this.logger.error("Error sending test SNS message: User with provided email and phone number already exist");
-          await this.snsNotification.sendSnsNotification("Test message to verify SNS functionality");
-        } catch (error) {
-          this.logger.error("Error sending test SNS message:", error);
-        }
         this.logger.error(`User with provided email and phone number already exist: ${JSON.stringify(existingUser)}`);
         throw new ConflictException('User with provided email and phone number already exist');
 
       } else if (existingUser.email === signupDto.email) {
-        try {
-          this.logger.info("Error Sending SNS Message: User with provided email already exists");
-          await this.snsNotification.sendSnsNotification("Test message to verify SNS functionality");
-        } catch (error) {
-          this.logger.error("Error sending test SNS message:", error);
-        }
-
         this.logger.error(`User with provided email already exists: ${JSON.stringify(existingUser)}`);
         throw new ConflictException('User with provided email already exists');
 
