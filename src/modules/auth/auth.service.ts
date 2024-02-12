@@ -63,6 +63,8 @@ export class AuthService {
     // check if user exists in cognito
     const userExists = await checkUserExists(registerDto.email);
     if (userExists.length > 0) {
+      const subject = 'User Registration Error'
+      await this.sendSnsNotification('User email already exists', subject);
       throw new ConflictException('User email already exists');
     }
     // check if password and password confirmation match
