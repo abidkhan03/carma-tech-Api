@@ -10,13 +10,13 @@ import { join } from 'path';
 
 @Injectable()
 export class SnsService {
-  private readonly snsClient: SNSClient;
+  private readonly sns: SNSClient;
   private readonly costExplorerClient: CostExplorerClient;
   private readonly logger = new Logger();
   private snsTopicArn: string;
 
   constructor( private readonly configService: ConfigService ) {
-    this.snsClient = new SNSClient({ region: 'us-east-2' });
+    this.sns = new SNSClient({ region: 'us-east-2' });
     this.costExplorerClient = new CostExplorerClient({ region: 'us-east-2' });
     this.snsTopicArn = this.configService.get('SNS_TOPIC_ARN');
   }
@@ -31,7 +31,7 @@ export class SnsService {
             TopicArn: topicArn,
             
         };
-        this.snsClient.send(new ConfirmSubscriptionCommand(params))
+        this.sns.send(new ConfirmSubscriptionCommand(params))
             .then((data) => {
             resolve(data.SubscriptionArn);
             })
@@ -43,17 +43,16 @@ export class SnsService {
   }
 
     // Send SNS notification handler
-    async sendSnsNotification(message: string, subject: string) {
+    async sendSnsNotification(message: string): Promise<void> {
       this.logger.info(`SNS notification message: ${message}`);
-      this.logger.info(`SNS topic ARN in service: ${this.snsTopicArn}`);
       try {
         const command = new PublishCommand({
           TopicArn: this.snsTopicArn,
           Message: message,
-          Subject: subject,
+          Subject: "Cognito User Management Error",
         });
-        // console.log(`Command: ${JSON.stringify(command)}`);
-        await this.snsClient.send(command);
+        console.log(`Command: ${JSON.stringify(command)}`);
+        await this.sns.send(command);
       } catch (error) {
         this.logger.error("Failed to send SNS notification", error);
         throw error;
