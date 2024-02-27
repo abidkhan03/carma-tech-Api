@@ -18,12 +18,14 @@ import cognito, {
   ConfirmSignUpCommand,
   InitiateAuthCommand,
   DeliveryMediumType,
+  ForgotPasswordCommand,
+  ConfirmForgotPasswordCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
-  // private userPool: CognitoUserPool;
+  private userPool: CognitoUserPool;
   private cognitoIdentity: CognitoIdentityProviderClient;
   private snsNotification: SNSClient;
   private snsTopicArn: string;
@@ -33,10 +35,10 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly userService: UsersService,
   ) {
-    // this.userPool = new CognitoUserPool({
-    //   UserPoolId: this.configService.get('USER_POOL_ID') || 'us-east-2_0Pitx53J7',
-    //   ClientId: this.configService.get('COGNITO_USER_CLIENT_ID') || '5l1nf7orlu8lai7dpu83rs9551',
-    // });
+    this.userPool = new CognitoUserPool({
+      UserPoolId: this.configService.get('USER_POOL_ID'),
+      ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
+    });
     this.cognitoIdentity = new CognitoIdentityProviderClient({ region: 'us-east-2' });
     this.snsTopicArn = this.configService.get('SNS_TOPIC_ARN');
   }
@@ -55,6 +57,25 @@ export class AuthService {
       this.logger.error("Failed to send SNS notification", error);
       throw error;
     }
+  }
+
+  async registerCognito(authRegisterRequest: RegisterRequestDto) {
+    const { name, email, password } = authRegisterRequest;
+    return new Promise((resolve, reject) => {
+      return this.userPool.signUp(
+        name,
+        password,
+        [new CognitoUserAttribute({ Name: 'email', Value: email })],
+        null,
+        (err, result) => {
+          if (!result) {
+            reject(err);
+          } else {
+            resolve(result.user);
+          }
+        },
+      );
+    });
   }
 
   public async registerUser(registerDto: RegisterRequestDto) {
@@ -79,7 +100,7 @@ export class AuthService {
     try {
       const input = {
         ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
-        Username: registerDto.username,
+        Username: registerDto.username || registerDto.email,
         Password: registerDto.password,
         UserAttributes: attributes,
         ValidationData: attributes,
@@ -128,7 +149,7 @@ export class AuthService {
         ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
         Username: username,
         ConfirmationCode: code,
-        DeliveryMediumType: 'Email'
+        DeliveryMediumType: 'Email' || 'SMS'
       };
       const confirmSignUpCommand = new ConfirmSignUpCommand(input);
       const response = await this.cognitoIdentity.send(confirmSignUpCommand);
@@ -160,6 +181,83 @@ export class AuthService {
       // Send SNS notification
       await this.sendSnsNotification(message);
       return { message: message, details: awsError };
+    }
+  }
+
+  async forgotPassword(email: string) {
+    try {
+      const input = {
+        ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
+        Username: email,
+        DeliveryMediumType: 'Email' || 'SMS',
+      }
+
+      const forgotCommand = new ForgotPasswordCommand(input);
+      const response = await this.cognitoIdentity.send(forgotCommand);
+      return {
+        statusCode: response.$metadata.httpStatusCode,
+        message: 'Password reset link sent successfully',
+      };
+
+    } catch (error) {
+      const awsError = error as AWSError;
+      let message: string;
+      switch (awsError.name) {
+        case 'UserNotFoundException':
+          message = 'User not found.';
+          break;
+        case 'NotAuthorizedException':
+          message = 'Not authorized.';
+          break;
+        default:
+          message = `An unexpected error occurred ${awsError.message}`;
+          break;
+      }
+      await this.sendSnsNotification(message);
+      return { message: message, details: awsError };
+    }
+  }
+
+
+  async confirmForgotPassword(email: string, confirmCode: string, password: string) {
+    try {
+      const input = {
+        ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
+        Username: email,
+        ConfirmationCode: confirmCode,
+        Password: password,
+      }
+
+      const confirmForgotPasswdCommand = new ConfirmForgotPasswordCommand(input);
+      const response = await this.cognitoIdentity.send(confirmForgotPasswdCommand);
+      return {
+        statusCode: response.$metadata.httpStatusCode,
+        message: 'Password reset successfully',
+      };
+
+    } catch (error) {
+      const awsError = error as AWSError;
+      let message: string;
+      switch (awsError.name) {
+        case 'UserNotFoundException':
+          message = 'User not found.';
+          break;
+        case 'CodeMismatchException':
+          message = 'Code mismatch.';
+          break;
+        case 'NotAuthorizedException':
+          message = 'Not authorized.';
+          break;
+        case 'ExpiredCodeException':
+          message = 'Expired code.';
+          break;
+        default:
+          message = `An unexpected error occurred ${awsError.message}`;
+          break;
+      }
+      // Send SNS notification
+      await this.sendSnsNotification(message);
+      return { message: message, details: awsError }
     }
   }
 

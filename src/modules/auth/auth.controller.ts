@@ -69,22 +69,21 @@ export class AuthController {
     return await this.authService.createToken(user);
   }
 
-
+  @Post('registerCognito')
+  async registerCognito(@Body() registerRequest: RegisterRequestDto) {
+    try {
+      return await this.authService.registerCognito(registerRequest);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
 
   @Post('register')
   @ApiResponse({ status: 201, description: 'Successful Registration' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async register(@Body() registerRequest: RegisterRequestDto): Promise<any> {
-    try {
-      await this.snsNotification.sendSnsNotification(`Register Email: ${registerRequest.email}`);
-      this.logger.info('SNS notification sent');
-      return await this.authService.registerUser(registerRequest);
-    } catch (error) {
-      await this.snsNotification.sendSnsNotification(`Error Register Email`);
-      this.logger.error('SNS notification Error');
-      throw new BadRequestException(error.message); 
-    }
+    return await this.authService.registerUser(registerRequest);
   }
 
   @Post('confirmSignup')
@@ -92,11 +91,7 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async confirm(@Body('username') username: string, @Body('confirmCode') confirmCode: string): Promise<any> {
-    try {
-      return await this.authService.confirmSignUp(username, confirmCode);
-    } catch (e) {
-      throw new BadRequestException(e.message);
-    }
+    return await this.authService.confirmSignUp(username, confirmCode);
   }
 
   @Post('signup')
@@ -176,6 +171,22 @@ export class AuthController {
       this.logger.error(`Error invoking CreateUserLambda: ${error.message}`);
       throw new ConflictException(`Failed to invoke CreateUserLambda: ${error.message}`);
     }
+  }
+
+  @Post('forgotPassword')
+  @ApiResponse({ status: 201, description: 'Successful Registration' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async forgotPassword(@Body() email: string): Promise<any> {
+    return await this.authService.forgotPassword(email);
+  }
+
+  @Post('confirmForgotPassword')
+  @ApiResponse({ status: 201, description: 'Successful Registration' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async confirmForgotPassword(@Body('email') email: string, @Body('confirmCode') confirmCode: string, @Body('password') password: string): Promise<any> {
+    return await this.authService.confirmForgotPassword(email, confirmCode, password);
   }
 
   @ApiBearerAuth()
