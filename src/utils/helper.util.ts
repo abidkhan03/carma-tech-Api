@@ -1,5 +1,6 @@
 import { config } from 'dotenv';
 import { CognitoIdentityProviderClient, ListUsersCommand } from '@aws-sdk/client-cognito-identity-provider';
+import { CognitoUser} from 'amazon-cognito-identity-js';
 import { ConfigService } from '@nestjs/config';
 
 const cognitoClient = new CognitoIdentityProviderClient({});

@@ -71,8 +71,8 @@ export class AuthController {
 
   @Post('registerCognito')
   async registerCognito(@Body() registerRequest: RegisterRequestDto) {
+    return await this.authService.registerCognito(registerRequest);
     try {
-      return await this.authService.registerCognito(registerRequest);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
@@ -99,8 +99,8 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async verifyUser(@Body('email') email: string, @Body('verificationCode') verificationCode: string): Promise<any> {
+    return await this.authService.verifyUser(email, verificationCode);
     try {
-      return await this.authService.verifyUser(email, verificationCode);
     } catch (error) {
       throw new BadRequestException(error.message);
     }

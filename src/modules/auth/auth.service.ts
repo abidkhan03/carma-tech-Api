@@ -71,20 +71,16 @@ export class AuthService {
       await this.sendSnsNotification(`Passwords do not match`);
       throw new ConflictException('Passwords do not match');
     }
-    let attributeList = [];
-    attributeList.push(new CognitoUserAttribute({ Name: 'email', Value: email }))
-    attributeList.push(new CognitoUserAttribute({ Name: 'name', Value: name }))
-    attributeList.push(new CognitoUserAttribute({ Name: 'custom:passwordConfirmation', Value: passwordConfirmation }))
+    
     return new Promise((resolve, reject) => {
       return this.userPool.signUp(
         username,
         password,
-        attributeList,
-        // [
-        //   new CognitoUserAttribute({ Name: 'email', Value: email }),
-        //   new CognitoUserAttribute({ Name: 'name', Value: name }),
-        //   new CognitoUserAttribute({ Name: 'custom:passwordConfirmation', Value: passwordConfirmation }),
-        // ],
+        [
+          new CognitoUserAttribute({ Name: 'email', Value: email }),
+          new CognitoUserAttribute({ Name: 'name', Value: name }),
+          new CognitoUserAttribute({ Name: 'custom:passwordConfirmation', Value: passwordConfirmation }),
+        ],
         null,
         (err, result) => {
           if (!result) {
