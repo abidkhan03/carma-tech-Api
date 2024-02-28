@@ -106,6 +106,15 @@ export class AuthController {
     }
   }
 
+  @Post('authenticate')
+  async authenticate(@Body() authenticateRequest: SigninDto) {
+    try {
+      return await this.authService.authenticate(authenticateRequest);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
   @Post('forgotPassword')
   @ApiResponse({ status: 201, description: 'Successful Registration' })
   @ApiResponse({ status: 400, description: 'Bad Request' })

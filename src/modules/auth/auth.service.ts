@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { UsersService } from '@modules/user/user.service';
 import { User } from '@modules/user/user.entity';
 import { SigninDto } from '@modules/auth/dto/signin.dto';
-import { CognitoUserAttribute, CognitoUserPool, CognitoUser } from 'amazon-cognito-identity-js';
+import { CognitoUserAttribute, CognitoUserPool, CognitoUser, AuthenticationDetails, appendToCognitoUserAgent } from 'amazon-cognito-identity-js';
 import { RegisterRequestDto } from '@modules/auth/dto/register.dto';
 import { checkUserExists } from '@app/utils/helper.util';
 import { Logger } from '@aws-lambda-powertools/logger';
@@ -63,17 +63,28 @@ export class AuthService {
     const { name, email, username, password, passwordConfirmation } = authRegisterRequest;
     const userExists = await checkUserExists(authRegisterRequest.email);
     if (userExists.length > 0) {
+      await this.sendSnsNotification(`User ${email} already exists`);
       throw new ConflictException('User email already exists');
     }
+    // Check if password and confirm password match
+    if (password !== passwordConfirmation) {
+      await this.sendSnsNotification(`Passwords do not match`);
+      throw new ConflictException('Passwords do not match');
+    }
+    let attributeList = [];
+    attributeList.push(new CognitoUserAttribute({ Name: 'email', Value: email }))
+    attributeList.push(new CognitoUserAttribute({ Name: 'name', Value: name }))
+    attributeList.push(new CognitoUserAttribute({ Name: 'custom:passwordConfirmation', Value: passwordConfirmation }))
     return new Promise((resolve, reject) => {
       return this.userPool.signUp(
         username,
         password,
-        [
-          new CognitoUserAttribute({ Name: 'email', Value: email }),
-          new CognitoUserAttribute({ Name: 'name', Value: name }),
-          new CognitoUserAttribute({ Name: 'custom:passwordConfirmation', Value: passwordConfirmation }),
-        ],
+        attributeList,
+        // [
+        //   new CognitoUserAttribute({ Name: 'email', Value: email }),
+        //   new CognitoUserAttribute({ Name: 'name', Value: name }),
+        //   new CognitoUserAttribute({ Name: 'custom:passwordConfirmation', Value: passwordConfirmation }),
+        // ],
         null,
         (err, result) => {
           if (!result) {
@@ -99,6 +110,30 @@ export class AuthService {
               resolve(result);
             }
           })
+    });
+  }
+
+  // Authenticate user (signin)
+  async authenticate(user: SigninDto) {
+    const { email, password } = user;
+    const authenticationDetails = new AuthenticationDetails({
+      Username: email,
+      Password: password,
+    });
+    const userData = {
+      Username: email,
+      Pool: this.userPool,
+    };
+    const newUser = new CognitoUser(userData);
+    return new Promise((resolve, reject) => {
+      return newUser.authenticateUser(authenticationDetails, {
+        onSuccess: (result) => {
+          resolve(result);
+        },
+        onFailure: (err) => {
+          reject(err);
+        },
+      });
     });
   }
 
