@@ -95,23 +95,6 @@ export class AuthService {
     });
   }
 
-
-  // Verify Signup with Cognito
-  async verifyUser(email: string, verificationCode: string) {
-    return new Promise((resolve, reject) => {
-      return new CognitoUser({ Username: email, Pool: this.userPool })
-        .confirmRegistration(verificationCode,
-          true,
-          (err, result) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(result);
-            }
-          })
-    });
-  }
-
   // Authenticate user (signin)
   async authenticate(user: SigninDto) {
     const { email, password } = user;
@@ -201,11 +184,11 @@ export class AuthService {
     }
   }
 
-  public async confirmSignUp(username: string, code: string) {
+  public async confirmSignUp(email: string, code: string) {
     try {
       const input = {
         ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
-        Username: username,
+        Username: email,
         ConfirmationCode: code,
         DeliveryMediumType: 'Email' || 'SMS'
       };
