@@ -16,6 +16,7 @@ import cognito, {
   CognitoIdentityProviderClient,
   SignUpCommand,
   ConfirmSignUpCommand,
+  ResendConfirmationCodeCommand,
   InitiateAuthCommand,
   DeliveryMediumType,
   ForgotPasswordCommand,
@@ -178,7 +179,6 @@ export class AuthService {
       return {
         message: message, details: awsError,
         httpStatusCode: awsError.$metadata.httpStatusCode,
-        SNS_Notification: snsNotification,
       };
 
     }
@@ -187,7 +187,7 @@ export class AuthService {
   public async confirmSignUp(email: string, confirmCode: string) {
     try {
       const input = {
-        ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
+        ClientId: this.configService.get<string>('COGNITO_USER_CLIENT_ID'),
         Username: email,
         ConfirmationCode: confirmCode,
         DeliveryMediumType: 'Email' || 'SMS'
@@ -222,6 +222,26 @@ export class AuthService {
       // Send SNS notification
       await this.sendSnsNotification(message);
       return { message: message, details: awsError };
+    }
+  }
+
+  async resendConfirmationCode(email: string) {
+    try {
+      const input = {
+        ClientId: this.configService.get<string>('COGNITO_USER_CLIENT_ID'),
+        Username: email,
+      };
+      const resendCommand = new ResendConfirmationCodeCommand(input);
+      const response = await this.cognitoIdentity.send(resendCommand);
+      return {
+        statusCode: response.$metadata.httpStatusCode,
+        message: 'Confirmation code resent successfully, please check your email',
+      };
+    } catch (error) {
+      return {
+        message: error.name,
+        statusCode: error.$metadata.httpStatusCode
+      }
     }
   }
 

@@ -95,6 +95,14 @@ export class AuthController {
     return await this.authService.confirmSignUp(email, confirmCode);
   }
 
+  @Post('resendCode')
+  @ApiResponse({ status: 201, description: 'Successful Registration' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async resendConfirmationCode(@Body() email: string): Promise<any> {
+    return await this.authService.resendConfirmationCode(email);
+  }
+
   @Post('authenticate')
   async authenticate(@Body() authenticateRequest: SigninDto) {
     try {
