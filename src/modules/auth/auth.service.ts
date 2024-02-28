@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { UsersService } from '@modules/user/user.service';
 import { User } from '@modules/user/user.entity';
 import { SigninDto } from '@modules/auth/dto/signin.dto';
-import { CognitoUserAttribute, CognitoUserPool } from 'amazon-cognito-identity-js';
+import { CognitoUserAttribute, CognitoUserPool, CognitoUser } from 'amazon-cognito-identity-js';
 import { RegisterRequestDto } from '@modules/auth/dto/register.dto';
 import { checkUserExists } from '@app/utils/helper.util';
 import { Logger } from '@aws-lambda-powertools/logger';
@@ -60,14 +60,19 @@ export class AuthService {
   }
 
   async registerCognito(authRegisterRequest: RegisterRequestDto) {
-    const { name, email, username, password } = authRegisterRequest;
+    const { name, email, username, password, passwordConfirmation } = authRegisterRequest;
+    const userExists = await checkUserExists(authRegisterRequest.email);
+    if (userExists.length > 0) {
+      throw new ConflictException('User email already exists');
+    }
     return new Promise((resolve, reject) => {
       return this.userPool.signUp(
-        name,
+        username,
         password,
         [
           new CognitoUserAttribute({ Name: 'email', Value: email }),
-          new CognitoUserAttribute({ Name: 'username', Value: username }),
+          new CognitoUserAttribute({ Name: 'name', Value: name }),
+          new CognitoUserAttribute({ Name: 'custom:passwordConfirmation', Value: passwordConfirmation }),
         ],
         null,
         (err, result) => {
@@ -78,6 +83,22 @@ export class AuthService {
           }
         },
       );
+    });
+  }
+
+  // Verify Signup with Cognito
+  async verifyUser(email: string, verificationCode: string) {
+    return new Promise((resolve, reject) => {
+      return new CognitoUser({ Username: email, Pool: this.userPool })
+        .confirmRegistration(verificationCode,
+          true,
+          (err, result) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(result);
+            }
+          })
     });
   }
 
@@ -187,10 +208,10 @@ export class AuthService {
     }
   }
 
-  public async forgotPassword(email: string) {
+  public async forgotPassword(email: RegisterRequestDto['email']) {
     try {
       const input = {
-        ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
+        ClientId: this.configService.get<string>('COGNITO_USER_CLIENT_ID'),
         Username: email,
       }
       this.logger.info(`input: ${JSON.stringify(input)}`);

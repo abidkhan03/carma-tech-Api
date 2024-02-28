@@ -94,11 +94,23 @@ export class AuthController {
     return await this.authService.confirmSignUp(username, confirmCode);
   }
 
+  @Post('verifyRegister')
+  @ApiResponse({ status: 201, description: 'Successful Registration' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async verifyUser(@Body('email') email: string, @Body('verificationCode') verificationCode: string): Promise<any> {
+    try {
+      return await this.authService.verifyUser(email, verificationCode);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
   @Post('forgotPassword')
   @ApiResponse({ status: 201, description: 'Successful Registration' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async forgotPassword(@Body() email: string): Promise<any> {
+  async forgotPassword(@Body() email: RegisterRequestDto['email']): Promise<any> {
     return await this.authService.forgotPassword(email);
   }
 
