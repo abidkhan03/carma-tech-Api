@@ -64,7 +64,7 @@ export class AuthService {
     const { name, email, username, password } = authRegisterRequest;
 
     // Check if user already exists
-    const userExists = await checkUserExists(email);
+    const userExists = await checkUserExists(email, username);
     if (userExists) {
       throw new ConflictException('User email already exists');
     }
@@ -122,9 +122,9 @@ export class AuthService {
 
   public async registerUser(registerDto: RegisterRequestDto) {
     // check if user exists in cognito
-    const userExists = await checkUserExists(registerDto.email);
+    const userExists = await checkUserExists(registerDto.email, registerDto.username);
     if (userExists.length > 0) {
-      throw new ConflictException('User email already exists');
+      throw new ConflictException('User already exists');
     }
     // check if password and password confirmation match
 
@@ -158,9 +158,6 @@ export class AuthService {
       const awsError = error as AWSError;
       let message: string;
       switch (awsError.name) {
-        case 'UsernameExistsException':
-          message = 'User already exists.';
-          break;
         case 'InvalidParameterException':
           message = `Invalid parameters provided ${awsError.message}`;
           break;
@@ -174,7 +171,6 @@ export class AuthService {
           break;
       }
       // Send SNS notification
-      const snsNotification = this.logger.info(`SNS topic ARN in Reg Service: ${this.configService.get('SNS_TOPIC_ARN')}`);
       await this.sendSnsNotification(message);
       return {
         message: message, details: awsError,
