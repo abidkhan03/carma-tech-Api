@@ -141,7 +141,7 @@ export class AuthService {
     try {
       const input = {
         ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
-        Username: registerDto.username || registerDto.email,
+        Username: registerDto.email,
         Password: registerDto.password,
         UserAttributes: attributes,
         ValidationData: attributes,
@@ -184,12 +184,12 @@ export class AuthService {
     }
   }
 
-  public async confirmSignUp(email: string, code: string) {
+  public async confirmSignUp(email: string, confirmCode: string) {
     try {
       const input = {
         ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
         Username: email,
-        ConfirmationCode: code,
+        ConfirmationCode: confirmCode,
         DeliveryMediumType: 'Email' || 'SMS'
       };
       const confirmSignUpCommand = new ConfirmSignUpCommand(input);
