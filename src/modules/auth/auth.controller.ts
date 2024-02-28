@@ -94,6 +94,22 @@ export class AuthController {
     return await this.authService.confirmSignUp(username, confirmCode);
   }
 
+  @Post('forgotPassword')
+  @ApiResponse({ status: 201, description: 'Successful Registration' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async forgotPassword(@Body() email: string): Promise<any> {
+    return await this.authService.forgotPassword(email);
+  }
+
+  @Post('confirmForgotPassword')
+  @ApiResponse({ status: 201, description: 'Successful Registration' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async confirmForgotPassword(@Body('email') email: string, @Body('confirmCode') confirmCode: string, @Body('password') password: string): Promise<any> {
+    return await this.authService.confirmForgotPassword(email, confirmCode, password);
+  }
+
   @Post('signup')
   @ApiResponse({ status: 201, description: 'Successful Registration' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
@@ -171,22 +187,6 @@ export class AuthController {
       this.logger.error(`Error invoking CreateUserLambda: ${error.message}`);
       throw new ConflictException(`Failed to invoke CreateUserLambda: ${error.message}`);
     }
-  }
-
-  @Post('forgotPassword')
-  @ApiResponse({ status: 201, description: 'Successful Registration' })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async forgotPassword(@Body() email: string): Promise<any> {
-    return await this.authService.forgotPassword(email);
-  }
-
-  @Post('confirmForgotPassword')
-  @ApiResponse({ status: 201, description: 'Successful Registration' })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async confirmForgotPassword(@Body('email') email: string, @Body('confirmCode') confirmCode: string, @Body('password') password: string): Promise<any> {
-    return await this.authService.confirmForgotPassword(email, confirmCode, password);
   }
 
   @ApiBearerAuth()

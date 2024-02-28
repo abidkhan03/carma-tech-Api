@@ -60,12 +60,15 @@ export class AuthService {
   }
 
   async registerCognito(authRegisterRequest: RegisterRequestDto) {
-    const { name, email, password } = authRegisterRequest;
+    const { name, email, username, password } = authRegisterRequest;
     return new Promise((resolve, reject) => {
       return this.userPool.signUp(
         name,
         password,
-        [new CognitoUserAttribute({ Name: 'email', Value: email })],
+        [
+          new CognitoUserAttribute({ Name: 'email', Value: email }),
+          new CognitoUserAttribute({ Name: 'username', Value: username }),
+        ],
         null,
         (err, result) => {
           if (!result) {
@@ -184,16 +187,18 @@ export class AuthService {
     }
   }
 
-  async forgotPassword(email: string) {
+  public async forgotPassword(email: string) {
     try {
       const input = {
         ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
         Username: email,
-        DeliveryMediumType: 'Email' || 'SMS',
       }
+      this.logger.info(`input: ${JSON.stringify(input)}`);
 
       const forgotCommand = new ForgotPasswordCommand(input);
+      this.logger.info(`forgotCommand: ${JSON.stringify(forgotCommand)}`);
       const response = await this.cognitoIdentity.send(forgotCommand);
+      this.logger.info(`response: ${JSON.stringify(response)}`);
       return {
         statusCode: response.$metadata.httpStatusCode,
         message: 'Password reset link sent successfully',
@@ -213,6 +218,8 @@ export class AuthService {
           message = `An unexpected error occurred ${awsError.message}`;
           break;
       }
+      this.logger.error(`awsError: ${JSON.stringify(awsError)}`);
+      // Send SNS notification
       await this.sendSnsNotification(message);
       return { message: message, details: awsError };
     }
