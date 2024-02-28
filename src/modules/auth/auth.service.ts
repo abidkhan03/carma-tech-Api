@@ -61,19 +61,21 @@ export class AuthService {
 
   async registerCognito(authRegisterRequest: RegisterRequestDto) {
     const { name, email, username, password, passwordConfirmation } = authRegisterRequest;
-    const userExists = await checkUserExists(authRegisterRequest.email);
-    if (userExists.length > 0) {
-      await this.sendSnsNotification(`User ${email} already exists`);
+
+    // Check if user already exists
+    const userExists = await checkUserExists(email);
+    if (userExists) {
       throw new ConflictException('User email already exists');
     }
+
     // Check if password and confirm password match
     if (password !== passwordConfirmation) {
-      await this.sendSnsNotification(`Passwords do not match`);
       throw new ConflictException('Passwords do not match');
     }
-    
+
+    // Attempt to register the user in Cognito
     return new Promise((resolve, reject) => {
-      return this.userPool.signUp(
+      this.userPool.signUp(
         username,
         password,
         [
@@ -81,9 +83,9 @@ export class AuthService {
           new CognitoUserAttribute({ Name: 'name', Value: name }),
           new CognitoUserAttribute({ Name: 'custom:passwordConfirmation', Value: passwordConfirmation }),
         ],
-        null,
+        [],
         (err, result) => {
-          if (!result) {
+          if (err) {
             reject(err);
           } else {
             resolve(result.user);
@@ -92,6 +94,7 @@ export class AuthService {
       );
     });
   }
+
 
   // Verify Signup with Cognito
   async verifyUser(email: string, verificationCode: string) {

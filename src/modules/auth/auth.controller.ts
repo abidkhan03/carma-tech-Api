@@ -71,9 +71,11 @@ export class AuthController {
 
   @Post('registerCognito')
   async registerCognito(@Body() registerRequest: RegisterRequestDto) {
-    return await this.authService.registerCognito(registerRequest);
     try {
+      return await this.authService.registerCognito(registerRequest);
     } catch (e) {
+      await this.snsNotification.sendSnsNotification(e.message);
+      this.logger.error(e.message);
       throw new BadRequestException(e.message);
     }
   }
