@@ -142,7 +142,7 @@ export class AuthService {
     try {
       const input = {
         ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
-        Username: registerDto.email,
+        Username: registerDto.username,
         Password: registerDto.password,
         UserAttributes: attributes,
         ValidationData: attributes,
