@@ -158,6 +158,9 @@ export class AuthService {
       const awsError = error as AWSError;
       let message: string;
       switch (awsError.name) {
+        case 'UsernameExistsException':
+          message = 'User already exists.';
+          break;
         case 'InvalidParameterException':
           message = `Invalid parameters provided ${awsError.message}`;
           break;
@@ -171,10 +174,10 @@ export class AuthService {
           break;
       }
       // Send SNS notification
-      await this.sendSnsNotification(message);
+      // await this.sendSnsNotification(message);
       return {
-        message: message, details: awsError,
-        httpStatusCode: awsError.$metadata.httpStatusCode,
+        message: message,
+        statusCode: awsError.$metadata.httpStatusCode,
       };
 
     }
