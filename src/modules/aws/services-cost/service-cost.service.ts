@@ -3,6 +3,7 @@ import { CostExplorerClient, Dimension, GetCostAndUsageCommand, GroupDefinitionT
 import { Injectable } from "@nestjs/common";
 import { join } from "path";
 import * as fs from 'fs';
+import { ConfigService } from "@nestjs/config";
 
 
 @Injectable()
@@ -10,8 +11,8 @@ export class ServiceCostService {
     private readonly logger = new Logger();
     private readonly costExplorerClient: CostExplorerClient;
 
-    constructor() {
-        this.costExplorerClient = new CostExplorerClient({ region: 'us-east-2' });
+    constructor(private readonly configService: ConfigService) {
+        this.costExplorerClient = new CostExplorerClient({ region: this.configService.get<string>('REGION') });
     }
 
     async getCostAndUsage(start: string, end: string, granularity: "DAILY" | "HOURLY" | "MONTHLY", format?: string): Promise<any> {

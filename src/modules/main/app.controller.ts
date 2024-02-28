@@ -28,14 +28,15 @@ export class AppController {
   @Render('config') // this is the config.ejs template. Omit .ejs when rendering
   getConfig() {
     return { 
-      jwt_expiration_time: this.configService.get('JWT_EXPIRATION_TIME'),
-      cognito_user_mgmt_lambda: this.configService.get('COGNITO_USER_MGMT_LAMBDA'),
-      user_pool_id: this.configService.get('USER_POOL_ID'),
-      cognito_user_client_id: this.configService.get('COGNITO_USER_CLIENT_ID'),
-      translator_lambda_name: this.configService.get('TRANSLATOR_LAMBDA_NAME'),
-      identity_pool_id: this.configService.get('IDENTITY_POOL_ID'),
-      sns_topic_name: this.configService.get('SNS_TOPIC_NAME'),
-      sns_topic_arn: this.configService.get('SNS_TOPIC_ARN'),
+      jwt_expiration_time: this.configService.get<string>('JWT_EXPIRATION_TIME'),
+      cognito_user_mgmt_lambda: this.configService.get<string>('COGNITO_USER_MGMT_LAMBDA'),
+      user_pool_id: this.configService.get<string>('USER_POOL_ID'),
+      cognito_user_client_id: this.configService.get<string>('COGNITO_USER_CLIENT_ID'),
+      translator_lambda_name: this.configService.get<string>('TRANSLATOR_LAMBDA_NAME'),
+      identity_pool_id: this.configService.get<string>('IDENTITY_POOL_ID'),
+      sns_topic_name: this.configService.get<string>('SNS_TOPIC_NAME'),
+      sns_topic_arn: this.configService.get<string>('SNS_TOPIC_ARN'),
+      region: this.configService.get<string>('REGION'),
     };
   }
 
@@ -43,8 +44,9 @@ export class AppController {
   @Render('translator')  // renders the translator.ejs file
   getTranslator() {
     return {
-      lambdaFunctionName: this.configService.get('TRANSLATOR_LAMBDA_NAME'),
-      identityPoolId: this.configService.get('IDENTITY_POOL_ID')
+      lambdaFunctionName: this.configService.get<string>('TRANSLATOR_LAMBDA_NAME'),
+      identityPoolId: this.configService.get<string>('IDENTITY_POOL_ID'),
+      region: this.configService.get<string>('REGION'),
     };
   }
 

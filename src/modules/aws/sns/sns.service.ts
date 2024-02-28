@@ -16,13 +16,13 @@ export class SnsService {
   private snsTopicArn: string;
 
   constructor( private readonly configService: ConfigService ) {
-    this.sns = new SNSClient({ region: 'us-east-2' });
-    this.costExplorerClient = new CostExplorerClient({ region: 'us-east-2' });
-    this.snsTopicArn = this.configService.get('SNS_TOPIC_ARN');
+    this.sns = new SNSClient({ region: this.configService.get<string>('REGION') });
+    this.costExplorerClient = new CostExplorerClient({ region: this.configService.get<string>('REGION') });
+    this.snsTopicArn = this.configService.get<string>('SNS_TOPIC_ARN');
   }
 
   confirmSubscription(topicArn: string, token: string): Promise<string> {
-    topicArn = this.configService.get('SNS_TOPIC_ARN');
+    topicArn = this.configService.get<string>('SNS_TOPIC_ARN');
     console.log(`TOPIC ARN: ${topicArn}`);
     
     return new Promise((resolve, reject) => {

@@ -36,11 +36,11 @@ export class AuthService {
     private readonly userService: UsersService,
   ) {
     this.userPool = new CognitoUserPool({
-      UserPoolId: this.configService.get('USER_POOL_ID'),
-      ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
+      UserPoolId: this.configService.get<string>('USER_POOL_ID'),
+      ClientId: this.configService.get<string>('COGNITO_USER_CLIENT_ID'),
     });
-    this.cognitoIdentity = new CognitoIdentityProviderClient({ region: 'us-east-2' });
-    this.snsTopicArn = this.configService.get('SNS_TOPIC_ARN');
+    this.cognitoIdentity = new CognitoIdentityProviderClient({ region: this.configService.get<string>('REGION') });
+    this.snsTopicArn = this.configService.get<string>('SNS_TOPIC_ARN');
   }
 
   async sendSnsNotification(message: string) {

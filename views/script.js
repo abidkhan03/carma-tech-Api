@@ -3,7 +3,7 @@ lambdaFunctionName = "<%= lambdaFunctionName %>"
         console.log('lambda function name: ', lambdaFunctionName)
         console.log('identity pool id: ', identityPoolId)
 
-        AWS.config.region = 'us-east-2';
+        AWS.config.region = "<%= region %>";
         AWS.config.credentials = new AWS.CognitoIdentityCredentials({
             IdentityPoolId: identityPoolId,
         });

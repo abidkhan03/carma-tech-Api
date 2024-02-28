@@ -17,7 +17,7 @@ export class SnsController {
         private readonly configService: ConfigService,
         private readonly snsService: SnsService,
     ) {
-        this.snsClient = new SNSClient({ region: 'us-east-2' });
+        this.snsClient = new SNSClient({ region: this.configService.get<string>('REGION') });
     }
 
     @Post()
