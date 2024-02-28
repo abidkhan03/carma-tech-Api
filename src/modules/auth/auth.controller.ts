@@ -138,7 +138,7 @@ export class AuthController {
       if (existingUser.email === signupDto.email && existingUser.phone === signupDto.phone) {
         try {
           this.logger.error("Error sending test SNS message: User with provided email and phone number already exist");
-          await this.snsNotification.sendSnsNotification("Test message to verify SNS functionality");
+          // await this.snsNotification.sendSnsNotification("Test message to verify SNS functionality");
         } catch (error) {
           this.logger.error("Error sending test SNS message:", error);
         }
@@ -148,7 +148,7 @@ export class AuthController {
       } else if (existingUser.email === signupDto.email) {
         try {
           this.logger.info("Error Sending SNS Message: User with provided email already exists");
-          await this.snsNotification.sendSnsNotification("Test message to verify SNS functionality");
+          // await this.snsNotification.sendSnsNotification("Test message to verify SNS functionality");
         } catch (error) {
           this.logger.error("Error sending test SNS message:", error);
         }

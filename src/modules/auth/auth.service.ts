@@ -44,21 +44,21 @@ export class AuthService {
     this.snsTopicArn = this.configService.get<string>('SNS_TOPIC_ARN');
   }
 
-  async sendSnsNotification(message: string) {
-    this.logger.info(`SNS notification message: ${message}`);
-    try {
-      const command = new PublishCommand({
-        TopicArn: this.snsTopicArn,
-        Message: message,
-        Subject: "Cognito User Management Error",
-      });
-      console.log(`Command: ${JSON.stringify(command)}`);
-      await this.snsNotification.send(command);
-    } catch (error) {
-      this.logger.error("Failed to send SNS notification", error);
-      throw error;
-    }
-  }
+  // async sendSnsNotification(message: string) {
+  //   this.logger.info(`SNS notification message: ${message}`);
+  //   try {
+  //     const command = new PublishCommand({
+  //       TopicArn: this.snsTopicArn,
+  //       Message: message,
+  //       Subject: "Cognito User Management Error",
+  //     });
+  //     console.log(`Command: ${JSON.stringify(command)}`);
+  //     await this.snsNotification.send(command);
+  //   } catch (error) {
+  //     this.logger.error("Failed to send SNS notification", error);
+  //     throw error;
+  //   }
+  // }
 
   async registerCognito(authRegisterRequest: RegisterRequestDto) {
     const { name, email, username, password } = authRegisterRequest;
@@ -219,7 +219,7 @@ export class AuthService {
           break;
       }
       // Send SNS notification
-      await this.sendSnsNotification(message);
+      // await this.sendSnsNotification(message);
       return { message: message, details: awsError };
     }
   }
@@ -279,7 +279,7 @@ export class AuthService {
       }
       this.logger.error(`awsError: ${JSON.stringify(awsError)}`);
       // Send SNS notification
-      await this.sendSnsNotification(message);
+      // await this.sendSnsNotification(message);
       return { message: message, details: awsError };
     }
   }
@@ -322,7 +322,7 @@ export class AuthService {
           break;
       }
       // Send SNS notification
-      await this.sendSnsNotification(message);
+      // await this.sendSnsNotification(message);
       return { message: message, details: awsError }
     }
   }
