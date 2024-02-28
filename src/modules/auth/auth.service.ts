@@ -238,9 +238,11 @@ export class AuthService {
         message: 'Confirmation code resent successfully, please check your email',
       };
     } catch (error) {
+      const awsError = error as AWSError;
+      this.logger.error(`awsError: ${JSON.stringify(awsError)}`);
       return {
-        message: error.name,
-        statusCode: error.$metadata.httpStatusCode
+        message: awsError.name,
+        statusCode: awsError.$metadata.httpStatusCode
       }
     }
   }
