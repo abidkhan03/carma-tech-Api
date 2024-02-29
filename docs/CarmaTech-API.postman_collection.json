@@ -1,0 +1,545 @@
+{
+	"info": {
+		"_postman_id": "aba5915a-6123-45d6-b27c-6ce7d2934abd",
+		"name": "CarmaTech-API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29010469"
+	},
+	"item": [
+		{
+			"name": "Beanstalk",
+			"item": [
+				{
+					"name": "UsersCount",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://nest-application-env.eba-mnhrpmnd.us-east-2.elasticbeanstalk.com/api/users/count",
+							"protocol": "http",
+							"host": [
+								"nest-application-env",
+								"eba-mnhrpmnd",
+								"us-east-2",
+								"elasticbeanstalk",
+								"com"
+							],
+							"path": [
+								"api",
+								"users",
+								"count"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SignIn",
+					"request": {
+						"method": "POST",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "SignUp",
+					"request": {
+						"method": "POST",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cognito-UserPool",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"Abid\",\n    \"lastName\": \"Khan\",\n    \"email\": \"test112233@gmail.com\",\n    \"password\": \"test@1122\",\n    \"passwordConfirmation\": \"test@1122\" \n}"
+						},
+						"url": {
+							"raw": "https://qxoto6sl66.execute-api.us-east-2.amazonaws.com/prod/api/auth/register",
+							"protocol": "https",
+							"host": [
+								"qxoto6sl66",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"api",
+								"auth",
+								"register"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "testuser223fg3@gmail.com",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"khalidkhan\",\n    \"email\": \"cashforcars502@gmail.com\",\n    \"username\": \"khalid444\",\n    \"password\": \"Passwd#11\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://hq8pxaa6jf.execute-api.ap-south-1.amazonaws.com/prod/api/auth/register",
+							"protocol": "https",
+							"host": [
+								"hq8pxaa6jf",
+								"execute-api",
+								"ap-south-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Signin Incognito User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"testingcarma@gmail.com\",\n    \"password\": \"Webilog&77\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://hq8pxaa6jf.execute-api.ap-south-1.amazonaws.com/prod/api/auth/authSignin",
+							"protocol": "https",
+							"host": [
+								"hq8pxaa6jf",
+								"execute-api",
+								"ap-south-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"api",
+								"auth",
+								"authSignin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register Incognito User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"ehtisham\",\n    \"username\": \"shami9900\",\n    \"email\": \"shami4321235@gmail.com\",\n    \"password\": \"Password&77\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://hq8pxaa6jf.execute-api.ap-south-1.amazonaws.com/prod/api/auth/register",
+							"protocol": "https",
+							"host": [
+								"hq8pxaa6jf",
+								"execute-api",
+								"ap-south-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Incognito User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"shami9900\",\n    \"confirmCode\": \"819821\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://x0j0q45y0g.execute-api.us-east-2.amazonaws.com/prod/api/auth/confirmSignup",
+							"protocol": "https",
+							"host": [
+								"x0j0q45y0g",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"api",
+								"auth",
+								"confirmSignup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Resend Confirmation Code",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"webilogics8@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://hq8pxaa6jf.execute-api.ap-south-1.amazonaws.com/prod/api/auth/resendCode",
+							"protocol": "https",
+							"host": [
+								"hq8pxaa6jf",
+								"execute-api",
+								"ap-south-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"api",
+								"auth",
+								"resendCode"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "SignIn",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzA5MTIwNzcxLCJleHAiOjE3MDkxMjQzNzF9.shcC4CCdOgScBNekJKEWw4eQapLL5KTSHIR7woQTHKw",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"snstest@gmail.com\",\n    \"password\": \"joshn1122\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://hq8pxaa6jf.execute-api.ap-south-1.amazonaws.com/prod/api/auth/signin",
+							"protocol": "https",
+							"host": [
+								"hq8pxaa6jf",
+								"execute-api",
+								"ap-south-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"api",
+								"auth",
+								"signin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SingUp",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"test\",\n    \"lastName\": \"user\",\n    \"email\": \"translator@yahoo.com\",\n    \"phone\": \"+923145698743\",\n    \"password\": \"joshn1122\",\n    \"passwordConfirmation\": \"joshn1122\",\n    \"external_identity_id\": \"1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://t43qwbs3a9.execute-api.us-east-2.amazonaws.com/prod/api/auth/signup",
+							"protocol": "https",
+							"host": [
+								"t43qwbs3a9",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"api",
+								"auth",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CountUsers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://t43qwbs3a9.execute-api.us-east-2.amazonaws.com/prod/api/users/count",
+							"protocol": "https",
+							"host": [
+								"t43qwbs3a9",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"api",
+								"users",
+								"count"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://t43qwbs3a9.execute-api.us-east-2.amazonaws.com/prod/api/users/all",
+							"protocol": "https",
+							"host": [
+								"t43qwbs3a9",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"api",
+								"users",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete All Users",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://ami93mk7e6.execute-api.us-east-2.amazonaws.com/prod/api/users/delete",
+							"protocol": "https",
+							"host": [
+								"ami93mk7e6",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"api",
+								"users",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SNS API",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"Type\": \"SubscriptionConfirmation\",\n    \"SubscribeURL\": \"https://hq8pxaa6jf.execute-api.ap-south-1.amazonaws.com/prod/sns-confirmation\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://hq8pxaa6jf.execute-api.ap-south-1.amazonaws.com/prod/sns-confirm",
+					"protocol": "https",
+					"host": [
+						"hq8pxaa6jf",
+						"execute-api",
+						"ap-south-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"prod",
+						"sns-confirm"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Cost",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://5iqmr53on4.execute-api.us-east-2.amazonaws.com/prod/sns-confirm/infra-cost",
+					"protocol": "https",
+					"host": [
+						"5iqmr53on4",
+						"execute-api",
+						"us-east-2",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"prod",
+						"sns-confirm",
+						"infra-cost"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Infra Cost",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "text/html",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://5iqmr53on4.execute-api.us-east-2.amazonaws.com/prod/services-cost/infra-cost",
+					"protocol": "https",
+					"host": [
+						"5iqmr53on4",
+						"execute-api",
+						"us-east-2",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"prod",
+						"services-cost",
+						"infra-cost"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
