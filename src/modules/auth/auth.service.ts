@@ -266,7 +266,6 @@ export class AuthService {
     } catch (error) {
       this.logger.error(`Error message: ${error.message}`);
       const awsError = error as AWSError;
-      this.logger.error(`awsError: ${JSON.stringify(awsError)}`);
       // Send SNS notification
       // await this.sendSnsNotification(message);
       return { message: awsError.message, statusCode: awsError.$metadata.httpStatusCode };
