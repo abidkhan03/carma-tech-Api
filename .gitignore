@@ -1,6 +1,7 @@
 # dependencies
 node_modules/
 bin/
+__pychache__
 
 # IDE
 /.vscode
