@@ -143,7 +143,7 @@ export class AuthService {
     try {
       const input = {
         ClientId: this.configService.get('COGNITO_USER_CLIENT_ID'),
-        Username: registerDto.username,
+        Username: registerDto.username || registerDto.email,
         Password: registerDto.password,
         UserAttributes: attributes,
         ValidationData: attributes,
@@ -190,7 +190,7 @@ export class AuthService {
         ClientId: this.configService.get<string>('COGNITO_USER_CLIENT_ID'),
         Username: email,
         ConfirmationCode: confirmCode,
-        DeliveryMediumType: 'Email' || 'SMS'
+        DeliveryMediumType: 'Email'
       };
       const confirmSignUpCommand = new ConfirmSignUpCommand(input);
       const response = await this.cognitoIdentity.send(confirmSignUpCommand);
