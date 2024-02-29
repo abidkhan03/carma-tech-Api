@@ -21,6 +21,7 @@ import cognito, {
   DeliveryMediumType,
   ForgotPasswordCommand,
   ConfirmForgotPasswordCommand,
+  AuthFlowType,
 } from '@aws-sdk/client-cognito-identity-provider';
 import crypto from 'crypto';
 
@@ -242,6 +243,31 @@ export class AuthService {
       return {
         message: awsError.name,
         statusCode: awsError.$metadata.httpStatusCode
+      }
+    }
+  }
+
+  async authSignin(authenticateRequest: SigninDto) {
+    try {
+      const params = {
+        AuthFlow: AuthFlowType.USER_PASSWORD_AUTH,
+        ClientId: this.configService.get<string>('COGNITO_USER_CLIENT_ID'),
+        AuthParameters: {
+          USERNAME: authenticateRequest.email,
+          PASSWORD: authenticateRequest.password
+        },
+      };
+      const command = new InitiateAuthCommand(params);
+      const response = await this.cognitoIdentity.send(command);
+      return {
+        message: response,
+        statusCode: response.$metadata.httpStatusCode
+      };
+    } catch (error) {
+      this.logger.error(error.message);
+      return {
+        message: error.name,
+        statusCode: error.$metadata.httpStatusCode
       }
     }
   }

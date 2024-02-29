@@ -103,10 +103,12 @@ export class AuthController {
     return await this.authService.resendConfirmationCode(email);
   }
 
-  @Post('authenticate')
-  async authenticate(@Body() authenticateRequest: SigninDto) {
+  @Post('authSignin')
+  @ApiResponse({ status: 200, description: 'Successful Response' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async authSignin(@Body() authenticateRequest: SigninDto) {
+    return await this.authService.authSignin(authenticateRequest);
     try {
-      return await this.authService.authenticate(authenticateRequest);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
