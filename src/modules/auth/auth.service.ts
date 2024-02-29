@@ -246,13 +246,13 @@ export class AuthService {
     }
   }
 
-  public async forgotPassword(email: RegisterRequestDto['email']) {
+  public async forgotPassword(email: string) {
     try {
       const input = {
         ClientId: this.configService.get<string>('COGNITO_USER_CLIENT_ID'),
         Username: email,
       }
-      this.logger.info(`input: ${JSON.stringify(input)}`);
+      this.logger.info(`ResendConfirmationCodeCommand input: ${JSON.stringify(input)}`);
 
       const forgotCommand = new ForgotPasswordCommand(input);
       this.logger.info(`forgotCommand: ${JSON.stringify(forgotCommand)}`);
@@ -264,23 +264,12 @@ export class AuthService {
       };
 
     } catch (error) {
+      this.logger.error(`Error message: ${error.message}`);
       const awsError = error as AWSError;
-      let message: string;
-      switch (awsError.name) {
-        case 'UserNotFoundException':
-          message = 'User not found.';
-          break;
-        case 'NotAuthorizedException':
-          message = 'Not authorized.';
-          break;
-        default:
-          message = `An unexpected error occurred ${awsError.message}`;
-          break;
-      }
       this.logger.error(`awsError: ${JSON.stringify(awsError)}`);
       // Send SNS notification
       // await this.sendSnsNotification(message);
-      return { message: message, details: awsError };
+      return { message: awsError.message, statusCode: awsError.$metadata.httpStatusCode };
     }
   }
 

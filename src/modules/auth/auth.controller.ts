@@ -116,7 +116,7 @@ export class AuthController {
   @ApiResponse({ status: 201, description: 'Successful Registration' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async forgotPassword(@Body() email: RegisterRequestDto['email']): Promise<any> {
+  async forgotPassword(@Body() email: string): Promise<any> {
     return await this.authService.forgotPassword(email);
   }
 
