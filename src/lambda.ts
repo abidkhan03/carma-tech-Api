@@ -23,16 +23,7 @@ async function bootstrap(): Promise<Handler> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   setupSwagger(app);
   app.enableCors({
-    origin: (origin, callback) => {
-      console.log(`Checking CORS for origin: ${origin}`);
-      if (isAllowedOrigin(origin)) {
-        console.log('Allowed CORS for:', origin);
-        callback(null, true);
-      } else {
-        console.log('Blocked CORS for:', origin);
-        callback(new Error('Not allowed by CORS'), false);
-      }
-    },
+    origin: ['https://nohs07gktc.execute-api.us-east-2.amazonaws.com/prod/', 'https://v7vpkpqjm2.execute-api.us-east-2.amazonaws.com/prod/params'],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     allowedHeaders: "Content-Type, Accept",
     preflightContinue: false,
