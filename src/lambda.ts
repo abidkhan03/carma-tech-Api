@@ -25,15 +25,24 @@ async function bootstrap(): Promise<Handler> {
   app.enableCors({
     origin: (origin, callback) => {
       console.log(`Checking CORS for origin: ${origin}`);
-      if (!origin || isAllowedOrigin(origin)) {
+      if (isAllowedOrigin(origin)) {
         console.log('Allowed CORS for:', origin);
         callback(null, true);
       } else {
         console.log('Blocked CORS for:', origin);
         callback(new Error('Not allowed by CORS'), false);
       }
-    }
+    },
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+    allowedHeaders: "Content-Type, Accept",
+    preflightContinue: false,
+    optionsSuccessStatus: 204 // Some legacy browsers (IE11, various SmartTVs) choke on 204
   });
+
+  app.use((req: any, res: any, next: any) => {
+    res.header('access-control-allow-origin', '*');
+    next();
+  })
   app.useGlobalPipes(
     new TrimStringsPipe(),
     new ValidationPipe({ whitelist: true }),
