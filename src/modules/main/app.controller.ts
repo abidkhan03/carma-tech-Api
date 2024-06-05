@@ -51,4 +51,13 @@ export class AppController {
     };
   }
 
+  @Get('ssm-parameters')
+  @Render('ssm-parameters') // renders the ssm-parameters.ejs file
+  createOrUpdateParams() {
+    return {
+      school_api: this.configService.get<string>('DAILY_SCHOOL_FOOD_API_URL'),
+      region: this.configService.get<string>('REGION'),
+    }
+  }
+
 }
