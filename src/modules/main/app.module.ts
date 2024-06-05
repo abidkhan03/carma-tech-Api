@@ -18,9 +18,11 @@ import { User } from '@modules/user/user.entity';
 // TypeDorm table
 import { ddbGlobalTable } from '@app/ddbTable';
 import { AwsModule } from '@modules/aws/aws.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
+    HttpModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
