@@ -37,6 +37,7 @@ export class AppController {
       sns_topic_name: this.configService.get<string>('SNS_TOPIC_NAME'),
       sns_topic_arn: this.configService.get<string>('SNS_TOPIC_ARN'),
       region: this.configService.get<string>('REGION'),
+      school_api: this.configService.get<string>('DAILY_SCHOOL_FOOD_API_URL'),
     };
   }
 
