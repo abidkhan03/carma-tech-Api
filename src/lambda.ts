@@ -27,7 +27,6 @@ async function bootstrap(): Promise<Handler> {
     origin: true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     allowedHeaders: 'Content-Type, Authorization, X-Requested-With, Accept',
-    credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204 // Some legacy browsers (IE11, various SmartTVs) choke on 204
   });

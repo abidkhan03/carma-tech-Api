@@ -71,7 +71,8 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(params)
+                body: JSON.stringify(params),
+                mode: 'cors',
             })
             .then(response => response.json())
             .then(data => alert('Parameters updated successfully!'))
