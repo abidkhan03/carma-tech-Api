@@ -14,19 +14,32 @@ import { join } from 'path';
 //Declare a ReplaySubject to store the serverlessExpress instance.
 const serverSubject = new ReplaySubject<Handler>()
 
+function isAllowedOrigin(origin: string): boolean {
+  const lambdaUrlPattern = /^https:\/\/[a-z0-9]+\.execute-api\.[a-z0-9-]+\.amazonaws\.com\/.*$/;
+  return lambdaUrlPattern.test(origin);
+}
+
 async function bootstrap(): Promise<Handler> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   setupSwagger(app);
-  app.enableCors();
+  app.enableCors({
+    origin: (origin, callback) => {
+      if (origin && isAllowedOrigin(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    }
+  });
   app.useGlobalPipes(
     new TrimStringsPipe(),
     new ValidationPipe({ whitelist: true }),
   );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
-   // Set view engine
-   app.setViewEngine('ejs');
-   app.setBaseViewsDir(join(__dirname, '..', 'views'));
+  // Set view engine
+  app.setViewEngine('ejs');
+  app.setBaseViewsDir(join(__dirname, '..', 'views'));
 
   await app.init();
   const expressApp = app.getHttpAdapter().getInstance();
@@ -39,9 +52,9 @@ bootstrap().then(server => serverSubject.next(server))
 
 
 export const handler: Handler = async (event: any, context: Context, callback: Callback) => {
-    //Convert the ReplaySubject to a Promise.
-    //Wait for bootstrap to finish, then start handling requests.
-    const server = await firstValueFrom(serverSubject)
-    return server(event, context, callback);
+  //Convert the ReplaySubject to a Promise.
+  //Wait for bootstrap to finish, then start handling requests.
+  const server = await firstValueFrom(serverSubject)
+  return server(event, context, callback);
 };
 
