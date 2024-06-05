@@ -23,17 +23,14 @@ async function bootstrap(): Promise<Handler> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   setupSwagger(app);
   app.enableCors({
-    origin: ['https://nohs07gktc.execute-api.us-east-2.amazonaws.com/prod/', 'https://v7vpkpqjm2.execute-api.us-east-2.amazonaws.com/prod/params'],
+    // origin: ['https://nohs07gktc.execute-api.us-east-2.amazonaws.com/prod/', 'https://v7vpkpqjm2.execute-api.us-east-2.amazonaws.com/prod/params'],
+    origin: true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-    allowedHeaders: "Content-Type, Accept",
+    allowedHeaders: 'Content-Type, Authorization, X-Requested-With, Accept',
+    credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204 // Some legacy browsers (IE11, various SmartTVs) choke on 204
   });
-
-  app.use((req: any, res: any, next: any) => {
-    res.header('access-control-allow-origin', '*');
-    next();
-  })
   app.useGlobalPipes(
     new TrimStringsPipe(),
     new ValidationPipe({ whitelist: true }),
