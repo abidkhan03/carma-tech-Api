@@ -13,12 +13,26 @@ import { join } from 'path';
 
 //Declare a ReplaySubject to store the serverlessExpress instance.
 const serverSubject = new ReplaySubject<Handler>()
+const lambdaUrlPattern = /^https:\/\/[a-z0-9]+\.execute-api\.[a-z0-9-]+\.amazonaws\.com(\/prod|\/staging|\/dev)?\/?$/;
+
+function isAllowedOrigin(origin: string): boolean {
+  return lambdaUrlPattern.test(origin);
+}
 
 async function bootstrap(): Promise<Handler> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   setupSwagger(app);
   app.enableCors({
-    origin: ['/^https:\/\/[a-z0-9]+\.execute-api\.[a-z0-9-]+\.amazonaws\.com\/.*$/']
+    origin: (origin, callback) => {
+      console.log(`Checking CORS for origin: ${origin}`);
+      if (!origin || isAllowedOrigin(origin)) {
+        console.log('Allowed CORS for:', origin);
+        callback(null, true);
+      } else {
+        console.log('Blocked CORS for:', origin);
+        callback(new Error('Not allowed by CORS'), false);
+      }
+    }
   });
   app.useGlobalPipes(
     new TrimStringsPipe(),
