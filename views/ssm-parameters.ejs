@@ -38,13 +38,13 @@
 <body>
     <div class="container">
         <h1>Update SSM Parameters</h1>
-        <form id="paramsForm" action="<%= school_api %>params" method="POST">
+        <form id="paramsForm">
             <div class="param-group">
-                <input type="text" name="parameterName[]" placeholder="Parameter Name" required>
-                <input type="text" name="parameterValue[]" placeholder="Value" required>
+                <input type="text" name="parameterName" placeholder="Parameter Name" required>
+                <input type="text" name="parameterValue" placeholder="Value" required>
             </div>
             <button type="button" id="addParam">Add More Parameters</button>
-            <button type="submit">Submit</button>
+            <button type="button" id="submitBtn">Submit</button>
         </form>
     </div>
 
@@ -52,10 +52,30 @@
         document.getElementById('addParam').addEventListener('click', function() {
             var newParam = document.createElement('div');
             newParam.className = 'param-group';
-            newParam.innerHTML = '<input type="text" name="parameterName[]" placeholder="Parameter Name" required>' +
-                                 '<input type="text" name="parameterValue[]" placeholder="Value" required>';
+            newParam.innerHTML = '<input type="text" name="parameterName" placeholder="Parameter Name" required>' +
+                                 '<input type="text" name="parameterValue" placeholder="Value" required>';
             var form = document.getElementById('paramsForm');
             form.insertBefore(newParam, this);
+        });
+
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            const params = {};
+            document.querySelectorAll('.param-group').forEach(group => {
+                const key = group.querySelector('[name="parameterName"]').value;
+                const value = group.querySelector('[name="parameterValue"]').value;
+                params[key] = value;
+            });
+
+            fetch('<%= school_api %>params', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(params)
+            })
+            .then(response => response.json())
+            .then(data => alert('Parameters updated successfully!'))
+            .catch(error => alert('Error updating parameters: ' + error));
         });
     </script>
 </body>
