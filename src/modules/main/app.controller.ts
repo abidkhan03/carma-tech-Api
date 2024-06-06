@@ -106,7 +106,7 @@ export class AppController {
   }
 
   @Delete('ssm-params/:name')
-  async deleteParam(@Param('name') name: string) {
+  async deleteParam( name: string) {
     if (!name.trim()) {
       throw new HttpException(
         'Parameter name is required and cannot be empty.',
@@ -132,5 +132,6 @@ export class AppController {
       );
     }
   }
+
 }
 
