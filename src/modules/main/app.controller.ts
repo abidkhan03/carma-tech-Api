@@ -68,9 +68,21 @@ export class AppController {
   @Post('ssm-params')
   async createOrUpdateParams(@Body() params: Record<string, any>) {
     try {
+      if (Object.keys(params).length === 0) {
+        throw new HttpException(
+          'No parameters provided. Please enter at least one parameter name and value.',
+          HttpStatus.BAD_REQUEST
+        );
+      }
       // Iterate over the object keys and values to create/update parameters
       const results = [];
       for (const [key, value] of Object.entries(params)) {
+        if (!key.trim() || !value.trim()) {
+          throw new HttpException(
+            'Both name and value are required for each parameter. Please enter both.',
+            HttpStatus.BAD_REQUEST
+          );
+        }
         const input = {
           Name: key,
           Value: value,
@@ -82,10 +94,15 @@ export class AppController {
         console.log('Updated Parameter:', response);
         results.push({ key, response });
       }
-      return results;
-      // return { message: 'Parameters created or updated successfully' };
+      return {
+        message: 'Parameters created or updated successfully',
+        details: results
+      };
     } catch (error) {
-      throw new HttpException('Failed to create or update SSM parameters: ' + error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to create or update SSM parameters: ' +
+        error.message, HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 }
