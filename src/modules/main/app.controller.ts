@@ -5,16 +5,18 @@ import { Response } from 'express';
 import { join } from 'path';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
-import { lastValueFrom } from 'rxjs';
+import { SSMClient, PutParameterCommand, ParameterType } from "@aws-sdk/client-ssm";
 
 @Controller()
 @ApiTags('healthcheck')
 export class AppController {
+  private ssmClient: SSMClient;
   constructor(
     private readonly appService: AppService,
     private readonly configService: ConfigService,
-    private readonly httpService: HttpService,
-  ) { }
+  ) {
+    this.ssmClient = new SSMClient({ region: this.configService.get<string>('REGION') });
+  }
 
   @Get()
   root() {
@@ -65,16 +67,26 @@ export class AppController {
 
   @Post('ssm-params')
   async createOrUpdateParams(@Body() params: Record<string, any>) {
-    const apiUrl = this.configService.get<string>('DAILY_SCHOOL_FOOD_API_URL');
-    console.log('api url: ', apiUrl);
     try {
-      // Use lastValueFrom to convert the Observable to a Promise
-      const response = await lastValueFrom(this.httpService.post(apiUrl, params));
-      console.log('response data: ',response.data)
-      return response.data;
+      // Iterate over the object keys and values to create/update parameters
+      const results = [];
+      for (const [key, value] of Object.entries(params)) {
+        const input = {
+          Name: key,
+          Value: value,
+          Type: 'String' as ParameterType,
+          Overwrite: true,
+        };
+        const command = new PutParameterCommand(input);
+        const response = await this.ssmClient.send(command);
+        console.log('Updated Parameter:', response);
+        results.push({ key, response });
+      }
+      return results;
+      // return { message: 'Parameters created or updated successfully' };
     } catch (error) {
-      throw new HttpException('Failed to update parameters: ' + error.response?.data || error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Failed to create or update SSM parameters: ' + error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
 }
+
