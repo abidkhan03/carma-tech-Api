@@ -1,11 +1,11 @@
-import { Get, Controller, HttpStatus, Res, Render, Post, Body, HttpException } from '@nestjs/common';
+import { Get, Controller, HttpStatus, Res, Render, Post, Body, HttpException, Delete, Param } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AppService } from '@modules/main/app.service';
 import { Response } from 'express';
 import { join } from 'path';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
-import { SSMClient, PutParameterCommand, ParameterType } from "@aws-sdk/client-ssm";
+import { SSMClient, PutParameterCommand, ParameterType, DeleteParameterCommand } from "@aws-sdk/client-ssm";
 
 @Controller()
 @ApiTags('healthcheck')
@@ -96,12 +96,39 @@ export class AppController {
       return {
         statusCode: 200,
         message: 'Parameters created or updated successfully',
-        key: results.keys(),
       };
     } catch (error) {
       throw new HttpException(
-        'Failed to create or update SSM parameters: ' +
-        error.message, HttpStatus.INTERNAL_SERVER_ERROR
+        `Failed to create or update SSM parameters: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  @Delete('ssm-params/:name')
+  async deleteParam(@Param('name') name: string) {
+    if (!name.trim()) {
+      throw new HttpException(
+        'Parameter name is required and cannot be empty.',
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    const input = { Name: name };
+    const command = new DeleteParameterCommand(input);
+
+    try {
+      const response = await this.ssmClient.send(command);
+      return { message: 'Parameter deleted successfully', response };
+    } catch (error) {
+      // Handle the case where the parameter does not exist
+      if (error.name === 'ParameterNotFound') {
+        throw new HttpException('Parameter not found.', HttpStatus.NOT_FOUND);
+      }
+      // Other AWS errors
+      throw new HttpException(
+        `Failed to delete SSM parameter: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
