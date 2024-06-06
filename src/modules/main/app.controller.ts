@@ -95,8 +95,9 @@ export class AppController {
         results.push({ key, response });
       }
       return {
+        statusCode: results['$metadata']['httpStatusCode'],
         message: 'Parameters created or updated successfully',
-        details: results
+        key: results.keys(),
       };
     } catch (error) {
       throw new HttpException(
