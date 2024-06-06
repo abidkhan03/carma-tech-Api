@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update SSM Parameters</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            width: 50%;
+            margin: auto;
+        }
+        form > div {
+            margin-bottom: 10px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        #addParam {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Update SSM Parameters</h1>
+        <form id="paramsForm">
+            <div class="param-group">
+                <input type="text" name="parameterName" placeholder="Parameter Name" required>
+                <input type="text" name="parameterValue" placeholder="Value" required>
+            </div>
+            <button type="button" id="addParam">Add More Parameters</button>
+            <button type="button" id="submitBtn">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('addParam').addEventListener('click', function() {
+            var newParam = document.createElement('div');
+            newParam.className = 'param-group';
+            newParam.innerHTML = '<input type="text" name="parameterName" placeholder="Parameter Name" required>' +
+                                 '<input type="text" name="parameterValue" placeholder="Value" required>';
+            var form = document.getElementById('paramsForm');
+            form.insertBefore(newParam, this);
+        });
+
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            const params = {};
+            document.querySelectorAll('.param-group').forEach(group => {
+                const key = group.querySelector('[name="parameterName"]').value;
+                const value = group.querySelector('[name="parameterValue"]').value;
+                params[key] = value;
+            });
+
+            fetch('<%= school_api %>params', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(params),
+                mode: 'cors',
+            })
+            .then(response => response.json())
+            .then(data => alert('Parameters updated successfully!'))
+            .then(data => console.log(data))
+            .catch(error => alert('Error updating parameters: ' + error));
+        });
+    </script>
+</body>
+</html>

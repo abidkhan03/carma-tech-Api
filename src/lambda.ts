@@ -13,20 +13,33 @@ import { join } from 'path';
 
 //Declare a ReplaySubject to store the serverlessExpress instance.
 const serverSubject = new ReplaySubject<Handler>()
+const lambdaUrlPattern = /^https:\/\/[a-z0-9]+\.execute-api\.[a-z0-9-]+\.amazonaws\.com(\/prod|\/staging|\/dev)?\/?$/;
+
+function isAllowedOrigin(origin: string): boolean {
+  return lambdaUrlPattern.test(origin);
+}
 
 async function bootstrap(): Promise<Handler> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   setupSwagger(app);
   app.enableCors();
+  //   {
+  //   origin: ['https://nohs07gktc.execute-api.us-east-2.amazonaws.com/prod/', 'https://v7vpkpqjm2.execute-api.us-east-2.amazonaws.com/prod/params'],
+  //   // origin: true,
+  //   methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+  //   allowedHeaders: 'Content-Type, Authorization, X-Requested-With, Accept',
+  //   preflightContinue: false,
+  //   optionsSuccessStatus: 204 // Some legacy browsers (IE11, various SmartTVs) choke on 204
+  // });
   app.useGlobalPipes(
     new TrimStringsPipe(),
     new ValidationPipe({ whitelist: true }),
   );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
-   // Set view engine
-   app.setViewEngine('ejs');
-   app.setBaseViewsDir(join(__dirname, '..', 'views'));
+  // Set view engine
+  app.setViewEngine('ejs');
+  app.setBaseViewsDir(join(__dirname, '..', 'views'));
 
   await app.init();
   const expressApp = app.getHttpAdapter().getInstance();
@@ -39,9 +52,9 @@ bootstrap().then(server => serverSubject.next(server))
 
 
 export const handler: Handler = async (event: any, context: Context, callback: Callback) => {
-    //Convert the ReplaySubject to a Promise.
-    //Wait for bootstrap to finish, then start handling requests.
-    const server = await firstValueFrom(serverSubject)
-    return server(event, context, callback);
+  //Convert the ReplaySubject to a Promise.
+  //Wait for bootstrap to finish, then start handling requests.
+  const server = await firstValueFrom(serverSubject)
+  return server(event, context, callback);
 };
 
