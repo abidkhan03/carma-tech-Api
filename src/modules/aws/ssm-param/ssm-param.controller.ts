@@ -18,7 +18,7 @@ export class SsmParamController {
         this.ssmClient = new SSMClient({ region: this.configService.get<string>('REGION') });
     }
 
-    @Get()
+    @Get('/all')
     async getParams(@Query('path') path: string = '/') {
         try {
             const command = new GetParametersByPathCommand({
@@ -64,8 +64,8 @@ export class SsmParamController {
                 };
                 const command = new PutParameterCommand(input);
                 const response = await this.ssmClient.send(command);
-                console.log('Updated Parameter:', response);
                 results.push({ key, response });
+                console.log('results Parameter:', results);
             }
             return {
                 statusCode: 200,
