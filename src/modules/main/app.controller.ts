@@ -55,83 +55,74 @@ export class AppController {
     };
   }
 
-  // @Get('ssm-parameters')
-  // @Render('ssm-parameters') // renders the ssm-parameters.ejs file
-  // createOrUpdateParams() {
-  //   return {
-  //     school_api: this.configService.get<string>('DAILY_SCHOOL_FOOD_API_URL'),
-  //     region: this.configService.get<string>('REGION'),
+  // @Post('ssm-params')
+  // async createOrUpdateParams(@Body() params: Record<string, any>) {
+  //   try {
+  //     if (Object.keys(params).length === 0) {
+  //       throw new HttpException(
+  //         'No parameters provided. Please enter at least one parameter name and value.',
+  //         HttpStatus.BAD_REQUEST
+  //       );
+  //     }
+  //     // Iterate over the object keys and values to create/update parameters
+  //     const results = [];
+  //     for (const [key, value] of Object.entries(params)) {
+  //       if (!key.trim() || !value.trim()) {
+  //         throw new HttpException(
+  //           'Both name and value are required for each parameter. Please enter both.',
+  //           HttpStatus.BAD_REQUEST
+  //         );
+  //       }
+  //       const input = {
+  //         Name: key,
+  //         Value: value,
+  //         Type: 'String' as ParameterType,
+  //         Overwrite: true,
+  //       };
+  //       const command = new PutParameterCommand(input);
+  //       const response = await this.ssmClient.send(command);
+  //       console.log('Updated Parameter:', response);
+  //       results.push({ key, response });
+  //     }
+  //     return {
+  //       statusCode: 200,
+  //       message: 'Parameters created or updated successfully',
+  //     };
+  //   } catch (error) {
+  //     throw new HttpException(
+  //       `Failed to create or update SSM parameters: ${error.message}`,
+  //       HttpStatus.INTERNAL_SERVER_ERROR
+  //     );
   //   }
   // }
 
-  @Post('ssm-params')
-  async createOrUpdateParams(@Body() params: Record<string, any>) {
-    try {
-      if (Object.keys(params).length === 0) {
-        throw new HttpException(
-          'No parameters provided. Please enter at least one parameter name and value.',
-          HttpStatus.BAD_REQUEST
-        );
-      }
-      // Iterate over the object keys and values to create/update parameters
-      const results = [];
-      for (const [key, value] of Object.entries(params)) {
-        if (!key.trim() || !value.trim()) {
-          throw new HttpException(
-            'Both name and value are required for each parameter. Please enter both.',
-            HttpStatus.BAD_REQUEST
-          );
-        }
-        const input = {
-          Name: key,
-          Value: value,
-          Type: 'String' as ParameterType,
-          Overwrite: true,
-        };
-        const command = new PutParameterCommand(input);
-        const response = await this.ssmClient.send(command);
-        console.log('Updated Parameter:', response);
-        results.push({ key, response });
-      }
-      return {
-        statusCode: 200,
-        message: 'Parameters created or updated successfully',
-      };
-    } catch (error) {
-      throw new HttpException(
-        `Failed to create or update SSM parameters: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
+  // @Delete('ssm-params/:name')
+  // async deleteParam(@Param('name') name: string) {
+  //   if (!name.trim()) {
+  //     throw new HttpException(
+  //       'Parameter name is required and cannot be empty.',
+  //       HttpStatus.BAD_REQUEST
+  //     );
+  //   }
 
-  @Delete('ssm-params/:name')
-  async deleteParam(@Param('name') name: string) {
-    if (!name.trim()) {
-      throw new HttpException(
-        'Parameter name is required and cannot be empty.',
-        HttpStatus.BAD_REQUEST
-      );
-    }
+  //   const input = { Name: name };
+  //   const command = new DeleteParameterCommand(input);
 
-    const input = { Name: name };
-    const command = new DeleteParameterCommand(input);
-
-    try {
-      const response = await this.ssmClient.send(command);
-      return { message: 'Parameter deleted successfully', response };
-    } catch (error) {
-      // Handle the case where the parameter does not exist
-      if (error.name === 'ParameterNotFound') {
-        throw new HttpException('Parameter not found.', HttpStatus.NOT_FOUND);
-      }
-      // Other AWS errors
-      throw new HttpException(
-        `Failed to delete SSM parameter: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
+  //   try {
+  //     const response = await this.ssmClient.send(command);
+  //     return { message: 'Parameter deleted successfully', response };
+  //   } catch (error) {
+  //     // Handle the case where the parameter does not exist
+  //     if (error.name === 'ParameterNotFound') {
+  //       throw new HttpException('Parameter not found.', HttpStatus.NOT_FOUND);
+  //     }
+  //     // Other AWS errors
+  //     throw new HttpException(
+  //       `Failed to delete SSM parameter: ${error.message}`,
+  //       HttpStatus.INTERNAL_SERVER_ERROR
+  //     );
+  //   }
+  // }
 
 }
 

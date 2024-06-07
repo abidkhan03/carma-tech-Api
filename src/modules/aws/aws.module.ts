@@ -4,10 +4,11 @@ import { HttpModule } from '@nestjs/axios';
 import { SnsService } from './sns/sns.service';
 import { ServicesCostController } from './services-cost/services-cost.controller';
 import { ServiceCostService } from './services-cost/service-cost.service';
+import { SsmParamController } from './ssm-param/ssm-param.controller';
 
 @Module({
   imports: [HttpModule],
-  controllers: [SnsController, ServicesCostController],
+  controllers: [SnsController, ServicesCostController, SsmParamController],
   providers: [SnsService, ServiceCostService],
 })
 export class AwsModule {}
