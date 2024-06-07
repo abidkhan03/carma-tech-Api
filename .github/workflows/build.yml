@@ -46,6 +46,7 @@ jobs:
           mysql-version: '8.0'
           user: 'test'
           password: 'password'
+          my-cnf: '[mysqlId] default_authentication_plugin=mysql_native_password'
       - name: Create a test database
         run: mysql -uroot -h127.0.0.1 -e 'CREATE DATABASE test;'
       - name: Load dotenv
