@@ -18,7 +18,7 @@ export class SsmParamController {
         this.ssmClient = new SSMClient({ region: this.configService.get<string>('REGION') });
     }
 
-    @Get('/all')
+    @Get()
     async getParams(@Query('path') path: string = '/') {
         try {
             const command = new GetParametersByPathCommand({
@@ -29,7 +29,11 @@ export class SsmParamController {
             console.log('command: ', command)
             const response = await this.ssmClient.send(command);
             console.log('Parameters response: ', response);
-            return response.Parameters;
+            const simplifiedParameters = response.Parameters.map(param => ({
+                Name: param.Name,
+                Value: param.Value
+            }));
+            return simplifiedParameters;
         } catch (error) {
             throw new HttpException(
                 `Failed to list SSM parameters: ${error.message}`,
