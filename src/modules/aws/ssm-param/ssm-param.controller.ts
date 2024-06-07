@@ -1,14 +1,39 @@
-import { DeleteParameterCommand, ParameterType, PutParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
-import { Body, Controller, Delete, HttpException, HttpStatus, Param, Post } from '@nestjs/common';
+import {
+    DeleteParameterCommand,
+    PutParameterCommand,
+    GetParametersByPathCommand,
+    ParameterType,
+    SSMClient
+} from '@aws-sdk/client-ssm';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Query } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 @Controller('ssm-params')
 export class SsmParamController {
+    private ssmClient: SSMClient;
     constructor(
-        private ssmClient: SSMClient,
         private readonly configService: ConfigService,
     ) {
         this.ssmClient = new SSMClient({ region: this.configService.get<string>('REGION') });
+    }
+
+    @Get()
+    async getParams(@Query('path') path: string = '/') {
+        try {
+            const command = new GetParametersByPathCommand({
+                Path: path,
+                Recursive: true,
+                WithDecryption: true,
+            });
+            const response = await this.ssmClient.send(command);
+            console.log('Parameters response: ', response);
+            return response.Parameters;
+        } catch (error) {
+            throw new HttpException(
+                `Failed to list SSM parameters: ${error.message}`,
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
     }
 
     @Post()
