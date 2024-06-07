@@ -2,6 +2,7 @@ import {
     DeleteParameterCommand,
     PutParameterCommand,
     GetParametersByPathCommand,
+    GetParametersCommand,
     ParameterType,
     SSMClient
 } from '@aws-sdk/client-ssm';
@@ -25,6 +26,7 @@ export class SsmParamController {
                 Recursive: true,
                 WithDecryption: true,
             });
+            console.log('command: ', command)
             const response = await this.ssmClient.send(command);
             console.log('Parameters response: ', response);
             return response.Parameters;
